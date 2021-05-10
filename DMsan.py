@@ -203,18 +203,69 @@ class MCDA:
     design_OM_alt_3 = 1
     
     #!!!!!!...Stetson could work on this section
-        #flexibility
+        #flexibility 
             #design_pop_flex - the impact on cost with population changes
+            # 1 - 3 where:
+                # 1 is can handle less than 10% change in population, 
+                # 2 is can handle 10 - 25% change in population, 
+                # 3 is can handle more than 25% change in population.
+                #how to handle decrease in population? 
+                #metcalf and eddy safety factors
+    # alt_1 designed for 50,000 and is serving 30,000        
+    desing_pop_flex_alt_1 = 3
+    # alt_2 and alt_3 designed for up to 55,000 and serving 45,000???
+    desing_pop_flex_alt_2 = 2
+    desing_pop_flex_alt_3 = 2 
+    
+        #flexibility to water table rise, wind damage, or flooding
+        #for water table rise consider below ground components
+        #for wind damage or flooding consider above ground componenets
+        #  1 - 2 where:
+            # 1 system has components underground or above ground
+            # 2 system has components underground and above ground
             
-    #desing_pop_flex_alt_1 = create calculation 
-    #desing_pop_flex_alt_2 = create calculation 
-    #desing_pop_flex_alt_3 = create calculation 
+        #  sum of costs to rebuild above and below ground components where:
+            # [USD / cost to rebuild from water table rise]
+            # [USD / cost to rebuild from flood/wind damage]  
+            
+        #  fraction of capital costs to rebuild above and below ground components after water table rise 1 m,
+        #  by extreme/high wind speeds due to cyclonic activity (eg. wind damage from hurricanes, typhoons, and other wind activity),
+        #  or flooding (overflowing of the normal confines of a stream or other body of water, or the accumulation of water over areas not normally submerged):
+            # 1 is more than 50% captial costs required to rebuild 
+            # 2 is 10 - 50% captial costs required to rebuild
+            # 3 is 10% or less captial costs required to rebuild 
+    # alt_1 has latrines (below ground) and fairly robust centralized treatment       
+    design_climate_flex = 2
+    # alt_2 has latrines (below ground) and fairly robust centralized treatment  
+    design_climate_flex = 2
+    # alt_3 has only above ground containment and fairly robust centralized treatment  
+    design_climate_flex = 3
     
-        #flexibility to water table rise and/or flood (above ground sanitation)
-    #design_climate_flex = create calculation
-    #design_climate_flex = create calculation
-    #design_climate_flex = create calculation
-    
+            #design_temp_flex - the impact of temperature on treatment
+            #consider removing if double dipping with rel
+            # 1 - 3 where:
+                # 1 can handle no change in temperature (highly dependant on biological treatment), 
+                # 2 can handle some change in temperature (dependant on biological treatment), 
+                # 3 can handle significant changes in temperature (not dependant on biological treatment).
+            
+    desing_temp_flex_alt_1 = 2
+    desing_temp_flex_alt_2 = 2
+    desing_temp_flex_alt_3 = 2
+            
+            #design_energy_flex - energy demand and/or ability to withstand blackouts  
+            #alt_2 higher energy usage
+            
+            #design_drought_flex - the impact of drought on treatment
+            # 1 - 3 where:
+                # 1 highly dependant on water, 
+                # 2 some dependance on water, 
+                # 3 no dependance on water.
+                # user interface or constructed wetlands
+       
+    desing_drought_flex_alt_1 = 3
+    desing_drought_flex_alt_2 = 3
+    desing_drought_flex_alt_3 = 3
+
     
     #!!!!!!...Stetson could work on this section
                  
