@@ -310,7 +310,6 @@ n=10
  
 #Find the average
 Avg_C_T_W = C_T_W_a / n
-    
             
 #Step 4 Find the Consistancy ratio
 #Step 4a: Calculate the weighted matrix by multiplying the matrix by the 
