@@ -38,7 +38,7 @@ X = 0.00001
 #Subcriteria: End-user acceptability
 ##Input community preference ##
 #Local Weight Indicator S3: Disposal convenience preference for user
-#realtes to the preference for disposal requirements on the user end
+#relates to the preference for disposal requirements on the user end
 #if management is responsible for disposal, then insert X
 # 0 being low preference to frequency of disposal to 100 being
     #high preference for frequency of disposal
@@ -46,60 +46,60 @@ s3 = X
 
 ## Input community preference ##
 #Local Weight Indicator S4: Cleaning preference
-#realtes to the preference for cleaning requirements
+#relates to the preference for cleaning requirements
 # 0 being low preference to frequency of cleaning to 100 being
     #high preference for frequency of cleaning
 s4 = 44
 
 ## Input community preference ##
 #Local Weight Indicator S5: Privacy preference
-#realtes to the preference for privacy (# of households sharing a system)
+#relates to the preference for privacy (# of households sharing a system)
 # 0 being low preference for privacy to 100 being
     #high preference for privacy
 s5 = 47
 
 ## Input community preference ##
 #Local Weight Indicator S6: Odor preference
-#realtes to the preference of odor with
+#relates to the preference of odor with
 # 0 being low preference for odor to 100 being high preference for odor
 s6 = 22
 
 ## Input community preference ##
 #Local Weight Indicator S7: Noise preference
-#realtes to the preference of noise with
+#relates to the preference of noise with
 # 0 being low preference for odor to 100 being high preference for noise
 s7 = X
 
 ## Input community preference ##
 #Local Weight Indicator S8: PPE preference/familiarity
-#realtes to the preference of PPE with
+#relates to the preference of PPE with
 # 0 being low importance for PPE to 100 being high importance for PPE
 s8 = X
 
 ## Input community preference ##
 #Local Weight Indicator S9: Security preference
-#realtes to the preference of security with
+#relates to the preference of security with
 # 0 being low preference for secutiy to 100 being high preference for odor
 s9 = X
 
 #Subcriteria: Management Acceptability
 ## Input management (i.e., landlord) preference ##
 #Local Weight Indicator S10: Disposal convenience preference
-#realtes to the preference for disposal requirements
+#relates to the preference for disposal requirements
 # 0 being low importance to frequency of disposal to 100 being
     #high importance for frequency of disposal
 s10 = X
 
 ## Input management preference ##
 #Local Weight Indicator S11: Cleaning preference
-#realtes to the preference for cleaning requirements
+#relates to the preference for cleaning requirements
 # 0 being low importance to frequency of cleaning to 100 being
     #high importance for frequency of cleaning
 s11 = X
 
 ## Input management preference ##
 #Local Weight Indicator S12: PPE preference/familiarity
-#realtes to the preference of PPE with
+#relates to the preference of PPE with
 # 0 being low importance for PPE to 100 being high importance for PPE
 s12 = X
 
@@ -108,14 +108,14 @@ s12 = X
 #Criteria: Technical
 #Subcriteria: Resilience
 #Local Weight Indicator T1: Extent of training
-#realtes to how much training is available to train users and personnel
+#relates to how much training is available to train users and personnel
 training = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'ExtentStaffTraining', index_col= 'Country')
 t1 = (training.loc[location, 'Value'])
 T1 = (100 - (t1/7*100))
 
 #Local Weight Indicator T2: Population with access to imporved sanitation
-#realtes to how available improved sanitation is in the region in case a system fails
+#relates to how available improved sanitation is in the region in case a system fails
 sanitation_availability = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'Sanitation', index_col= 'Country')
 t2 = (sanitation_availability.loc[location, 'Value - Improved Sanitation'])
@@ -123,56 +123,56 @@ T2 = (100 - t2)
 
 #Subcriteria: Feasibility
 #Local Weight Indicator T3: Accessibility to technology
-#realtes to how easily the region can access technology
+#relates to how easily the region can access technology
 tech_absorption = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'TechAbsorption', index_col= 'Country')
 t3 = (tech_absorption.loc[location, 'Value'])
 T3 = (100-(t3/7*100))
 
 #Local Weight Indicator T4: Transporation infrastructure
-#realtes to the quality of transporation infrastructure for transport of waste
+#relates to the quality of transporation infrastructure for transport of waste
 road_quality = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'RoadQuality', index_col= 'Country')
 t4 = (road_quality.loc[location, 'Value'])
 T4 = (100-(t4/7*100))
 
 #Local Weight Indicator T5: Construction skills available
-#realtes to the construction expertise available
+#relates to the construction expertise available
 construction = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'Construction', index_col= 'Country')
 t5 = (construction.loc[location, 'Value'])
 T5 = (100 - (t5/40.5*100))
 
 #Local Weight Indicator T6: O&M experitse available
-#realtes to the O&M expertise available
+#relates to the O&M expertise available
 OM_expertise = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'AvailableScientistsEngineers', index_col= 'Country')
 t6 = (OM_expertise.loc[location, 'Value'])
 T6 = (100-(t6/7*100))
 
 #Local Weight Indicator T7: Population growth trajectory
-#realtes to the population flexibility
+#relates to the population flexibility
 pop_growth = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'PopGrowth', index_col= 'Country')
 t7 = (pop_growth.loc[location, 'Value'])
 T7 = (t7/4.5*100)
 
 #Local Weight Indicator T8:
-#realtes to the climate risk
+#relates to the climate risk
 climate_risk = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'ClimateRiskIndex', index_col= 'Country')
 t8 = (climate_risk.loc[location, 'Value'])
 T8 = (100-(t8/118*100))
 
 #Local Weight Indicator T9:
-#realtes to the temperature anomalies
+#relates to the temperature anomalies
 temperature_anomalies = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'TemperatureAnomalies', index_col= 'Country')
 t9 = (temperature_anomalies.loc[location, 'Value'])
 T9 = (100-(t9/3.6*100))
 
 #Local Weight Indicator T10:
-#realtes to the water stress
+#relates to the water stress
 water_stress = pd.read_excel(data_path+'/location.xlsx',
                                    sheet_name = 'WaterStress', index_col= 'Country')
 t10 = (water_stress.loc[location, 'Value'])
@@ -182,11 +182,56 @@ T11 = 60
 T12 = 50
 
 #Criteria: Environmental
-#Subcriteria: LCA
-#!!!!! #Yalin - see the separate env.py
 
 #Subcriteria: Resource Recovery Potential
-#!!!!! #Hannah
+
+#Local Weight Indicator Env1:
+#relates to the water stress (Water Recovery)
+
+Env1 = T10
+
+#Local Weight Indicator Env2:
+#relates to nitrogen (N) fertilizer fulfillment (Nutrient Recovery)
+
+n_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='NFertilizerFulfillment',
+                                         index_col='Country')
+env2 = (n_fertilizer_fulfillment.loc[location, 'Value'])
+Env2 = (1 - (env2/100)) * 100
+
+#Local Weight Indicator Env3:
+#relates to phosphorus (P) fertilizer fulfillment (Nutrient Recovery)
+
+p_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='PFertilizerFulfillment',
+                                         index_col='Country')
+env3 = (p_fertilizer_fulfillment.loc[location, 'Value'])
+Env3 = (1 - (env3/100)) * 100
+
+#Local Weight Indicator Env4:
+#relates to potassium (K) fertilizer fulfillment (Nutrient Recovery)
+
+k_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='KFertilizerFulfillment',
+                                         index_col='Country')
+env4 = (k_fertilizer_fulfillment.loc[location, 'Value'])
+Env4 = (1 - (env4/100)) * 100
+
+#Local Weight Indicator Env5:
+#relates to renewable energy consumption (Energy Recovery)
+
+renewable_energy = pd.read_excel(data_path+'/location.xlsx', sheet_name='RenewableEnergyConsumption',
+                                         index_col='Country')
+env5 = (renewable_energy.loc[location, 'Value'])
+Env5 = (1 - (env5/100)) * 100
+
+#Local Weight Indicator Env6:
+#relates to infrastructure quality (Supply Chain Infrastructure)
+
+infrastructure = pd.read_excel(data_path+'/location.xlsx', sheet_name='InfrastructureQuality',
+                                         index_col='Country')
+env6 = (infrastructure.loc[location, 'Value'])
+Env6 = (1 - (env6/100)) * 100
+
+#Subcriteria: LCA
+#!!!!! #Yalin - see the separate env.py
 
 #Criteria: Social
 #Subcriteria: Job Creation
