@@ -228,7 +228,7 @@ Env5 = (1 - (env5/100)) * 100
 infrastructure = pd.read_excel(data_path+'/location.xlsx', sheet_name='InfrastructureQuality',
                                          index_col='Country')
 env6 = (infrastructure.loc[location, 'Value'])
-Env6 = (1 - (env6/100)) * 100
+Env6 = (1 - (env6/7)) * 100
 
 #Subcriteria: LCA
 #!!!!! #Yalin - see the separate env.py
