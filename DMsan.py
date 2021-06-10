@@ -3,7 +3,7 @@
 Modified on Tue May 4
 
 @author:
-    torimorgan,
+    torimorgan <vlmorgan@illinois.edu>,
     hannahlohman,
     stetsonrowles,
     Yalin Li <zoe.yalin.li@gmail.com>
@@ -179,6 +179,10 @@ t10 = (water_stress.loc[location, 'Value'])
 T10 = (100-(t10/4.82*100))
 
 #Criteria: Environmental
+#!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
+#LCA1 = X
+#LCA2 = X
+#LCA3 = X
 
 #Subcriteria: Resource Recovery Potential
 
@@ -382,7 +386,7 @@ CI_T = (delta_maxT - n) / (n - 1)
 #Step 4e: Diovide the Consistancy index by the Random index
 
                             #RI Values
-#n=5;RI=1.12 n=6;RI=1.24 n=7;RI=1.32 n=8;RI=1.41 n=9;RI=1.45 n=10;RI=1.49
+#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
 #If CR < 0.1 then our matrix is consistant
 RI = 1.49
 CR_T = CI_T / RI
@@ -449,10 +453,77 @@ CI_Env = (delta_maxEnv - n) / (n - 1)
 #Step 4e: Diovide the Consistancy index by the Random index
 
                             #RI Values
-#n=5;RI=1.12 n=6;RI=1.24 n=7;RI=1.32 n=8;RI=1.41 n=9;RI=1.45 n=10;RI=1.49
+#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
 #If CR < 0.1 then our matrix is consistant
 RI = 1.24
 CR_Env = CI_Env / RI
+
+# Step 1: Assign criteria weights in matrix
+
+LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
+         [LCA2/LCA1, LCA2/LCA2, LCA2/LCA3, LCA2/LCA4, LCA2/LCA5, LCA2/LCA6],
+         [LCA3/LCA1, LCA3/LCA2, LCA3/LCA3, LCA3/LCA4, LCA3/LCA5, LCA3/LCA6],
+         [LCA4/LCA1, LCA4/LCA2, LCA4/LCA3, LCA4/LCA4, LCA4/LCA5, LCA4/LCA6],
+         [LCA5/LCA1, LCA5/LCA2, LCA5/LCA3, LCA5/LCA4, LCA5/LCA5, LCA5/LCA6],
+         [LCA6/LCA1, LCA6/LCA2, LCA6/LCA3, LCA6/LCA4, LCA6/LCA5, LCA6/LCA6]]
+
+LCA_W_a = np.array(LCA_W)
+
+                ##Part A: Find Criteria Weights and Consistancy##
+#Step 1: Sum the columns
+ #sum of columns for Criteria Weight One Matrix
+def column_sum(LCA_W):
+    return[sum(i) for i in zip(*LCA_W)]
+    global LCA_W_col_sum
+LCA_W_col_sum = np.array(column_sum(LCA_W))
+
+
+#Step 2: Normalize the matrix
+LCA_W_N = LCA_W_a / LCA_W_col_sum
+
+
+#Step 3: Calculate Criteria Weights by finding the row averages
+C_LCA_W =[sum(i) for i in LCA_W_N]
+
+#convert to an array
+#adding brackets to make 2-D array
+C_LCA_W_a = np.array([C_LCA_W])
+
+####have a function that counts the columns and inputs the value as n
+#number of indicators
+n=6
+
+#Find the average
+Avg_C_LCA_W = C_LCA_W_a / n
+
+#Step 4 Find the Consistancy ratio
+#Step 4a: Calculate the weighted matrix by multiplying the matrix by the
+        #criteria weight
+WM_LCA = np.matmul(LCA_W_a.LCA, C_LCA_W_a.LCA)
+
+#Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
+WS_LCA =[sum(i) for i in WM_LCA]
+
+#convert to an array
+WS_LCA_a = np.array(WS_LCA)
+
+
+#Step 4c: divide the weighted sum value by the criteria weights
+R_LCA = WS_LCA_a / C_LCA_W
+
+#Step 4d: Find the Consistancy index by calculateing (delta max - n)/(n-1)
+delta_maxLCA = (sum(R_LCA))/n
+
+CI_LCA = (delta_maxLCA - n) / (n - 1)
+
+
+#Step 4e: Diovide the Consistancy index by the Random index
+
+                            #RI Values
+#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
+#If CR < 0.1 then our matrix is consistant
+RI = 1.24
+CR_LCA = CI_LCA / RI
 
 # Step 1: Assign criteria weights in matrix
 
@@ -521,7 +592,7 @@ CI_S = (delSa_maxS - n) / (n - 1)
 #SSep 4e: Diovide She ConsisSancy index by She Random index
 
                             #RI Values
-#n=5;RI=1.12 n=6;RI=1.24 n=7;RI=1.32 n=8;RI=1.41 n=9;RI=1.45 n=10;RI=1.49
+#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
 #If CR < 0.1 Shen our maSrix is consisSanS
-RI = 1.49
+RI = 1.54
 CR_S = CI_S / RI
