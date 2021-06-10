@@ -4,7 +4,7 @@ Modified on Tue May 4
 
 @author:
     torimorgan <vlmorgan@illinois.edu>,
-    hannahlohman,
+    Hannah Lohman <hlohman94@gmail.com>,
     stetsonrowles,
     Yalin Li <zoe.yalin.li@gmail.com>
 
@@ -12,312 +12,291 @@ test change
 """
 
                             ## MCDA Model ##
-#from __future__ import division #floating point division in Py2x
+# from __future__ import division #floating point division in Py2x
 import numpy as np
-#import math
+# import math
 import pandas as pd
 import country_converter as coco
 import os
 data_path = os.path.abspath(os.path.dirname('location.xlsx'))
 
-#class MCDA:
+# class MCDA:
 
-#Step 1: Identify Location
+# Step 1: Identify Location
 
-##Input location by country in the brackets ##
+# ## Input location by country in the brackets ##
 location = ['Uganda']
 
-#converting location to match the database
+# converting location to match the database
 location = coco.convert(names=location, to='name_short')
 
-#mannual inputs defined here
+# manual inputs defined here
 
 X = 0.00001
 
-#Criteria: Social
-#Subcriteria: End-user acceptability
-##Input community preference ##
-#Local Weight Indicator S3: Disposal convenience preference for user
-#relates to the preference for disposal requirements on the user end
-#if management is responsible for disposal, then insert X
-# 0 being low preference to frequency of disposal to 100 being
-    #high preference for frequency of disposal
+# Criteria: Social
+# Sub-criteria: End-user acceptability
+# ## Input community preference ##
+# Local Weight Indicator S3: Disposal convenience preference for user
+# relates to the preference for disposal requirements on the user end
+# if management is responsible for disposal, then insert X
+# 0 being low preference to frequency of disposal to 100 being high preference for frequency of disposal
 s3 = X
 
-## Input community preference ##
-#Local Weight Indicator S4: Cleaning preference
-#relates to the preference for cleaning requirements
-# 0 being low preference to frequency of cleaning to 100 being
-    #high preference for frequency of cleaning
+# ## Input community preference ##
+# Local Weight Indicator S4: Cleaning preference
+# relates to the preference for cleaning requirements
+# 0 being low preference to frequency of cleaning to 100 being high preference for frequency of cleaning
 s4 = 44
 
-## Input community preference ##
-#Local Weight Indicator S5: Privacy preference
-#relates to the preference for privacy (# of households sharing a system)
-# 0 being low preference for privacy to 100 being
-    #high preference for privacy
+# ## Input community preference ##
+# Local Weight Indicator S5: Privacy preference
+# relates to the preference for privacy (# of households sharing a system)
+# 0 being low preference for privacy to 100 being high preference for privacy
 s5 = 47
 
-## Input community preference ##
-#Local Weight Indicator S6: Odor preference
-#relates to the preference of odor with
+# ## Input community preference ##
+# Local Weight Indicator S6: Odor preference
+# relates to the preference of odor with
 # 0 being low preference for odor to 100 being high preference for odor
 s6 = 22
 
-## Input community preference ##
-#Local Weight Indicator S7: Noise preference
-#relates to the preference of noise with
+# ## Input community preference ##
+# Local Weight Indicator S7: Noise preference
+# relates to the preference of noise with
 # 0 being low preference for odor to 100 being high preference for noise
 s7 = X
 
-## Input community preference ##
-#Local Weight Indicator S8: PPE preference/familiarity
-#relates to the preference of PPE with
+# ## Input community preference ##
+# Local Weight Indicator S8: PPE preference/familiarity
+# relates to the preference of PPE with
 # 0 being low importance for PPE to 100 being high importance for PPE
 s8 = X
 
-## Input community preference ##
-#Local Weight Indicator S9: Security preference
-#relates to the preference of security with
+# ## Input community preference ##
+# Local Weight Indicator S9: Security preference
+# relates to the preference of security with
 # 0 being low preference for secutiy to 100 being high preference for odor
 s9 = X
 
-#Subcriteria: Management Acceptability
-## Input management (i.e., landlord) preference ##
-#Local Weight Indicator S10: Disposal convenience preference
-#relates to the preference for disposal requirements
-# 0 being low importance to frequency of disposal to 100 being
-    #high importance for frequency of disposal
+# Sub-criteria: Management Acceptability
+# ## Input management (i.e., landlord) preference ##
+# Local Weight Indicator S10: Disposal convenience preference
+# relates to the preference for disposal requirements
+# 0 being low importance to frequency of disposal to 100 being high importance for frequency of disposal
 s10 = X
 
-## Input management preference ##
-#Local Weight Indicator S11: Cleaning preference
-#relates to the preference for cleaning requirements
-# 0 being low importance to frequency of cleaning to 100 being
-    #high importance for frequency of cleaning
+# ## Input management preference ##
+# Local Weight Indicator S11: Cleaning preference
+# relates to the preference for cleaning requirements
+# 0 being low importance to frequency of cleaning to 100 being high importance for frequency of cleaning
 s11 = X
 
-## Input management preference ##
-#Local Weight Indicator S12: PPE preference/familiarity
-#relates to the preference of PPE with
+# ## Input management preference ##
+# Local Weight Indicator S12: PPE preference/familiarity
+# relates to the preference of PPE with
 # 0 being low importance for PPE to 100 being high importance for PPE
 s12 = X
 
 
-                            #Local Weights#
-#Criteria: Technical
-#Subcriteria: Resilience
-#Local Weight Indicator T1: Extent of training
-#relates to how much training is available to train users and personnel
-training = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'ExtentStaffTraining', index_col= 'Country')
+                            # Local Weights #
+# Criteria: Technical
+# Sub-criteria: Resilience
+# Local Weight Indicator T1: Extent of training
+# relates to how much training is available to train users and personnel
+training = pd.read_excel(data_path+'/location.xlsx', sheet_name='ExtentStaffTraining', index_col='Country')
 t1 = (training.loc[location, 'Value'])
 T1 = (100 - (t1/7*100))
 
-#Local Weight Indicator T2: Population with access to imporved sanitation
-#relates to how available improved sanitation is in the region in case a system fails
-sanitation_availability = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'Sanitation', index_col= 'Country')
+# Local Weight Indicator T2: Population with access to imporved sanitation
+# relates to how available improved sanitation is in the region in case a system fails
+sanitation_availability = pd.read_excel(data_path+'/location.xlsx', sheet_name='Sanitation', index_col='Country')
 t2 = (sanitation_availability.loc[location, 'Value - Improved Sanitation'])
 T2 = (100 - t2)
 
-#Subcriteria: Feasibility
-#Local Weight Indicator T3: Accessibility to technology
-#relates to how easily the region can access technology
-tech_absorption = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'TechAbsorption', index_col= 'Country')
+# Sub-criteria: Feasibility
+# Local Weight Indicator T3: Accessibility to technology
+# relates to how easily the region can access technology
+tech_absorption = pd.read_excel(data_path+'/location.xlsx', sheet_name='TechAbsorption', index_col='Country')
 t3 = (tech_absorption.loc[location, 'Value'])
 T3 = (100-(t3/7*100))
 
-#Local Weight Indicator T4: Transporation infrastructure
-#relates to the quality of transporation infrastructure for transport of waste
-road_quality = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'RoadQuality', index_col= 'Country')
+# Local Weight Indicator T4: Transportation infrastructure
+# relates to the quality of transportation infrastructure for transport of waste
+road_quality = pd.read_excel(data_path+'/location.xlsx', sheet_name='RoadQuality', index_col='Country')
 t4 = (road_quality.loc[location, 'Value'])
 T4 = (100-(t4/7*100))
 
-#Local Weight Indicator T5: Construction skills available
-#relates to the construction expertise available
-construction = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'Construction', index_col= 'Country')
+# Local Weight Indicator T5: Construction skills available
+# relates to the construction expertise available
+construction = pd.read_excel(data_path+'/location.xlsx', sheet_name='Construction', index_col='Country')
 t5 = (construction.loc[location, 'Value'])
 T5 = (100 - (t5/40.5*100))
 
-#Local Weight Indicator T6: O&M experitse available
-#relates to the O&M expertise available
-OM_expertise = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'AvailableScientistsEngineers', index_col= 'Country')
+# Local Weight Indicator T6: O&M expertise available
+# relates to the O&M expertise available
+OM_expertise = pd.read_excel(data_path+'/location.xlsx', sheet_name='AvailableScientistsEngineers', index_col='Country')
 t6 = (OM_expertise.loc[location, 'Value'])
 T6 = (100-(t6/7*100))
 
-#Local Weight Indicator T7: Population growth trajectory
-#relates to the population flexibility
-pop_growth = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'PopGrowth', index_col= 'Country')
+# Local Weight Indicator T7: Population growth trajectory
+# relates to the population flexibility
+pop_growth = pd.read_excel(data_path+'/location.xlsx', sheet_name='PopGrowth', index_col='Country')
 t7 = (pop_growth.loc[location, 'Value'])
 T7 = (t7/4.5*100)
 
-#Local Weight Indicator T8:
-#relates to the climate risk
-climate_risk = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'ClimateRiskIndex', index_col= 'Country')
+# Local Weight Indicator T8:
+# relates to the climate risk
+climate_risk = pd.read_excel(data_path+'/location.xlsx', sheet_name='ClimateRiskIndex', index_col='Country')
 t8 = (climate_risk.loc[location, 'Value'])
 T8 = (100-(t8/118*100))
 
-#Local Weight Indicator T9:
-#relates to the temperature anomalies
-temperature_anomalies = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'TemperatureAnomalies', index_col= 'Country')
+# Local Weight Indicator T9:
+# relates to the temperature anomalies
+temperature_anomalies = pd.read_excel(data_path+'/location.xlsx', sheet_name='TemperatureAnomalies',
+                                      index_col='Country')
 t9 = (temperature_anomalies.loc[location, 'Value'])
 T9 = (100-(t9/3.6*100))
 
-#Local Weight Indicator T10:
-#relates to the water stress
-water_stress = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'WaterStress', index_col= 'Country')
+# Local Weight Indicator T10:
+# relates to the water stress
+water_stress = pd.read_excel(data_path+'/location.xlsx', sheet_name='WaterStress', index_col='Country')
 t10 = (water_stress.loc[location, 'Value'])
 T10 = (100-(t10/4.82*100))
 
-#Criteria: Environmental
-#!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
-#LCA1 = X
-#LCA2 = X
-#LCA3 = X
+# Criteria: Environmental
+# !!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
+# LCA1 = X
+# LCA2 = X
+# LCA3 = X
 
-#Subcriteria: Resource Recovery Potential
+# Sub-criteria: Resource Recovery Potential
 
-#Local Weight Indicator Env1:
-#relates to the water stress (Water Recovery)
+# Local Weight Indicator Env1:
+# relates to the water stress (Water Recovery)
 
 Env1 = T10
 
-#Local Weight Indicator Env2:
-#relates to nitrogen (N) fertilizer fulfillment (Nutrient Recovery)
+# Local Weight Indicator Env2:
+# relates to nitrogen (N) fertilizer fulfillment (Nutrient Recovery)
 
 n_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='NFertilizerFulfillment',
                                          index_col='Country')
 env2 = (n_fertilizer_fulfillment.loc[location, 'Value'])
 Env2 = (1 - (env2/100)) * 100
 
-#Local Weight Indicator Env3:
-#relates to phosphorus (P) fertilizer fulfillment (Nutrient Recovery)
+# Local Weight Indicator Env3:
+# relates to phosphorus (P) fertilizer fulfillment (Nutrient Recovery)
 
 p_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='PFertilizerFulfillment',
                                          index_col='Country')
 env3 = (p_fertilizer_fulfillment.loc[location, 'Value'])
 Env3 = (1 - (env3/100)) * 100
 
-#Local Weight Indicator Env4:
-#relates to potassium (K) fertilizer fulfillment (Nutrient Recovery)
+# Local Weight Indicator Env4:
+# relates to potassium (K) fertilizer fulfillment (Nutrient Recovery)
 
 k_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='KFertilizerFulfillment',
                                          index_col='Country')
 env4 = (k_fertilizer_fulfillment.loc[location, 'Value'])
 Env4 = (1 - (env4/100)) * 100
 
-#Local Weight Indicator Env5:
-#relates to renewable energy consumption (Energy Recovery)
+# Local Weight Indicator Env5:
+# relates to renewable energy consumption (Energy Recovery)
 
 renewable_energy = pd.read_excel(data_path+'/location.xlsx', sheet_name='RenewableEnergyConsumption',
-                                         index_col='Country')
+                                 index_col='Country')
 env5 = (renewable_energy.loc[location, 'Value'])
 Env5 = (1 - (env5/100)) * 100
 
-#Local Weight Indicator Env6:
-#relates to infrastructure quality (Supply Chain Infrastructure)
+# Local Weight Indicator Env6:
+# relates to infrastructure quality (Supply Chain Infrastructure)
 
 infrastructure = pd.read_excel(data_path+'/location.xlsx', sheet_name='InfrastructureQuality',
                                          index_col='Country')
 env6 = (infrastructure.loc[location, 'Value'])
 Env6 = (1 - (env6/7)) * 100
 
-#Subcriteria: LCA
-#!!!!! #Yalin - see the separate env.py
+# Sub-criteria: LCA
+# !!!!! #Yalin - see the separate env.py
 
-#Criteria: Social
-#Subcriteria: Job Creation
-#Local Weight Indicator S1: Unemployment
-#realtes to the unemployment rate
-unemployment_rate = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'UnemploymentTotal', index_col= 'Country')
+# Criteria: Social
+# Sub-criteria: Job Creation
+# Local Weight Indicator S1: Unemployment
+# relates to the unemployment rate
+unemployment_rate = pd.read_excel(data_path+'/location.xlsx', sheet_name='UnemploymentTotal', index_col='Country')
 s1 = (unemployment_rate.loc[location, 'Value'])
 S1 = (s1/28.74*100)
 
-#Local Weight Indicator S2: High paying jobs
-#realtes to the need for higher paying jobs
-high_pay_jobs = pd.read_excel(data_path+'/location.xlsx',
-                                   sheet_name = 'HighPayJobRate', index_col= 'Country')
+# Local Weight Indicator S2: High paying jobs
+# relates to the need for higher paying jobs
+high_pay_jobs = pd.read_excel(data_path+'/location.xlsx', sheet_name='HighPayJobRate', index_col='Country')
 s2 = (high_pay_jobs.loc[location, 'Value'])
 S2 = (s2/94.3*100)
 
-#Subcriteria
-#Local Weight Indicator S3: Disposal convenience preference
-#realtes to the preference for disposal requirements
-# 0 being low importance to frequency of disposal to 100 being
-    #high importance for frequency of disposal
+# Sub-criteria
+# Local Weight Indicator S3: Disposal convenience preference
+# relates to the preference for disposal requirements
+# 0 being low importance to frequency of disposal to 100 being high importance for frequency of disposal
 S3 = s3
 
-## Input community preference ##
-#Local Weight Indicator S4: Cleaning preference
-#realtes to the preference for cleaning requirements
-# 0 being low importance to frequency of cleaning to 100 being
-    #high importance for frequency of cleaning
+# ## Input community preference ##
+# Local Weight Indicator S4: Cleaning preference
+# relates to the preference for cleaning requirements
+# 0 being low importance to frequency of cleaning to 100 being high importance for frequency of cleaning
 S4 = s4
 
-## Input community preference ##
-#Local Weight Indicator S5: Privacy preference
-#realtes to the preference for privacy (# of households sharing a system)
-# 0 being low importance for privacy to 100 being
-    #high importance for privacy
+# ## Input community preference ##
+# Local Weight Indicator S5: Privacy preference
+# relates to the preference for privacy (# of households sharing a system)
+# 0 being low importance for privacy to 100 being high importance for privacy
 S5 = s5
 
-## Input community preference ##
-#Local Weight Indicator S6: Odor preference
-#realtes to the preference of odor with
+# ## Input community preference ##
+# Local Weight Indicator S6: Odor preference
+# relates to the preference of odor with
 # 0 being low importance for odor to 100 being high importance for odor
 S6 = s6
 
-## Input community preference ##
-#Local Weight Indicator S7: Noise preference
-#realtes to the preference of noise with
+# ## Input community preference ##
+# Local Weight Indicator S7: Noise preference
+# relates to the preference of noise with
 # 0 being low importance for odor to 100 being high importance for noise
 S7 = s7
 
-## Input community preference ##
-#Local Weight Indicator S8: PPE preference/familiarity
-#realtes to the preference of PPE with
+# ## Input community preference ##
+# Local Weight Indicator S8: PPE preference/familiarity
+# relates to the preference of PPE with
 # 0 being low importance for PPE to 100 being high importance for PPE
 S8 = s8
 
-## Input community preference ##
-#Local Weight Indicator S9: Security preference
-#realtes to the preference of security with
-# 0 being low importance for secutiy to 100 being high importance for odor
+# ## Input community preference ##
+# Local Weight Indicator S9: Security preference
+# relates to the preference of security with
+# 0 being low importance for security to 100 being high importance for odor
 S9 = s9
 
-#Subcriteria: Management Acceptability
-## Input management (i.e., landlord) preference ##
-#Local Weight Indicator S10: Disposal convenience preference
-#realtes to the preference for disposal requirements
-# 0 being low importance to frequency of disposal to 100 being
-    #high importance for frequency of disposal
+# Sub-criteria: Management Acceptability
+# ## Input management (i.e., landlord) preference ##
+# Local Weight Indicator S10: Disposal convenience preference
+# relates to the preference for disposal requirements
+# 0 being low importance to frequency of disposal to 100 being high importance for frequency of disposal
 S10 = s10
 
-## Input management preference ##
-#Local Weight Indicator S11: Cleaning preference
-#realtes to the preference for cleaning requirements
-# 0 being low importance to frequency of cleaning to 100 being
-    #high importance for frequency of cleaning
+# ## Input management preference ##
+# Local Weight Indicator S11: Cleaning preference
+# relates to the preference for cleaning requirements
+# 0 being low importance to frequency of cleaning to 100 being high importance for frequency of cleaning
 S11 = s11
 
-## Input management preference ##
-#Local Weight Indicator S12: PPE preference/familiarity
-#realtes to the preference of PPE with
+# ## Input management preference ##
+# Local Weight Indicator S12: PPE preference/familiarity
+# relates to the preference of PPE with
 # 0 being low importance for PPE to 100 being high importance for PPE
 S12 = s12
 
-#%%
-                    #Tech/System Performance Scores#
+# %%
+                    # Tech/System Performance Scores#
 # class AHP(MCDA):
 #     def main():
 
@@ -336,58 +315,60 @@ T_W = [[T1/T1, T1/T2, T1/T3, T1/T4, T1/T5, T1/T6, T1/T7, T1/T8, T1/T9, T1/T10],
 
 T_W_a = np.array(T_W)
 
-                ##Part A: Find Criteria Weights and Consistancy##
-#Step 1: Sum the columns
- #sum of columns for Criteria Weight One Matrix
+                ## Part A: Find Criteria Weights and Consistancy##
+
+# Step 1: Sum the columns
+# sum of columns for Criteria Weight One Matrix
+
+
 def column_sum(T_W):
     return[sum(i) for i in zip(*T_W)]
     global T_W_col_sum
+
+
 T_W_col_sum = np.array(column_sum(T_W))
 
-
-#Step 2: Normalize the matrix
+# Step 2: Normalize the matrix
 T_W_N = T_W_a / T_W_col_sum
 
-
-#Step 3: Calculate Criteria Weights by finding the row averages
+# Step 3: Calculate Criteria Weights by finding the row averages
 C_T_W =[sum(i) for i in T_W_N]
 
-#convert to an array
-#adding brackets to make 2-D array
+# convert to an array
+# adding brackets to make 2-D array
 C_T_W_a = np.array([C_T_W])
 
-#number of indicators
-n=10
+# number of indicators
+n = 10
 
-#Find the average
+# Find the average
 Avg_C_T_W = C_T_W_a / n
 
-#Step 4 Find the Consistancy ratio
-#Step 4a: Calculate the weighted matrix by multiplying the matrix by the
-        #criteria weight
+# Step 4 Find the Consistency ratio
+# Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
 WM_T = np.matmul(T_W_a.T, C_T_W_a.T)
 
-#Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
+# Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
 WS_T =[sum(i) for i in WM_T]
 
-#convert to an array
+# convert to an array
 WS_T_a = np.array(WS_T)
 
 
-#Step 4c: divide the weighted sum value by the criteria weights
+# Step 4c: divide the weighted sum value by the criteria weights
 R_T = WS_T_a / C_T_W
 
-#Step 4d: Find the Consistancy index by calculateing (delta max - n)/(n-1)
+# Step 4d: Find the Consistency index by calculating (delta max - n)/(n-1)
 delta_maxT = (sum(R_T))/n
 
 CI_T = (delta_maxT - n) / (n - 1)
 
 
-#Step 4e: Diovide the Consistancy index by the Random index
+# Step 4e: Divide the Consistency index by the Random index
 
-                            #RI Values
-#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
-#If CR < 0.1 then our matrix is consistant
+                            # RI Values
+# n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
+# If CR < 0.1 then our matrix is consistent
 RI = 1.49
 CR_T = CI_T / RI
 
@@ -402,59 +383,61 @@ Env_W = [[Env1/Env1, Env1/Env2, Env1/Env3, Env1/Env4, Env1/Env5, Env1/Env6],
 
 Env_W_a = np.array(Env_W)
 
-                ##Part A: Find Criteria Weights and Consistancy##
-#Step 1: Sum the columns
- #sum of columns for Criteria Weight One Matrix
+                ## Part A: Find Criteria Weights and Consistancy##
+# Step 1: Sum the columns
+# sum of columns for Criteria Weight One Matrix
+
+
 def column_sum(Env_W):
     return[sum(i) for i in zip(*Env_W)]
     global Env_W_col_sum
+
+
 Env_W_col_sum = np.array(column_sum(Env_W))
 
 
-#Step 2: Normalize the matrix
+# Step 2: Normalize the matrix
 Env_W_N = Env_W_a / Env_W_col_sum
 
 
-#Step 3: Calculate Criteria Weights by finding the row averages
+# Step 3: Calculate Criteria Weights by finding the row averages
 C_Env_W =[sum(i) for i in Env_W_N]
 
-#convert to an array
-#adding brackets to make 2-D array
+# convert to an array
+# adding brackets to make 2-D array
 C_Env_W_a = np.array([C_Env_W])
 
-####have a function that counts the columns and inputs the value as n
-#number of indicators
-n=6
+# #### have a function that counts the columns and inputs the value as n number of indicators
+n = 6
 
-#Find the average
+# Find the average
 Avg_C_Env_W = C_Env_W_a / n
 
-#Step 4 Find the Consistancy ratio
-#Step 4a: Calculate the weighted matrix by multiplying the matrix by the
-        #criteria weight
+# Step 4 Find the Consistency ratio
+# Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
 WM_Env = np.matmul(Env_W_a.Env, C_Env_W_a.Env)
 
-#Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
+# Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
 WS_Env =[sum(i) for i in WM_Env]
 
-#convert to an array
+# convert to an array
 WS_Env_a = np.array(WS_Env)
 
 
-#Step 4c: divide the weighted sum value by the criteria weights
+# Step 4c: divide the weighted sum value by the criteria weights
 R_Env = WS_Env_a / C_Env_W
 
-#Step 4d: Find the Consistancy index by calculateing (delta max - n)/(n-1)
+# Step 4d: Find the Consistency index by calculating (delta max - n)/(n-1)
 delta_maxEnv = (sum(R_Env))/n
 
 CI_Env = (delta_maxEnv - n) / (n - 1)
 
 
-#Step 4e: Diovide the Consistancy index by the Random index
+# Step 4e: Divide the Consistency index by the Random index
 
-                            #RI Values
-#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
-#If CR < 0.1 then our matrix is consistant
+                            # RI Values
+# n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
+# If CR < 0.1 then our matrix is consistent
 RI = 1.24
 CR_Env = CI_Env / RI
 
@@ -469,59 +452,61 @@ LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
 
 LCA_W_a = np.array(LCA_W)
 
-                ##Part A: Find Criteria Weights and Consistancy##
-#Step 1: Sum the columns
- #sum of columns for Criteria Weight One Matrix
+                ## Part A: Find Criteria Weights and Consistancy##
+# Step 1: Sum the columns
+# sum of columns for Criteria Weight One Matrix
+
+
 def column_sum(LCA_W):
     return[sum(i) for i in zip(*LCA_W)]
     global LCA_W_col_sum
+
+
 LCA_W_col_sum = np.array(column_sum(LCA_W))
 
 
-#Step 2: Normalize the matrix
+# Step 2: Normalize the matrix
 LCA_W_N = LCA_W_a / LCA_W_col_sum
 
 
-#Step 3: Calculate Criteria Weights by finding the row averages
+# Step 3: Calculate Criteria Weights by finding the row averages
 C_LCA_W =[sum(i) for i in LCA_W_N]
 
-#convert to an array
-#adding brackets to make 2-D array
+# convert to an array
+# adding brackets to make 2-D array
 C_LCA_W_a = np.array([C_LCA_W])
 
-####have a function that counts the columns and inputs the value as n
-#number of indicators
-n=6
+# #### have a function that counts the columns and inputs the value as n number of indicators
+n = 6
 
-#Find the average
+# Find the average
 Avg_C_LCA_W = C_LCA_W_a / n
 
-#Step 4 Find the Consistancy ratio
-#Step 4a: Calculate the weighted matrix by multiplying the matrix by the
-        #criteria weight
+# Step 4 Find the Consistency ratio
+# Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
 WM_LCA = np.matmul(LCA_W_a.LCA, C_LCA_W_a.LCA)
 
-#Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
+# Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
 WS_LCA =[sum(i) for i in WM_LCA]
 
-#convert to an array
+# convert to an array
 WS_LCA_a = np.array(WS_LCA)
 
 
-#Step 4c: divide the weighted sum value by the criteria weights
+# Step 4c: divide the weighted sum value by the criteria weights
 R_LCA = WS_LCA_a / C_LCA_W
 
-#Step 4d: Find the Consistancy index by calculateing (delta max - n)/(n-1)
+# Step 4d: Find the Consistency index by calculating (delta max - n)/(n-1)
 delta_maxLCA = (sum(R_LCA))/n
 
 CI_LCA = (delta_maxLCA - n) / (n - 1)
 
 
-#Step 4e: Diovide the Consistancy index by the Random index
+# Step 4e: Divide the Consistency index by the Random index
 
-                            #RI Values
-#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
-#If CR < 0.1 then our matrix is consistant
+                            # RI Values
+# n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
+# If CR < 0.1 then our matrix is consistent
 RI = 1.24
 CR_LCA = CI_LCA / RI
 
@@ -542,57 +527,60 @@ S_W = [[S1/S1, S1/S2, S1/S3, S1/S4, S1/S5, S1/S6, S1/S7, S1/S8, S1/S9, S1/S10, S
 
 S_W_a = np.array(S_W)
 
-                ##ParS A: Find CriSeria WeighSs and ConsisSancy##
-#SSep 1: Sum She columns
- #sum of columns for CriSeria WeighS One MaSrix
+                ## Part A: Find Criteria Weights and Consistency ##
+# Step 1: Sum the columns
+# sum of columns for Criteria Weight One Matrix
+
+
 def column_sum(S_W):
-    reSurn[sum(i) for i in zip(*S_W)]
+    return[sum(i) for i in zip(*S_W)]
     global S_W_col_sum
+
+
 S_W_col_sum = np.array(column_sum(S_W))
 
 
-#SSep 2: Normalize She maSrix
+# Step 2: Normalize She matrix
 S_W_N = S_W_a / S_W_col_sum
 
 
-#SSep 3: CalculaSe CriSeria WeighSs by finding She row averages
+# Step 3: Calculate Criteria Weights by finding the row averages
 C_S_W =[sum(i) for i in S_W_N]
 
-#converS So an array
-#adding brackeSs So make 2-D array
+# convert to an array
+# adding brackets to make 2-D array
 C_S_W_a = np.array([C_S_W])
 
-#number of indicaSors
-n=10
+# number of indicators
+n = 10
 
-#Find She average
+# Find the average
 Avg_C_S_W = C_S_W_a / n
 
-#SSep 4 Find She ConsisSancy raSio
-#SSep 4a: CalculaSe She weighSed maSrix by mulSiplying She maSrix by She
-        #criSeria weighS
+# Step 4 Find the Consistency ratio
+# Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
 WM_S = np.maSmul(S_W_a.S, C_S_W_a.S)
 
-#SSep 4b: Sum She rows of She weighSed maSrix So find She weighSed sum value
+# Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
 WS_S =[sum(i) for i in WM_S]
 
-#converS So an array
+# convert to an array
 WS_S_a = np.array(WS_S)
 
 
-#SSep 4c: divide She weighSed sum value by She criSeria weighSs
+# Step 4c: divide the weighted sum value by the criteria weights
 R_S = WS_S_a / C_S_W
 
-#SSep 4d: Find She ConsisSancy index by calculaSeing (delSa max - n)/(n-1)
-delSa_maxS = (sum(R_S))/n
+# Step 4d: Find the Consistency index by calculating (delta max - n)/(n-1)
+delta_maxS = (sum(R_S))/n
 
-CI_S = (delSa_maxS - n) / (n - 1)
+CI_S = (delta_maxS - n) / (n - 1)
 
 
-#SSep 4e: Diovide She ConsisSancy index by She Random index
+# Step 4e: Divide the Consistency index by the Random index
 
-                            #RI Values
-#n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
-#If CR < 0.1 Shen our maSrix is consisSanS
+                            # RI Values
+# n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
+# If CR < 0.1 then our matrix is consistent
 RI = 1.54
 CR_S = CI_S / RI
