@@ -484,16 +484,14 @@ CR_Env = CI_Env / RI
 
 # Step 1: Assign criteria weights in matrix
 
-#!!! Yalin: I'm not sure what this is doing and I don't see a place where LCA1-LCA6 are
-# defined, so I just commented it out
-# LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
-#          [LCA2/LCA1, LCA2/LCA2, LCA2/LCA3, LCA2/LCA4, LCA2/LCA5, LCA2/LCA6],
-#          [LCA3/LCA1, LCA3/LCA2, LCA3/LCA3, LCA3/LCA4, LCA3/LCA5, LCA3/LCA6],
-#          [LCA4/LCA1, LCA4/LCA2, LCA4/LCA3, LCA4/LCA4, LCA4/LCA5, LCA4/LCA6],
-#          [LCA5/LCA1, LCA5/LCA2, LCA5/LCA3, LCA5/LCA4, LCA5/LCA5, LCA5/LCA6],
-#          [LCA6/LCA1, LCA6/LCA2, LCA6/LCA3, LCA6/LCA4, LCA6/LCA5, LCA6/LCA6]]
+LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
+          [LCA2/LCA1, LCA2/LCA2, LCA2/LCA3, LCA2/LCA4, LCA2/LCA5, LCA2/LCA6],
+          [LCA3/LCA1, LCA3/LCA2, LCA3/LCA3, LCA3/LCA4, LCA3/LCA5, LCA3/LCA6],
+          [LCA4/LCA1, LCA4/LCA2, LCA4/LCA3, LCA4/LCA4, LCA4/LCA5, LCA4/LCA6],
+          [LCA5/LCA1, LCA5/LCA2, LCA5/LCA3, LCA5/LCA4, LCA5/LCA5, LCA5/LCA6],
+          [LCA6/LCA1, LCA6/LCA2, LCA6/LCA3, LCA6/LCA4, LCA6/LCA5, LCA6/LCA6]]
 
-# LCA_W_a = np.array(LCA_W)
+LCA_W_a = np.array(LCA_W)
 
                 ##Part A: Find Criteria Weights and Consistancy##
 #Step 1: Sum the columns
