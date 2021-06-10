@@ -18,6 +18,8 @@ TODO: figure out why ReCiPe gives so much credit to fertilizers
 from exposan import bwaise as bw
 bw.update_lca_data('new')
 
+__all__ = ('get_LCA_baseline', 'get_LCA_uncertainties')
+
 lcas = lcaA, lcaB, lcaC = bw.lcaA, bw.lcaB, bw.lcaC
 get_ppl = bw.systems.get_ppl
 
@@ -40,9 +42,11 @@ def get_cap_yr_pts(lca):
 
 
 # To get some results
-baseline_dct = {}
-for lca in lcas:
-    baseline_dct[lca.system.ID] = get_cap_yr_pts(lca)
+def get_LCA_baseline():
+    baseline_dct = {}
+    for lca in lcas:
+        baseline_dct[lca.system.ID] = get_cap_yr_pts(lca)
+    return baseline_dct
 
 
 # %%
@@ -58,6 +62,8 @@ for model in models:
     model = update_LCA_CF_parameters(model, 'new')
     model = update_metrics(model, 'new')
 
-uncertainty_dct = {}
-for model in models:
-    uncertainty_dct[model.system.ID] = run_uncertainty(model, N=10)
+def get_LCA_uncertainties():
+    uncertainty_dct = {}
+    for model in models:
+        uncertainty_dct[model.system.ID] = run_uncertainty(model, N=10)
+    return uncertainty_dct

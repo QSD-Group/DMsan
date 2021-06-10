@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 import country_converter as coco
 import os
+from .env import get_LCA_baseline
 data_path = os.path.abspath(os.path.dirname('location.xlsx'))
 
 #class MCDA:
@@ -180,9 +181,32 @@ T10 = (100-(t10/4.82*100))
 
 #Criteria: Environmental
 #!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
-#LCA1 = X
-#LCA2 = X
-#LCA3 = X
+# I assume LCA1-3 are for system A-C? I only include the baseline values below,
+# since I think we want to use harmonized assumptions for uncertainty analysis
+lca_baseline_dct = get_LCA_baseline()
+# Only use the hierarchist perspective
+
+
+lca_baseline_dct = get_LCA_baseline()
+# Only use the hierarchist perspective
+hierarchist_dct = {'sysA': {}, 'sysB': {}, 'sysC': {}}
+for sys_ID, results in lca_baseline_dct.items():
+    for ind, value in results.items():
+        if ind.startswith('H_'): # change this to 'I_' for individualist or 'E_' for egalitarian
+            hierarchist_dct[sys_ID][ind] = value
+
+# Because of the bug in this script it won't run, but here's what you should get,
+# note that since each time you need to run the system to retrieve those values,
+# it takes some time to get the results
+# {'sysA': {'H_EcosystemQuality_Total': -371.04045858430715,
+#   'H_HumanHealth_Total': 0.20460887746066936,
+#   'H_Resources_Total': 0.2457366918321932},
+#  'sysB': {'H_EcosystemQuality_Total': -3871.307383573435,
+#   'H_HumanHealth_Total': -0.17709372298736473,
+#   'H_Resources_Total': -0.2942841657695248},
+#  'sysC': {'H_EcosystemQuality_Total': -1114.683613325984,
+#   'H_HumanHealth_Total': 0.41160079447096,
+#   'H_Resources_Total': 1.1398505496550142}}
 
 #Subcriteria: Resource Recovery Potential
 
@@ -460,14 +484,16 @@ CR_Env = CI_Env / RI
 
 # Step 1: Assign criteria weights in matrix
 
-LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
-         [LCA2/LCA1, LCA2/LCA2, LCA2/LCA3, LCA2/LCA4, LCA2/LCA5, LCA2/LCA6],
-         [LCA3/LCA1, LCA3/LCA2, LCA3/LCA3, LCA3/LCA4, LCA3/LCA5, LCA3/LCA6],
-         [LCA4/LCA1, LCA4/LCA2, LCA4/LCA3, LCA4/LCA4, LCA4/LCA5, LCA4/LCA6],
-         [LCA5/LCA1, LCA5/LCA2, LCA5/LCA3, LCA5/LCA4, LCA5/LCA5, LCA5/LCA6],
-         [LCA6/LCA1, LCA6/LCA2, LCA6/LCA3, LCA6/LCA4, LCA6/LCA5, LCA6/LCA6]]
+#!!! Yalin: I'm not sure what this is doing and I don't see a place where LCA1-LCA6 are
+# defined, so I just commented it out
+# LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
+#          [LCA2/LCA1, LCA2/LCA2, LCA2/LCA3, LCA2/LCA4, LCA2/LCA5, LCA2/LCA6],
+#          [LCA3/LCA1, LCA3/LCA2, LCA3/LCA3, LCA3/LCA4, LCA3/LCA5, LCA3/LCA6],
+#          [LCA4/LCA1, LCA4/LCA2, LCA4/LCA3, LCA4/LCA4, LCA4/LCA5, LCA4/LCA6],
+#          [LCA5/LCA1, LCA5/LCA2, LCA5/LCA3, LCA5/LCA4, LCA5/LCA5, LCA5/LCA6],
+#          [LCA6/LCA1, LCA6/LCA2, LCA6/LCA3, LCA6/LCA4, LCA6/LCA5, LCA6/LCA6]]
 
-LCA_W_a = np.array(LCA_W)
+# LCA_W_a = np.array(LCA_W)
 
                 ##Part A: Find Criteria Weights and Consistancy##
 #Step 1: Sum the columns
