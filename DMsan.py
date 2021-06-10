@@ -178,9 +178,6 @@ water_stress = pd.read_excel(data_path+'/location.xlsx',
 t10 = (water_stress.loc[location, 'Value'])
 T10 = (100-(t10/4.82*100))
 
-T11 = 60
-T12 = 50
-
 #Criteria: Environmental
 
 #Subcriteria: Resource Recovery Potential
@@ -322,16 +319,16 @@ S12 = s12
 
 # Step 1: Assign criteria weights in matrix
 
-T_W = [[T1/T1, T1/T2, T1/T3, T1/T4, T1/T5, T1/T6, T1/T7, T1/T8, T1/T9, T1/T10, T1/T11, T1/T12],
-         [T2/T1, T2/T2, T2/T3, T2/T4, T2/T5, T2/T6, T2/T7, T2/T8, T2/T9, T2/T10, T2/T11, T2/T12],
-         [T3/T1, T3/T2, T3/T3, T3/T4, T3/T5, T3/T6, T3/T7, T3/T8, T3/T9, T3/T10, T3/T11, T3/T12],
-         [T4/T1, T4/T2, T4/T3, T4/T4, T4/T5, T4/T6, T4/T7, T4/T8, T4/T9, T4/T10, T4/T11, T4/T12],
-         [T5/T1, T5/T2, T5/T3, T5/T4, T5/T5, T5/T6, T5/T7, T5/T8, T5/T9, T5/T10, T5/T11, T5/T12],
-         [T6/T1, T6/T2, T6/T3, T6/T4, T6/T5, T6/T6, T6/T7, T6/T8, T6/T9, T6/T10, T6/T11, T6/T12],
-         [T7/T1, T7/T2, T7/T3, T7/T4, T7/T5, T7/T6, T7/T7, T7/T8, T7/T9, T7/T10, T7/T11, T7/T12],
-         [T8/T1, T8/T2, T8/T3, T8/T4, T8/T5, T8/T6, T8/T7, T8/T8, T8/T9, T8/T10, T8/T11, T8/T12],
-         [T9/T1, T9/T2, T9/T3, T9/T4, T9/T5, T9/T6, T9/T7, T9/T8, T9/T9, T9/T10, T9/T11, T9/T12],
-         [T10/T1, T10/T2, T10/T3, T10/T4, T10/T5, T10/T6, T10/T7, T10/T8, T10/T9, T10/T10, T10/T11, T10/T12]]
+T_W = [[T1/T1, T1/T2, T1/T3, T1/T4, T1/T5, T1/T6, T1/T7, T1/T8, T1/T9, T1/T10],
+         [T2/T1, T2/T2, T2/T3, T2/T4, T2/T5, T2/T6, T2/T7, T2/T8, T2/T9, T2/T10],
+         [T3/T1, T3/T2, T3/T3, T3/T4, T3/T5, T3/T6, T3/T7, T3/T8, T3/T9, T3/T10],
+         [T4/T1, T4/T2, T4/T3, T4/T4, T4/T5, T4/T6, T4/T7, T4/T8, T4/T9, T4/T10],
+         [T5/T1, T5/T2, T5/T3, T5/T4, T5/T5, T5/T6, T5/T7, T5/T8, T5/T9, T5/T10],
+         [T6/T1, T6/T2, T6/T3, T6/T4, T6/T5, T6/T6, T6/T7, T6/T8, T6/T9, T6/T10],
+         [T7/T1, T7/T2, T7/T3, T7/T4, T7/T5, T7/T6, T7/T7, T7/T8, T7/T9, T7/T10],
+         [T8/T1, T8/T2, T8/T3, T8/T4, T8/T5, T8/T6, T8/T7, T8/T8, T8/T9, T8/T10],
+         [T9/T1, T9/T2, T9/T3, T9/T4, T9/T5, T9/T6, T9/T7, T9/T8, T9/T9, T9/T10],
+         [T10/T1, T10/T2, T10/T3, T10/T4, T10/T5, T10/T6, T10/T7, T10/T8, T10/T9, T10/T10]]
 
 T_W_a = np.array(T_W)
 
@@ -387,5 +384,144 @@ CI_T = (delta_maxT - n) / (n - 1)
                             #RI Values
 #n=5;RI=1.12 n=6;RI=1.24 n=7;RI=1.32 n=8;RI=1.41 n=9;RI=1.45 n=10;RI=1.49
 #If CR < 0.1 then our matrix is consistant
-RI = 1.24
+RI = 1.49
 CR_T = CI_T / RI
+
+# Step 1: Assign criteria weights in matrix
+
+Env_W = [[Env1/Env1, Env1/Env2, Env1/Env3, Env1/Env4, Env1/Env5, Env1/Env6],
+         [Env2/Env1, Env2/Env2, Env2/Env3, Env2/Env4, Env2/Env5, Env2/Env6],
+         [Env3/Env1, Env3/Env2, Env3/Env3, Env3/Env4, Env3/Env5, Env3/Env6],
+         [Env4/Env1, Env4/Env2, Env4/Env3, Env4/Env4, Env4/Env5, Env4/Env6],
+         [Env5/Env1, Env5/Env2, Env5/Env3, Env5/Env4, Env5/Env5, Env5/Env6],
+         [Env6/Env1, Env6/Env2, Env6/Env3, Env6/Env4, Env6/Env5, Env6/Env6]]
+
+Env_W_a = np.array(Env_W)
+
+                ##Part A: Find Criteria Weights and Consistancy##
+#Step 1: Sum the columns
+ #sum of columns for Criteria Weight One Matrix
+def column_sum(Env_W):
+    return[sum(i) for i in zip(*Env_W)]
+    global Env_W_col_sum
+Env_W_col_sum = np.array(column_sum(Env_W))
+
+
+#Step 2: Normalize the matrix
+Env_W_N = Env_W_a / Env_W_col_sum
+
+
+#Step 3: Calculate Criteria Weights by finding the row averages
+C_Env_W =[sum(i) for i in Env_W_N]
+
+#convert to an array
+#adding brackets to make 2-D array
+C_Env_W_a = np.array([C_Env_W])
+
+####have a function that counts the columns and inputs the value as n
+#number of indicators
+n=6
+
+#Find the average
+Avg_C_Env_W = C_Env_W_a / n
+
+#Step 4 Find the Consistancy ratio
+#Step 4a: Calculate the weighted matrix by multiplying the matrix by the
+        #criteria weight
+WM_Env = np.matmul(Env_W_a.Env, C_Env_W_a.Env)
+
+#Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
+WS_Env =[sum(i) for i in WM_Env]
+
+#convert to an array
+WS_Env_a = np.array(WS_Env)
+
+
+#Step 4c: divide the weighted sum value by the criteria weights
+R_Env = WS_Env_a / C_Env_W
+
+#Step 4d: Find the Consistancy index by calculateing (delta max - n)/(n-1)
+delta_maxEnv = (sum(R_Env))/n
+
+CI_Env = (delta_maxEnv - n) / (n - 1)
+
+
+#Step 4e: Diovide the Consistancy index by the Random index
+
+                            #RI Values
+#n=5;RI=1.12 n=6;RI=1.24 n=7;RI=1.32 n=8;RI=1.41 n=9;RI=1.45 n=10;RI=1.49
+#If CR < 0.1 then our matrix is consistant
+RI = 1.24
+CR_Env = CI_Env / RI
+
+# Step 1: Assign criteria weights in matrix
+
+S_W = [[S1/S1, S1/S2, S1/S3, S1/S4, S1/S5, S1/S6, S1/S7, S1/S8, S1/S9, S1/S10, S1/S11, S1/S12],
+         [S2/S1, S2/S2, S2/S3, S2/S4, S2/S5, S2/S6, S2/S7, S2/S8, S2/S9, S2/S10, S2/S11, S2/S12],
+         [S3/S1, S3/S2, S3/S3, S3/S4, S3/S5, S3/S6, S3/S7, S3/S8, S3/S9, S3/S10, S3/S11, S3/S12],
+         [S4/S1, S4/S2, S4/S3, S4/S4, S4/S5, S4/S6, S4/S7, S4/S8, S4/S9, S4/S10, S4/S11, S4/S12],
+         [S5/S1, S5/S2, S5/S3, S5/S4, S5/S5, S5/S6, S5/S7, S5/S8, S5/S9, S5/S10, S5/S11, S5/S12],
+         [S6/S1, S6/S2, S6/S3, S6/S4, S6/S5, S6/S6, S6/S7, S6/S8, S6/S9, S6/S10, S6/S11, S6/S12],
+         [S7/S1, S7/S2, S7/S3, S7/S4, S7/S5, S7/S6, S7/S7, S7/S8, S7/S9, S7/S10, S7/S11, S7/S12],
+         [S8/S1, S8/S2, S8/S3, S8/S4, S8/S5, S8/S6, S8/S7, S8/S8, S8/S9, S8/S10, S8/S11, S8/S12],
+         [S9/S1, S9/S2, S9/S3, S9/S4, S9/S5, S9/S6, S9/S7, S9/S8, S9/S9, S9/S10, S9/S11, S9/S12],
+         [S10/S1, S10/S2, S10/S3, S10/S4, S10/S5, S10/S6, S10/S7, S10/S8, S10/S9, S10/S10, S10/S11, S10/S12],
+         [S11/S1, S11/S2, S11/S3, S11/S4, S11/S5, S11/S6, S11/S7, S11/S8, S11/S9, S11/S10, S11/S11, S11/S12],
+         [S12/S1, S12/S2, S12/S3, S12/S4, S12/S5, S12/S6, S12/S7, S12/S8, S12/S9, S12/S10, S12/S11, S12/S12]]
+
+S_W_a = np.array(S_W)
+
+                ##ParS A: Find CriSeria WeighSs and ConsisSancy##
+#SSep 1: Sum She columns
+ #sum of columns for CriSeria WeighS One MaSrix
+def column_sum(S_W):
+    reSurn[sum(i) for i in zip(*S_W)]
+    global S_W_col_sum
+S_W_col_sum = np.array(column_sum(S_W))
+
+
+#SSep 2: Normalize She maSrix
+S_W_N = S_W_a / S_W_col_sum
+
+
+#SSep 3: CalculaSe CriSeria WeighSs by finding She row averages
+C_S_W =[sum(i) for i in S_W_N]
+
+#converS So an array
+#adding brackeSs So make 2-D array
+C_S_W_a = np.array([C_S_W])
+
+#number of indicaSors
+n=10
+
+#Find She average
+Avg_C_S_W = C_S_W_a / n
+
+#SSep 4 Find She ConsisSancy raSio
+#SSep 4a: CalculaSe She weighSed maSrix by mulSiplying She maSrix by She
+        #criSeria weighS
+WM_S = np.maSmul(S_W_a.S, C_S_W_a.S)
+
+#SSep 4b: Sum She rows of She weighSed maSrix So find She weighSed sum value
+WS_S =[sum(i) for i in WM_S]
+
+#converS So an array
+WS_S_a = np.array(WS_S)
+
+
+#SSep 4c: divide She weighSed sum value by She criSeria weighSs
+R_S = WS_S_a / C_S_W
+
+#SSep 4d: Find She ConsisSancy index by calculaSeing (delSa max - n)/(n-1)
+delSa_maxS = (sum(R_S))/n
+
+CI_S = (delSa_maxS - n) / (n - 1)
+
+
+#SSep 4e: Diovide She ConsisSancy index by She Random index
+
+                            #RI Values
+#n=5;RI=1.12 n=6;RI=1.24 n=7;RI=1.32 n=8;RI=1.41 n=9;RI=1.45 n=10;RI=1.49
+#If CR < 0.1 Shen our maSrix is consisSanS
+RI = 1.49
+CR_S = CI_S / RI
