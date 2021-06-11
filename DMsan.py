@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Modified on Tue May 4
+Modified on Fri June 11, 2021
 
 @author:
     torimorgan <vlmorgan@illinois.edu>,
@@ -21,6 +21,7 @@ import os
 '''from .env import get_LCA_baseline'''
 data_path = os.path.abspath(os.path.dirname('location.xlsx'))
 data_path_tech_scores = os.path.abspath(os.path.dirname('technology_scores.xlsx'))
+data_path_weight_scenarios = os.path.abspath(os.path.dirname('criteria_weight_scenarios.xlsx'))
 
 # class MCDA:
 
@@ -681,7 +682,155 @@ CR_S = CI_S / RI
 #  Create data frames of sub-criteria weights
 
 # Data frame of technical sub-criteria weights
-Tech_weights = pd.DataFrame(Avg_C_T_W)
-Tech_weights.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
+T_subcriteria_weights = pd.DataFrame(Avg_C_T_W)
+T_subcriteria_weights.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
 
-# Data frame of
+# Data frame of resource recovery sub-criteria weights
+RR_subcriteria_weights = pd.DataFrame(Avg_C_RR_W)
+RR_subcriteria_weights.columns = ['RR1', 'RR2', 'RR3', 'RR4', 'RR5', 'RR6']
+
+# Data frame of environmental (LCA) sub-criteria weights
+'''Env_subcriteria_weights = pd.DataFrame(Avg_C_Env_W)
+Env_subcriteria_weights.columns = ['Env1', 'Env2', 'Env3']'''
+# ### NOTE: Placeholder data for environmental sub-criteria weights to run TOPSIS code ###
+Env_subcriteria_weights = pd.DataFrame([0.34, 0.33, 0.33]).transpose()
+Env_subcriteria_weights.columns = ['Env1', 'Env2', 'Env3']
+
+# Data frame of economic sub-criteria weights
+Econ_subcriteria_weights = pd.DataFrame([1])
+Econ_subcriteria_weights.columns = ['Econ1']
+
+# Data frame of social/institutional sub-criteria weights
+S_subcriteria_weights = pd.DataFrame(Avg_C_S_W)
+S_subcriteria_weights.columns = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12']
+
+# Compiled sub-criteria weights
+subcriteria_weights = pd.concat([T_subcriteria_weights, RR_subcriteria_weights, Env_subcriteria_weights, Econ_subcriteria_weights, S_subcriteria_weights], axis=1)
+
+# Data to perform TOPSIS
+perform_values = Tech_Scores_compiled
+criteria_weight = pd.read_excel(data_path_tech_scores+'/criteria_weight_scenarios.xlsx', sheet_name='weight_scenarios')
+indicator_weight = subcriteria_weights
+indicator_type = pd.read_excel(data_path_tech_scores+'/criteria_weight_scenarios.xlsx', sheet_name='indicator_type')
+
+num_weight = criteria_weight.shape[0]  # quantity of criteria weighting scenarios to run
+num_system = perform_values.shape[0]  # quantity of sanitation system alternatives to evaluate
+num_indicator = indicator_type.shape[1]  # quantity of indicators included in the model
+
+# Output Excel File of Results
+writer = pd.ExcelWriter('RESULTS_TOPSIS.xlsx')
+
+# Indicator Column Names
+indicators = list(indicator_type.columns)
+sanitation_systems = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_interface').system
+
+# 1. Normalized Decision Matrix (Vector Normalization)
+normal_matrix_FINAL = pd.DataFrame()
+for i in range(num_indicator):
+    normal_array = pd.DataFrame()
+    squares = 0  # initialize the denominator for normalization
+    for j in range(num_system):
+        performance_value = perform_values.iloc[j, i]
+        performance_value = float(performance_value)
+        squares = squares + performance_value ** 2
+        denominator = squares ** 0.5
+    for j in range(num_system):
+        if denominator == 0:
+            normal_value = 0
+        else:
+            normal_value = perform_values.iloc[j, i] / denominator
+        normal_value = pd.DataFrame([normal_value])
+        normal_array = pd.concat([normal_array, normal_value]).reset_index(drop=True)
+    normal_matrix_FINAL = pd.concat([normal_matrix_FINAL, normal_array], axis=1).reset_index(drop=True)
+normal_matrix_FINAL.columns = indicators
+
+# 2. Ranking System Alternatives Under Criteria Weighting Scenarios
+performance_score_FINAL = pd.DataFrame()
+ranking_FINAL = pd.DataFrame()
+for i in range(num_weight):
+    # Weighted Normalized Decision Matrix
+    weighted_normal_matrix_FINAL = pd.DataFrame()
+    for j in range(num_indicator):
+        weighted_array = pd.DataFrame()
+        indicator_criteria = indicator_type.iloc[0, j]
+        if indicator_criteria == 'T':
+            weight = criteria_weight.loc[i, 'T'] * indicator_weight.iloc[0, j]
+        elif indicator_criteria == 'RR':
+            weight = criteria_weight.loc[i, 'RR'] * indicator_weight.iloc[0, j]
+        elif indicator_criteria == 'Env':
+            weight = criteria_weight.loc[i, 'Env'] * indicator_weight.iloc[0, j]
+        elif indicator_criteria == 'Econ':
+            weight = criteria_weight.loc[i, 'Econ'] * indicator_weight.iloc[0, j]
+        elif indicator_criteria == 'S':
+            weight = criteria_weight.loc[i, 'S'] * indicator_weight.iloc[0, j]
+        else:
+            print("Indicator Type Error")
+        for k in range(num_system):
+            weighted_normal_value = normal_matrix_FINAL.iloc[k, j] * weight
+            weighted_normal_value = pd.DataFrame([weighted_normal_value])
+            weighted_array = pd.concat([weighted_array, weighted_normal_value]).reset_index(drop=True)
+        weighted_normal_matrix_FINAL = pd.concat([weighted_normal_matrix_FINAL, weighted_array], axis=1).reset_index(drop=True)
+    weighted_normal_matrix_FINAL.columns = indicators
+
+    ideal_best_FINAL = pd.DataFrame()
+    ideal_worst_FINAL = pd.DataFrame()
+    best_array = pd.DataFrame()
+    worst_array = pd.DataFrame()
+    for j in range(num_indicator):
+        # Ideal Best and Ideal Worst Value for Each Sub-Criteria
+        indicator_category = indicator_type.iloc[1, j]  # 0 is non-beneficial (want low value) and 1 is beneficial
+        if indicator_category == 0:  # sub-criteria is non-beneficial, so ideal best is the lowest value
+            ideal_best = min(weighted_normal_matrix_FINAL.iloc[:, j])
+            ideal_worst = max(weighted_normal_matrix_FINAL.iloc[:, j])
+        elif indicator_category == 1:  # sub-criteria is beneficial, so ideal best is the highest value
+            ideal_best = max(weighted_normal_matrix_FINAL.iloc[:, j])
+            ideal_worst = min(weighted_normal_matrix_FINAL.iloc[:, j])
+        else:
+            print("Ideal Best and Worst Error")
+        ideal_best = pd.DataFrame([ideal_best])
+        best_array = pd.concat([best_array, ideal_best])
+        ideal_worst = pd.DataFrame([ideal_worst])
+        worst_array = pd.concat([worst_array, ideal_worst])
+    ideal_best_FINAL = pd.concat([ideal_best_FINAL, best_array]).reset_index(drop=True)
+    ideal_worst_FINAL = pd.concat([ideal_worst_FINAL, worst_array]).reset_index(drop=True)
+
+    performance_score_DF = pd.DataFrame()
+    ranking_DF = pd.DataFrame()
+    for j in range(num_system):
+        # Euclidean Distance from Ideal Best and Ideal Worst
+        sum_dif_squared_best = 0
+        sum_dif_squared_worst = 0
+        for k in range(num_indicator):
+            dif_squared_best = (weighted_normal_matrix_FINAL.iloc[j, k] - ideal_best_FINAL.iloc[k, :]) ** 2
+            dif_squared_worst = (weighted_normal_matrix_FINAL.iloc[j, k] - ideal_worst_FINAL.iloc[k, :]) ** 2
+            sum_dif_squared_best = sum_dif_squared_best + dif_squared_best
+            sum_dif_squared_worst = sum_dif_squared_worst + dif_squared_worst
+        distance_best = sum_dif_squared_best ** 0.5
+        distance_worst = sum_dif_squared_worst ** 0.5
+
+        # Performance Score of Each Sanitation System
+        performance_score = distance_worst / (distance_best + distance_worst)
+        performance_score = pd.DataFrame([performance_score])
+        performance_score_DF = pd.concat([performance_score_DF, performance_score], axis=0).reset_index(drop=True)
+
+        # Ranking of Each Sanitation System
+        ranking_DF = performance_score_DF.rank()
+        ranking_DF = ranking_DF.transpose()
+
+    performance_score_DF = performance_score_DF.transpose()
+    performance_score_FINAL = pd.concat([performance_score_FINAL, performance_score_DF]).reset_index(drop=True)
+    ranking_FINAL = pd.concat([ranking_FINAL, ranking_DF]).reset_index(drop=True)
+performance_score_FINAL.columns = sanitation_systems
+ranking_FINAL.columns = sanitation_systems
+
+criteria_weight_scenario = pd.read_excel(data_path_tech_scores+'/criteria_weight_scenarios.xlsx', sheet_name='weight_scenarios').Ratio
+criteria_weight_scenario = pd.DataFrame(criteria_weight_scenario)
+criteria_weight_scenario.columns = ['weight_scenario']
+
+performance_score_FINAL = pd.concat([criteria_weight_scenario, performance_score_FINAL], axis=1)
+ranking_FINAL = pd.concat([criteria_weight_scenario, ranking_FINAL], axis=1)
+
+performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
+ranking_FINAL.to_excel(writer, sheet_name='ranking')
+
+writer.save()
