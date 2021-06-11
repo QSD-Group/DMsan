@@ -18,8 +18,9 @@ import numpy as np
 import pandas as pd
 import country_converter as coco
 import os
-from .env import get_LCA_baseline
+'''from .env import get_LCA_baseline'''
 data_path = os.path.abspath(os.path.dirname('location.xlsx'))
+data_path_tech_scores = os.path.abspath(os.path.dirname('technology_scores.xlsx'))
 
 # class MCDA:
 
@@ -165,7 +166,7 @@ water_stress = pd.read_excel(data_path+'/location.xlsx', sheet_name='WaterStress
 t10 = (water_stress.loc[location, 'Value'])
 T10 = (100-(t10/4.82*100))
 
-
+'''
 #Criteria: Environmental
 #!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
 # I assume LCA1-3 are for system A-C? I only include the baseline values below,
@@ -194,56 +195,54 @@ for sys_ID, results in lca_baseline_dct.items():
 #  'sysC': {'H_EcosystemQuality_Total': -1114.683613325984,
 #   'H_HumanHealth_Total': 0.41160079447096,
 #   'H_Resources_Total': 1.1398505496550142}}
+'''
+# Criteria: Resource Recovery Potential
 
-# Sub-criteria: Resource Recovery Potential
-
-# Local Weight Indicator Env1:
+# Local Weight Indicator RR1:
 # relates to the water stress (Water Recovery)
 
-Env1 = T10
+RR1 = T10
 
-# Local Weight Indicator Env2:
+# Local Weight Indicator RR2:
 # relates to nitrogen (N) fertilizer fulfillment (Nutrient Recovery)
 
 n_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='NFertilizerFulfillment',
                                          index_col='Country')
-env2 = (n_fertilizer_fulfillment.loc[location, 'Value'])
-Env2 = (1 - (env2/100)) * 100
+rr2 = (n_fertilizer_fulfillment.loc[location, 'Value'])
+RR2 = (1 - (rr2/100)) * 100
 
-# Local Weight Indicator Env3:
+# Local Weight Indicator RR3:
 # relates to phosphorus (P) fertilizer fulfillment (Nutrient Recovery)
 
 p_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='PFertilizerFulfillment',
                                          index_col='Country')
-env3 = (p_fertilizer_fulfillment.loc[location, 'Value'])
-Env3 = (1 - (env3/100)) * 100
+rr3 = (p_fertilizer_fulfillment.loc[location, 'Value'])
+RR3 = (1 - (rr3/100)) * 100
 
-# Local Weight Indicator Env4:
+# Local Weight Indicator RR4:
 # relates to potassium (K) fertilizer fulfillment (Nutrient Recovery)
 
 k_fertilizer_fulfillment = pd.read_excel(data_path+'/location.xlsx', sheet_name='KFertilizerFulfillment',
                                          index_col='Country')
-env4 = (k_fertilizer_fulfillment.loc[location, 'Value'])
-Env4 = (1 - (env4/100)) * 100
+rr4 = (k_fertilizer_fulfillment.loc[location, 'Value'])
+RR4 = (1 - (rr4/100)) * 100
 
-# Local Weight Indicator Env5:
+# Local Weight Indicator RR5:
 # relates to renewable energy consumption (Energy Recovery)
 
 renewable_energy = pd.read_excel(data_path+'/location.xlsx', sheet_name='RenewableEnergyConsumption',
                                  index_col='Country')
-env5 = (renewable_energy.loc[location, 'Value'])
-Env5 = (1 - (env5/100)) * 100
+rr5 = (renewable_energy.loc[location, 'Value'])
+RR5 = (1 - (rr5/100)) * 100
 
-# Local Weight Indicator Env6:
+# Local Weight Indicator RR6:
 # relates to infrastructure quality (Supply Chain Infrastructure)
 
 infrastructure = pd.read_excel(data_path+'/location.xlsx', sheet_name='InfrastructureQuality',
                                          index_col='Country')
-env6 = (infrastructure.loc[location, 'Value'])
-Env6 = (1 - (env6/7)) * 100
+rr6 = (infrastructure.loc[location, 'Value'])
+RR6 = (1 - (rr6/7)) * 100
 
-# Sub-criteria: LCA
-# !!!!! #Yalin - see the separate env.py
 
 # Criteria: Social
 # Sub-criteria: Job Creation
@@ -320,10 +319,78 @@ S11 = s11
 # 0 being low importance for PPE to 100 being high importance for PPE
 S12 = s12
 
-# %%
                     # Tech/System Performance Scores#
-# class AHP(MCDA):
-#     def main():
+
+# Technology Performance Values - Technical Criteria
+Tech_Score_T1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_interface').expected
+Tech_Score_T2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='treatment_type').expected
+Tech_Score_T3 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='system_part_accessibility').expected
+Tech_Score_T4 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='design_transport').expected
+Tech_Score_T5 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='construction_skills').expected
+Tech_Score_T6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='OM_complexity').expected
+Tech_Score_T7 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='pop_flexibility').expected
+Tech_Score_T8 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='storm_flexibility').expected
+Tech_Score_T9 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='temp_flexibility').expected
+Tech_Score_T10 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='drought_flexibility').expected
+
+Tech_Score_T_All = pd.DataFrame([Tech_Score_T1, Tech_Score_T2, Tech_Score_T3, Tech_Score_T4,
+                                 Tech_Score_T5, Tech_Score_T6, Tech_Score_T7, Tech_Score_T8,
+                                 Tech_Score_T9, Tech_Score_T10]).transpose()
+Tech_Score_T_All.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
+
+# Technology Performance Values - Environmental (LCA) Criteria
+# Yalin - you can update this to actually pull the values from the LCA code. The goal is to have a data frame for
+# each endpoint indicator. -Hannah
+Tech_Score_Env1 = [-371.04045858430715, -3871.307383573435, -1114.683613325984]  # Ecosystem Quality
+Tech_Score_Env2 = [0.20460887746066936, -0.17709372298736473, 0.41160079447096]  # Human Health
+Tech_Score_Env3 = [0.2457366918321932, -0.2942841657695248, 1.1398505496550142]  # Resources
+
+Tech_Score_Env_All = pd.DataFrame([Tech_Score_Env1, Tech_Score_Env2, Tech_Score_Env3]).transpose()
+Tech_Score_Env_All.columns = ['Env1', 'Env2', 'Env3']
+
+# Technology Performance Values - Resource Recovery Criteria
+Tech_Score_RR1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='water_reuse').expected
+Tech_Score_RR2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='N_nutrient_recovery').expected
+Tech_Score_RR3 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='P_nutrient_recovery').expected
+Tech_Score_RR4 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='K_nutrient_recovery').expected
+Tech_Score_RR5 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='energy_recovery').expected
+Tech_Score_RR6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='supply_chain').expected
+
+Tech_Score_RR_All = pd.DataFrame([Tech_Score_RR1, Tech_Score_RR2, Tech_Score_RR3, Tech_Score_RR4, Tech_Score_RR5,
+                                  Tech_Score_RR6]).transpose()
+Tech_Score_RR_All.columns = ['RR1', 'RR2', 'RR3', 'RR4', 'RR5', 'RR6']
+
+# Technology Performance Values - Economic Criteria
+Tech_Score_Econ1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_net_cost').expected
+
+Tech_Score_Econ_All = pd.DataFrame([Tech_Score_Econ1]).transpose()
+Tech_Score_Econ_All.columns = ['Econ1']
+
+# Technology Performance Values - Social/Institutional Criteria
+Tech_Score_S1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='design_job_creation').expected
+Tech_Score_S2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='design_high_pay_jobs').expected
+Tech_Score_S3 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='end_user_disposal').expected
+Tech_Score_S4 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='end_user_cleaning').expected
+Tech_Score_S5 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='privacy').expected
+Tech_Score_S6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='odor').expected
+Tech_Score_S7 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='noise').expected
+Tech_Score_S8 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='end_user_disposal_safety').expected
+Tech_Score_S9 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='security').expected
+Tech_Score_S10 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='management_disposal').expected
+Tech_Score_S11 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='management_cleaning').expected
+Tech_Score_S12 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='management_disposal_safety').expected
+
+Tech_Score_S_All = pd.DataFrame([Tech_Score_S1, Tech_Score_S2, Tech_Score_S3, Tech_Score_S4, Tech_Score_S5,
+                                 Tech_Score_S6, Tech_Score_S7, Tech_Score_S8, Tech_Score_S9, Tech_Score_S10,
+                                 Tech_Score_S11, Tech_Score_S12]).transpose()
+Tech_Score_S_All.columns = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12']
+
+# Technology Performance Values - Compiled Criteria
+Tech_Scores_compiled = pd.concat([Tech_Score_T_All, Tech_Score_Env_All, Tech_Score_RR_All, Tech_Score_Econ_All,
+                                  Tech_Score_S_All], axis=1)
+
+
+                    # AHP to Determine Sub-Criteria Weights #
 
 # Step 1: Assign criteria weights in matrix
 
@@ -379,7 +446,6 @@ WS_T =[sum(i) for i in WM_T]
 # convert to an array
 WS_T_a = np.array(WS_T)
 
-
 # Step 4c: divide the weighted sum value by the criteria weights
 R_T = WS_T_a / C_T_W
 
@@ -399,12 +465,79 @@ CR_T = CI_T / RI
 
 # Step 1: Assign criteria weights in matrix
 
-Env_W = [[Env1/Env1, Env1/Env2, Env1/Env3, Env1/Env4, Env1/Env5, Env1/Env6],
-         [Env2/Env1, Env2/Env2, Env2/Env3, Env2/Env4, Env2/Env5, Env2/Env6],
-         [Env3/Env1, Env3/Env2, Env3/Env3, Env3/Env4, Env3/Env5, Env3/Env6],
-         [Env4/Env1, Env4/Env2, Env4/Env3, Env4/Env4, Env4/Env5, Env4/Env6],
-         [Env5/Env1, Env5/Env2, Env5/Env3, Env5/Env4, Env5/Env5, Env5/Env6],
-         [Env6/Env1, Env6/Env2, Env6/Env3, Env6/Env4, Env6/Env5, Env6/Env6]]
+RR_W = [[RR1/RR1, RR1/RR2, RR1/RR3, RR1/RR4, RR1/RR5, RR1/RR6],
+         [RR2/RR1, RR2/RR2, RR2/RR3, RR2/RR4, RR2/RR5, RR2/RR6],
+         [RR3/RR1, RR3/RR2, RR3/RR3, RR3/RR4, RR3/RR5, RR3/RR6],
+         [RR4/RR1, RR4/RR2, RR4/RR3, RR4/RR4, RR4/RR5, RR4/RR6],
+         [RR5/RR1, RR5/RR2, RR5/RR3, RR5/RR4, RR5/RR5, RR5/RR6],
+         [RR6/RR1, RR6/RR2, RR6/RR3, RR6/RR4, RR6/RR5, RR6/RR6]]
+
+RR_W_a = np.array(RR_W)
+
+                ## Part A: Find Criteria Weights and Consistancy##
+# Step 1: Sum the columns
+# sum of columns for Criteria Weight One Matrix
+
+
+def column_sum(RR_W):
+    return[sum(i) for i in zip(*RR_W)]
+    global RR_W_col_sum
+
+
+RR_W_col_sum = np.array(column_sum(RR_W))
+
+
+# Step 2: Normalize the matrix
+RR_W_N = RR_W_a / RR_W_col_sum
+
+
+# Step 3: Calculate Criteria Weights by finding the row averages
+C_RR_W =[sum(i) for i in RR_W_N]
+
+# convert to an array
+# adding brackets to make 2-D array
+C_RR_W_a = np.array([C_RR_W])
+
+# #### have a function that counts the columns and inputs the value as n number of indicators
+n = 6
+
+# Find the average
+Avg_C_RR_W = C_RR_W_a / n
+
+
+# Step 4 Find the Consistency ratio
+# Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
+WM_RR = np.matmul(RR_W_a.T, C_RR_W_a.T)
+
+# Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
+WS_RR =[sum(i) for i in WM_RR]
+
+# convert to an array
+WS_RR_a = np.array(WS_RR)
+
+
+# Step 4c: divide the weighted sum value by the criteria weights
+R_RR = WS_RR_a / C_RR_W
+
+# Step 4d: Find the Consistency index by calculating (delta max - n)/(n-1)
+delta_maxRR = (sum(R_RR))/n
+
+CI_RR = (delta_maxRR - n) / (n - 1)
+
+
+# Step 4e: Divide the Consistency index by the Random index
+
+                            # RI Values
+# n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
+# If CR < 0.1 then our matrix is consistent
+RI = 1.24
+CR_RR = CI_RR / RI
+
+# Step 1: Assign criteria weights in matrix
+'''
+Env_W = [[Env1/Env1, Env1/Env2, Env1/Env3],
+          [Env2/Env1, Env2/Env2, Env2/Env3],
+          [Env3/Env1, Env3/Env2, Env3/Env3]]
 
 Env_W_a = np.array(Env_W)
 
@@ -433,14 +566,14 @@ C_Env_W =[sum(i) for i in Env_W_N]
 C_Env_W_a = np.array([C_Env_W])
 
 # #### have a function that counts the columns and inputs the value as n number of indicators
-n = 6
+n = 3
 
 # Find the average
 Avg_C_Env_W = C_Env_W_a / n
 
 # Step 4 Find the Consistency ratio
 # Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
-WM_Env = np.matmul(Env_W_a.Env, C_Env_W_a.Env)
+WM_Env = np.matmul(Env_W_a.T, C_Env_W_a.T)
 
 # Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
 WS_Env =[sum(i) for i in WM_Env]
@@ -465,76 +598,7 @@ CI_Env = (delta_maxEnv - n) / (n - 1)
 # If CR < 0.1 then our matrix is consistent
 RI = 1.24
 CR_Env = CI_Env / RI
-
-# Step 1: Assign criteria weights in matrix
-
-LCA_W = [[LCA1/LCA1, LCA1/LCA2, LCA1/LCA3, LCA1/LCA4, LCA1/LCA5, LCA1/LCA6],
-          [LCA2/LCA1, LCA2/LCA2, LCA2/LCA3, LCA2/LCA4, LCA2/LCA5, LCA2/LCA6],
-          [LCA3/LCA1, LCA3/LCA2, LCA3/LCA3, LCA3/LCA4, LCA3/LCA5, LCA3/LCA6],
-          [LCA4/LCA1, LCA4/LCA2, LCA4/LCA3, LCA4/LCA4, LCA4/LCA5, LCA4/LCA6],
-          [LCA5/LCA1, LCA5/LCA2, LCA5/LCA3, LCA5/LCA4, LCA5/LCA5, LCA5/LCA6],
-          [LCA6/LCA1, LCA6/LCA2, LCA6/LCA3, LCA6/LCA4, LCA6/LCA5, LCA6/LCA6]]
-
-LCA_W_a = np.array(LCA_W)
-
-                ## Part A: Find Criteria Weights and Consistancy##
-# Step 1: Sum the columns
-# sum of columns for Criteria Weight One Matrix
-
-
-def column_sum(LCA_W):
-    return[sum(i) for i in zip(*LCA_W)]
-    global LCA_W_col_sum
-
-
-LCA_W_col_sum = np.array(column_sum(LCA_W))
-
-
-# Step 2: Normalize the matrix
-LCA_W_N = LCA_W_a / LCA_W_col_sum
-
-
-# Step 3: Calculate Criteria Weights by finding the row averages
-C_LCA_W =[sum(i) for i in LCA_W_N]
-
-# convert to an array
-# adding brackets to make 2-D array
-C_LCA_W_a = np.array([C_LCA_W])
-
-# #### have a function that counts the columns and inputs the value as n number of indicators
-n = 6
-
-# Find the average
-Avg_C_LCA_W = C_LCA_W_a / n
-
-# Step 4 Find the Consistency ratio
-# Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
-WM_LCA = np.matmul(LCA_W_a.LCA, C_LCA_W_a.LCA)
-
-# Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
-WS_LCA =[sum(i) for i in WM_LCA]
-
-# convert to an array
-WS_LCA_a = np.array(WS_LCA)
-
-
-# Step 4c: divide the weighted sum value by the criteria weights
-R_LCA = WS_LCA_a / C_LCA_W
-
-# Step 4d: Find the Consistency index by calculating (delta max - n)/(n-1)
-delta_maxLCA = (sum(R_LCA))/n
-
-CI_LCA = (delta_maxLCA - n) / (n - 1)
-
-
-# Step 4e: Divide the Consistency index by the Random index
-
-                            # RI Values
-# n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49; n=11, RI=1.51; n=12, RI=1.54
-# If CR < 0.1 then our matrix is consistent
-RI = 1.24
-CR_LCA = CI_LCA / RI
-
+'''
 # Step 1: Assign criteria weights in matrix
 
 S_W = [[S1/S1, S1/S2, S1/S3, S1/S4, S1/S5, S1/S6, S1/S7, S1/S8, S1/S9, S1/S10, S1/S11, S1/S12],
@@ -584,7 +648,7 @@ Avg_C_S_W = C_S_W_a / n
 
 # Step 4 Find the Consistency ratio
 # Step 4a: Calculate the weighted matrix by multiplying the matrix by the criteria weight
-WM_S = np.maSmul(S_W_a.S, C_S_W_a.S)
+WM_S = np.matmul(S_W_a.T, C_S_W_a.T)
 
 # Step 4b: Sum the rows of the weighted matrix to find the weighted sum value
 WS_S =[sum(i) for i in WM_S]
@@ -609,3 +673,15 @@ CI_S = (delta_maxS - n) / (n - 1)
 # If CR < 0.1 then our matrix is consistent
 RI = 1.54
 CR_S = CI_S / RI
+
+
+                    # TOPSIS Methodology to Rank Alternatives #
+
+
+#  Create data frames of sub-criteria weights
+
+# Data frame of technical sub-criteria weights
+Tech_weights = pd.DataFrame(Avg_C_T_W)
+Tech_weights.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
+
+# Data frame of
