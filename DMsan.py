@@ -167,36 +167,7 @@ water_stress = pd.read_excel(data_path+'/location.xlsx', sheet_name='WaterStress
 t10 = (water_stress.loc[location, 'Value'])
 T10 = (100-(t10/4.82*100))
 
-'''
-#Criteria: Environmental
-#!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
-# I assume LCA1-3 are for system A-C? I only include the baseline values below,
-# since I think we want to use harmonized assumptions for uncertainty analysis
-lca_baseline_dct = get_LCA_baseline()
-# Only use the hierarchist perspective
 
-
-lca_baseline_dct = get_LCA_baseline()
-# Only use the hierarchist perspective
-hierarchist_dct = {'sysA': {}, 'sysB': {}, 'sysC': {}}
-for sys_ID, results in lca_baseline_dct.items():
-    for ind, value in results.items():
-        if ind.startswith('H_'): # change this to 'I_' for individualist or 'E_' for egalitarian
-            hierarchist_dct[sys_ID][ind] = value
-
-# Because of the bug in this script it won't run, but here's what you should get,
-# note that since each time you need to run the system to retrieve those values,
-# it takes some time to get the results
-# {'sysA': {'H_EcosystemQuality_Total': -371.04045858430715,
-#   'H_HumanHealth_Total': 0.20460887746066936,
-#   'H_Resources_Total': 0.2457366918321932},
-#  'sysB': {'H_EcosystemQuality_Total': -3871.307383573435,
-#   'H_HumanHealth_Total': -0.17709372298736473,
-#   'H_Resources_Total': -0.2942841657695248},
-#  'sysC': {'H_EcosystemQuality_Total': -1114.683613325984,
-#   'H_HumanHealth_Total': 0.41160079447096,
-#   'H_Resources_Total': 1.1398505496550142}}
-'''
 # Criteria: Resource Recovery Potential
 
 # Local Weight Indicator RR1:
@@ -243,6 +214,50 @@ infrastructure = pd.read_excel(data_path+'/location.xlsx', sheet_name='Infrastru
                                          index_col='Country')
 rr6 = (infrastructure.loc[location, 'Value'])
 RR6 = (1 - (rr6/7)) * 100
+
+
+# Criteria: Environmental
+'''
+#!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
+# I assume LCA1-3 are for system A-C? I only include the baseline values below,
+# since I think we want to use harmonized assumptions for uncertainty analysis
+lca_baseline_dct = get_LCA_baseline()
+# Only use the hierarchist perspective
+
+
+lca_baseline_dct = get_LCA_baseline()
+# Only use the hierarchist perspective
+hierarchist_dct = {'sysA': {}, 'sysB': {}, 'sysC': {}}
+for sys_ID, results in lca_baseline_dct.items():
+    for ind, value in results.items():
+        if ind.startswith('H_'): # change this to 'I_' for individualist or 'E_' for egalitarian
+            hierarchist_dct[sys_ID][ind] = value
+
+# Because of the bug in this script it won't run, but here's what you should get,
+# note that since each time you need to run the system to retrieve those values,
+# it takes some time to get the results
+# {'sysA': {'H_EcosystemQuality_Total': -371.04045858430715,
+#   'H_HumanHealth_Total': 0.20460887746066936,
+#   'H_Resources_Total': 0.2457366918321932},
+#  'sysB': {'H_EcosystemQuality_Total': -3871.307383573435,
+#   'H_HumanHealth_Total': -0.17709372298736473,
+#   'H_Resources_Total': -0.2942841657695248},
+#  'sysC': {'H_EcosystemQuality_Total': -1114.683613325984,
+#   'H_HumanHealth_Total': 0.41160079447096,
+#   'H_Resources_Total': 1.1398505496550142}}
+'''
+
+# Local Weight Indicator Env1:
+# relates to the ecosystem quality (LCA)
+Env1 = 0.34
+
+# Local Weight Indicator Env2:
+# relates to the ecosystem quality (LCA)
+Env2 = 0.33
+
+# Local Weight Indicator Env3:
+# relates to the ecosystem quality (LCA)
+Env3 = 0.33
 
 
 # Criteria: Social
@@ -339,16 +354,6 @@ Tech_Score_T_All = pd.DataFrame([Tech_Score_T1, Tech_Score_T2, Tech_Score_T3, Te
                                  Tech_Score_T9, Tech_Score_T10]).transpose()
 Tech_Score_T_All.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
 
-# Technology Performance Values - Environmental (LCA) Criteria
-# Yalin - you can update this to actually pull the values from the LCA code. The goal is to have a data frame for
-# each endpoint indicator. -Hannah
-Tech_Score_Env1 = [-371.04045858430715, -3871.307383573435, -1114.683613325984]  # Ecosystem Quality
-Tech_Score_Env2 = [0.20460887746066936, -0.17709372298736473, 0.41160079447096]  # Human Health
-Tech_Score_Env3 = [0.2457366918321932, -0.2942841657695248, 1.1398505496550142]  # Resources
-
-Tech_Score_Env_All = pd.DataFrame([Tech_Score_Env1, Tech_Score_Env2, Tech_Score_Env3]).transpose()
-Tech_Score_Env_All.columns = ['Env1', 'Env2', 'Env3']
-
 # Technology Performance Values - Resource Recovery Criteria
 Tech_Score_RR1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='water_reuse').expected
 Tech_Score_RR2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='N_nutrient_recovery').expected
@@ -360,6 +365,16 @@ Tech_Score_RR6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', 
 Tech_Score_RR_All = pd.DataFrame([Tech_Score_RR1, Tech_Score_RR2, Tech_Score_RR3, Tech_Score_RR4, Tech_Score_RR5,
                                   Tech_Score_RR6]).transpose()
 Tech_Score_RR_All.columns = ['RR1', 'RR2', 'RR3', 'RR4', 'RR5', 'RR6']
+
+# Technology Performance Values - Environmental (LCA) Criteria
+# Yalin - you can update this to actually pull the values from the LCA code. The goal is to have a data frame for
+# each endpoint indicator. -Hannah
+Tech_Score_Env1 = [-371.04045858430715, -3871.307383573435, -1114.683613325984]  # Ecosystem Quality
+Tech_Score_Env2 = [0.20460887746066936, -0.17709372298736473, 0.41160079447096]  # Human Health
+Tech_Score_Env3 = [0.2457366918321932, -0.2942841657695248, 1.1398505496550142]  # Resources
+
+Tech_Score_Env_All = pd.DataFrame([Tech_Score_Env1, Tech_Score_Env2, Tech_Score_Env3]).transpose()
+Tech_Score_Env_All.columns = ['Env1', 'Env2', 'Env3']
 
 # Technology Performance Values - Economic Criteria
 Tech_Score_Econ1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_net_cost').expected
@@ -387,7 +402,7 @@ Tech_Score_S_All = pd.DataFrame([Tech_Score_S1, Tech_Score_S2, Tech_Score_S3, Te
 Tech_Score_S_All.columns = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12']
 
 # Technology Performance Values - Compiled Criteria
-Tech_Scores_compiled = pd.concat([Tech_Score_T_All, Tech_Score_Env_All, Tech_Score_RR_All, Tech_Score_Econ_All,
+Tech_Scores_compiled = pd.concat([Tech_Score_T_All, Tech_Score_RR_All, Tech_Score_Env_All, Tech_Score_Econ_All,
                                   Tech_Score_S_All], axis=1)
 
 
@@ -535,7 +550,7 @@ RI = 1.24
 CR_RR = CI_RR / RI
 
 # Step 1: Assign criteria weights in matrix
-'''
+
 Env_W = [[Env1/Env1, Env1/Env2, Env1/Env3],
           [Env2/Env1, Env2/Env2, Env2/Env3],
           [Env3/Env1, Env3/Env2, Env3/Env3]]
@@ -599,7 +614,7 @@ CI_Env = (delta_maxEnv - n) / (n - 1)
 # If CR < 0.1 then our matrix is consistent
 RI = 1.24
 CR_Env = CI_Env / RI
-'''
+
 # Step 1: Assign criteria weights in matrix
 
 S_W = [[S1/S1, S1/S2, S1/S3, S1/S4, S1/S5, S1/S6, S1/S7, S1/S8, S1/S9, S1/S10, S1/S11, S1/S12],
@@ -690,10 +705,7 @@ RR_subcriteria_weights = pd.DataFrame(Avg_C_RR_W)
 RR_subcriteria_weights.columns = ['RR1', 'RR2', 'RR3', 'RR4', 'RR5', 'RR6']
 
 # Data frame of environmental (LCA) sub-criteria weights
-'''Env_subcriteria_weights = pd.DataFrame(Avg_C_Env_W)
-Env_subcriteria_weights.columns = ['Env1', 'Env2', 'Env3']'''
-# ### NOTE: Placeholder data for environmental sub-criteria weights to run TOPSIS code ###
-Env_subcriteria_weights = pd.DataFrame([0.34, 0.33, 0.33]).transpose()
+Env_subcriteria_weights = pd.DataFrame(Avg_C_Env_W)
 Env_subcriteria_weights.columns = ['Env1', 'Env2', 'Env3']
 
 # Data frame of economic sub-criteria weights
