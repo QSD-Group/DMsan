@@ -18,10 +18,12 @@ import numpy as np
 import pandas as pd
 import country_converter as coco
 import os
-'''from .env import get_LCA_baseline'''
-data_path = os.path.abspath(os.path.dirname('location.xlsx'))
-data_path_tech_scores = os.path.abspath(os.path.dirname('technology_scores.xlsx'))
-data_path_weight_scenarios = os.path.abspath(os.path.dirname('criteria_weight_scenarios.xlsx'))
+
+data_path = os.path.join(os.path.dirname(__file__), 'data')
+result_path = os.path.join(os.path.dirname(__file__), 'results')
+# data_path = os.path.abspath(os.path.dirname('location.xlsx'))
+data_path_tech_scores = os.path.join(data_path, 'technology_scores.xlsx')
+data_path_weight_scenarios = os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
 
 # class MCDA:
 
@@ -217,46 +219,17 @@ RR6 = (1 - (rr6/7)) * 100
 
 
 # Criteria: Environmental
-'''
-#!!! Yalin, can you add the exposan here and have it in a format similar to the other criteria
-# I assume LCA1-3 are for system A-C? I only include the baseline values below,
-# since I think we want to use harmonized assumptions for uncertainty analysis
-lca_baseline_dct = get_LCA_baseline()
-# Only use the hierarchist perspective
-
-
-lca_baseline_dct = get_LCA_baseline()
-# Only use the hierarchist perspective
-hierarchist_dct = {'sysA': {}, 'sysB': {}, 'sysC': {}}
-for sys_ID, results in lca_baseline_dct.items():
-    for ind, value in results.items():
-        if ind.startswith('H_'): # change this to 'I_' for individualist or 'E_' for egalitarian
-            hierarchist_dct[sys_ID][ind] = value
-
-# Because of the bug in this script it won't run, but here's what you should get,
-# note that since each time you need to run the system to retrieve those values,
-# it takes some time to get the results
-# {'sysA': {'H_EcosystemQuality_Total': -371.04045858430715,
-#   'H_HumanHealth_Total': 0.20460887746066936,
-#   'H_Resources_Total': 0.2457366918321932},
-#  'sysB': {'H_EcosystemQuality_Total': -3871.307383573435,
-#   'H_HumanHealth_Total': -0.17709372298736473,
-#   'H_Resources_Total': -0.2942841657695248},
-#  'sysC': {'H_EcosystemQuality_Total': -1114.683613325984,
-#   'H_HumanHealth_Total': 0.41160079447096,
-#   'H_Resources_Total': 1.1398505496550142}}
-'''
 
 # Local Weight Indicator Env1:
 # relates to the ecosystem quality (LCA)
 Env1 = 0.34
 
 # Local Weight Indicator Env2:
-# relates to the ecosystem quality (LCA)
+# relates to the human health (LCA)
 Env2 = 0.33
 
 # Local Weight Indicator Env3:
-# relates to the ecosystem quality (LCA)
+# relates to the resource depletion (LCA)
 Env3 = 0.33
 
 
@@ -338,16 +311,16 @@ S12 = s12
                     # Tech/System Performance Scores#
 
 # Technology Performance Values - Technical Criteria
-Tech_Score_T1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_interface').expected
-Tech_Score_T2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='treatment_type').expected
-Tech_Score_T3 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='system_part_accessibility').expected
-Tech_Score_T4 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='design_transport').expected
-Tech_Score_T5 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='construction_skills').expected
-Tech_Score_T6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='OM_complexity').expected
-Tech_Score_T7 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='pop_flexibility').expected
-Tech_Score_T8 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='storm_flexibility').expected
-Tech_Score_T9 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='temp_flexibility').expected
-Tech_Score_T10 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='drought_flexibility').expected
+Tech_Score_T1 = pd.read_excel(data_path_tech_scores, sheet_name='user_interface').expected
+Tech_Score_T2 = pd.read_excel(data_path_tech_scores, sheet_name='treatment_type').expected
+Tech_Score_T3 = pd.read_excel(data_path_tech_scores, sheet_name='system_part_accessibility').expected
+Tech_Score_T4 = pd.read_excel(data_path_tech_scores, sheet_name='design_transport').expected
+Tech_Score_T5 = pd.read_excel(data_path_tech_scores, sheet_name='construction_skills').expected
+Tech_Score_T6 = pd.read_excel(data_path_tech_scores, sheet_name='OM_complexity').expected
+Tech_Score_T7 = pd.read_excel(data_path_tech_scores, sheet_name='pop_flexibility').expected
+Tech_Score_T8 = pd.read_excel(data_path_tech_scores, sheet_name='storm_flexibility').expected
+Tech_Score_T9 = pd.read_excel(data_path_tech_scores, sheet_name='temp_flexibility').expected
+Tech_Score_T10 = pd.read_excel(data_path_tech_scores, sheet_name='drought_flexibility').expected
 
 Tech_Score_T_All = pd.DataFrame([Tech_Score_T1, Tech_Score_T2, Tech_Score_T3, Tech_Score_T4,
                                  Tech_Score_T5, Tech_Score_T6, Tech_Score_T7, Tech_Score_T8,
@@ -355,46 +328,46 @@ Tech_Score_T_All = pd.DataFrame([Tech_Score_T1, Tech_Score_T2, Tech_Score_T3, Te
 Tech_Score_T_All.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10']
 
 # Technology Performance Values - Resource Recovery Criteria
-Tech_Score_RR1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='water_reuse').expected
-Tech_Score_RR2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='N_nutrient_recovery').expected
-Tech_Score_RR3 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='P_nutrient_recovery').expected
-Tech_Score_RR4 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='K_nutrient_recovery').expected
-Tech_Score_RR5 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='energy_recovery').expected
-Tech_Score_RR6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='supply_chain').expected
+Tech_Score_RR1 = pd.read_excel(data_path_tech_scores, sheet_name='water_reuse').expected
+Tech_Score_RR2 = pd.read_excel(data_path_tech_scores, sheet_name='N_nutrient_recovery').expected
+Tech_Score_RR3 = pd.read_excel(data_path_tech_scores, sheet_name='P_nutrient_recovery').expected
+Tech_Score_RR4 = pd.read_excel(data_path_tech_scores, sheet_name='K_nutrient_recovery').expected
+Tech_Score_RR5 = pd.read_excel(data_path_tech_scores, sheet_name='energy_recovery').expected
+Tech_Score_RR6 = pd.read_excel(data_path_tech_scores, sheet_name='supply_chain').expected
 
 Tech_Score_RR_All = pd.DataFrame([Tech_Score_RR1, Tech_Score_RR2, Tech_Score_RR3, Tech_Score_RR4, Tech_Score_RR5,
                                   Tech_Score_RR6]).transpose()
 Tech_Score_RR_All.columns = ['RR1', 'RR2', 'RR3', 'RR4', 'RR5', 'RR6']
 
 # Technology Performance Values - Environmental (LCA) Criteria
-# Yalin - you can update this to actually pull the values from the LCA code. The goal is to have a data frame for
-# each endpoint indicator. -Hannah
-Tech_Score_Env1 = [-371.04045858430715, -3871.307383573435, -1114.683613325984]  # Ecosystem Quality
-Tech_Score_Env2 = [0.20460887746066936, -0.17709372298736473, 0.41160079447096]  # Human Health
-Tech_Score_Env3 = [0.2457366918321932, -0.2942841657695248, 1.1398505496550142]  # Resources
+lca_baseline = pd.read_csv(os.path.join(data_path, 'lca_baseline.tsv'), index_col=0, sep='\t')
+H_ind = [ind for ind in lca_baseline.index if ind.startswith('H_')]
+Tech_Score_Env1 = lca_baseline[lca_baseline.index==H_ind[0]].values[0]  # Ecosystem Quality
+Tech_Score_Env2 = lca_baseline[lca_baseline.index==H_ind[1]].values[0]  # Human Health
+Tech_Score_Env3 = lca_baseline[lca_baseline.index==H_ind[2]].values[0]  # Resource Depletion
 
 Tech_Score_Env_All = pd.DataFrame([Tech_Score_Env1, Tech_Score_Env2, Tech_Score_Env3]).transpose()
 Tech_Score_Env_All.columns = ['Env1', 'Env2', 'Env3']
 
 # Technology Performance Values - Economic Criteria
-Tech_Score_Econ1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_net_cost').expected
+Tech_Score_Econ1 = pd.read_excel(data_path_tech_scores, sheet_name='user_net_cost').expected
 
 Tech_Score_Econ_All = pd.DataFrame([Tech_Score_Econ1]).transpose()
 Tech_Score_Econ_All.columns = ['Econ1']
 
 # Technology Performance Values - Social/Institutional Criteria
-Tech_Score_S1 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='design_job_creation').expected
-Tech_Score_S2 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='design_high_pay_jobs').expected
-Tech_Score_S3 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='end_user_disposal').expected
-Tech_Score_S4 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='end_user_cleaning').expected
-Tech_Score_S5 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='privacy').expected
-Tech_Score_S6 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='odor').expected
-Tech_Score_S7 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='noise').expected
-Tech_Score_S8 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='end_user_disposal_safety').expected
-Tech_Score_S9 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='security').expected
-Tech_Score_S10 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='management_disposal').expected
-Tech_Score_S11 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='management_cleaning').expected
-Tech_Score_S12 = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='management_disposal_safety').expected
+Tech_Score_S1 = pd.read_excel(data_path_tech_scores, sheet_name='design_job_creation').expected
+Tech_Score_S2 = pd.read_excel(data_path_tech_scores, sheet_name='design_high_pay_jobs').expected
+Tech_Score_S3 = pd.read_excel(data_path_tech_scores, sheet_name='end_user_disposal').expected
+Tech_Score_S4 = pd.read_excel(data_path_tech_scores, sheet_name='end_user_cleaning').expected
+Tech_Score_S5 = pd.read_excel(data_path_tech_scores, sheet_name='privacy').expected
+Tech_Score_S6 = pd.read_excel(data_path_tech_scores, sheet_name='odor').expected
+Tech_Score_S7 = pd.read_excel(data_path_tech_scores, sheet_name='noise').expected
+Tech_Score_S8 = pd.read_excel(data_path_tech_scores, sheet_name='end_user_disposal_safety').expected
+Tech_Score_S9 = pd.read_excel(data_path_tech_scores, sheet_name='security').expected
+Tech_Score_S10 = pd.read_excel(data_path_tech_scores, sheet_name='management_disposal').expected
+Tech_Score_S11 = pd.read_excel(data_path_tech_scores, sheet_name='management_cleaning').expected
+Tech_Score_S12 = pd.read_excel(data_path_tech_scores, sheet_name='management_disposal_safety').expected
 
 Tech_Score_S_All = pd.DataFrame([Tech_Score_S1, Tech_Score_S2, Tech_Score_S3, Tech_Score_S4, Tech_Score_S5,
                                  Tech_Score_S6, Tech_Score_S7, Tech_Score_S8, Tech_Score_S9, Tech_Score_S10,
@@ -721,20 +694,20 @@ subcriteria_weights = pd.concat([T_subcriteria_weights, RR_subcriteria_weights, 
 
 # Data to perform TOPSIS
 perform_values = Tech_Scores_compiled
-criteria_weight = pd.read_excel(data_path_tech_scores+'/criteria_weight_scenarios.xlsx', sheet_name='weight_scenarios')
+criteria_weight = pd.read_excel(data_path+'/criteria_weight_scenarios.xlsx', sheet_name='weight_scenarios')
 indicator_weight = subcriteria_weights
-indicator_type = pd.read_excel(data_path_tech_scores+'/criteria_weight_scenarios.xlsx', sheet_name='indicator_type')
+indicator_type = pd.read_excel(data_path+'/criteria_weight_scenarios.xlsx', sheet_name='indicator_type')
 
 num_weight = criteria_weight.shape[0]  # quantity of criteria weighting scenarios to run
 num_system = perform_values.shape[0]  # quantity of sanitation system alternatives to evaluate
 num_indicator = indicator_type.shape[1]  # quantity of indicators included in the model
 
 # Output Excel File of Results
-writer = pd.ExcelWriter('RESULTS_TOPSIS.xlsx')
+writer = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_TOPSIS.xlsx'))
 
 # Indicator Column Names
 indicators = list(indicator_type.columns)
-sanitation_systems = pd.read_excel(data_path_tech_scores+'/technology_scores.xlsx', sheet_name='user_interface').system
+sanitation_systems = pd.read_excel(data_path_tech_scores, sheet_name='user_interface').system
 
 # 1. Normalized Decision Matrix (Vector Normalization)
 normal_matrix_FINAL = pd.DataFrame()
@@ -835,7 +808,7 @@ for i in range(num_weight):
 performance_score_FINAL.columns = sanitation_systems
 ranking_FINAL.columns = sanitation_systems
 
-criteria_weight_scenario = pd.read_excel(data_path_tech_scores+'/criteria_weight_scenarios.xlsx', sheet_name='weight_scenarios').Ratio
+criteria_weight_scenario = pd.read_excel(data_path+'/criteria_weight_scenarios.xlsx', sheet_name='weight_scenarios').Ratio
 criteria_weight_scenario = pd.DataFrame(criteria_weight_scenario)
 criteria_weight_scenario.columns = ['weight_scenario']
 
