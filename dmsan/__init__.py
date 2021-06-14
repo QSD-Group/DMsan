@@ -7,14 +7,14 @@ Created on Thu Jun 10 15:19:24 2021
 """
 
 from DMsan import *
-from ._env import *
+from ._bwaise import *
 
 from . import (
     DMsan,
-    _env,
+    _bwaise,
     )
 
 __all__ = (
     # *DMsan.__all__
-    *_env.__al__,
+    *_bwaise.__al__,
     )

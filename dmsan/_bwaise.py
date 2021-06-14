@@ -18,7 +18,7 @@ import os
 import pandas as pd
 from exposan import bwaise as bw
 
-__all__ = ('get_lca_baseline', 'get_lca_uncertainties')
+__all__ = ('get_baseline', 'save_baseline', 'get_uncertainties', 'save_uncertainties')
 
 data_path = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -53,25 +53,44 @@ def get_cap_yr_pts(lca):
     return impact_dct
 
 
-def get_lca_baseline():
+def get_baseline():
+    baseline_dct = {'sysA': [], 'sysB': [], 'sysC': []}
     lcas = update_lca()
-    baseline_dct = {}
+    inds = lcas[0].indicators
+    idxs = pd.MultiIndex.from_tuples([
+        *zip(('Net recovery',)*4, ('COD', 'N', 'P', 'K')),
+        # ('Net recovery', 'COD'), ('Net recovery', 'N'), ('Net recovery', 'P'), ('Net recovery', 'K'),
+        ('TEA results', 'Net cost'),
+        *zip(('LCA results',)*len(inds), inds)
+        ])
+    df = pd.DataFrame(index=idxs)
 
-    for lca in lcas:
-        baseline_dct[lca.system.ID] = get_cap_yr_pts(lca)
+    sys_dct = bw.systems.sys_dct
+    for sys in (bw.sysA, bw.sysB, bw.sysC):
+        data = baseline_dct[sys.ID]
+        func_dct = bw.systems.get_summarizing_fuctions(sys)
+        for i in ('COD', 'N', 'P', 'K'):
+            data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
 
-    df = pd.DataFrame.from_dict(baseline_dct)
+        tea = sys_dct['TEA'][sys.ID]
+        ppl = sys_dct['ppl'][sys.ID]
+        data.append(func_dct['get_annual_net_cost'](tea, ppl))
+
+        lca = sys_dct['LCA'][sys.ID]
+        data.extend((i for i in get_cap_yr_pts(lca).values()))
+        df[sys.ID] = data
     return df
 
-def save_lca_baseline(path=''):
+
+def save_baseline(path=''):
     if not path:
         path = os.path.join(data_path, 'lca_baseline.tsv')
     sep = '\t' if path.endswith('.tsv') else ''
-    lca_baseline_df = get_lca_baseline()
-    lca_baseline_df.to_csv(os.path.join(data_path, 'lca_baseline.tsv'), sep=sep)
-    return lca_baseline_df
+    baseline_df = get_baseline()
+    baseline_df.to_csv(os.path.join(data_path, 'bwaise_baseline.tsv'), sep=sep)
+    return baseline_df
 
-lca_baseline_df = save_lca_baseline()
+baseline_df = save_baseline()
 
 
 # %%
@@ -80,7 +99,7 @@ lca_baseline_df = save_lca_baseline()
 # Add uncertainties
 # =============================================================================
 
-def get_lca_uncertainties():
+def get_uncertainties():
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters, run_uncertainty
     models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
 
@@ -93,18 +112,21 @@ def get_lca_uncertainties():
         uncertainty_dct[model.system.ID] = run_uncertainty(model, N=10)['data']
     return uncertainty_dct
 
-def save_lca_uncertainties(path=''):
+def save_uncertainties(path=''):
     if not path:
-        path = os.path.join(data_path, 'lca_uncertainties.xlsx')
-    lca_uncertainty_dct = get_lca_uncertainties()
+        path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
+    uncertainty_dct = get_uncertainties()
     writer = pd.ExcelWriter(path)
 
-    for sys_ID, df in lca_uncertainty_dct.items():
-        lca_columns = [col for col in df.columns if 'net emission' in col[-1].lower()]
-        new_df = df[lca_columns]
+    for sys_ID, df in uncertainty_dct.items():
+        columns = [col for col in df.columns
+                   if 'recovery' in col[0].lower() and 'total' in col[1].lower()]
+        columns += [col for col in df.columns if 'net cost' in col[1].lower()]
+        columns += [col for col in df.columns if 'net emission' in col[1].lower()]
+        new_df = df[columns]
         new_df.to_excel(writer, sheet_name=sys_ID)
     writer.save()
 
-    return lca_uncertainty_dct
+    return uncertainty_dct
 
-lca_uncertainty_dct = save_lca_uncertainties()
+uncertainty_dct = save_uncertainties()
