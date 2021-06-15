@@ -329,10 +329,16 @@ Tech_Score_T_All.columns = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9'
 
 # Technology Performance Values - Resource Recovery Criteria
 Tech_Score_RR1 = pd.read_excel(data_path_tech_scores, sheet_name='water_reuse').expected
-Tech_Score_RR2 = pd.read_excel(data_path_tech_scores, sheet_name='N_nutrient_recovery').expected
-Tech_Score_RR3 = pd.read_excel(data_path_tech_scores, sheet_name='P_nutrient_recovery').expected
-Tech_Score_RR4 = pd.read_excel(data_path_tech_scores, sheet_name='K_nutrient_recovery').expected
-Tech_Score_RR5 = pd.read_excel(data_path_tech_scores, sheet_name='energy_recovery').expected
+
+baseline = pd.read_csv(os.path.join(data_path, 'bwaise_baseline.tsv'), index_col=(0, 1), sep='\t')
+Tech_Score_RR2 = baseline.loc[('Net recovery', 'N')].values
+Tech_Score_RR3 = baseline.loc[('Net recovery', 'P')].values
+Tech_Score_RR4 = baseline.loc[('Net recovery', 'K')].values
+Tech_Score_RR5 = baseline.loc[('Net recovery', 'COD')].values
+# Tech_Score_RR2 = pd.read_excel(data_path_tech_scores, sheet_name='N_nutrient_recovery').expected
+# Tech_Score_RR3 = pd.read_excel(data_path_tech_scores, sheet_name='P_nutrient_recovery').expected
+# Tech_Score_RR4 = pd.read_excel(data_path_tech_scores, sheet_name='K_nutrient_recovery').expected
+# Tech_Score_RR5 = pd.read_excel(data_path_tech_scores, sheet_name='energy_recovery').expected
 Tech_Score_RR6 = pd.read_excel(data_path_tech_scores, sheet_name='supply_chain').expected
 
 Tech_Score_RR_All = pd.DataFrame([Tech_Score_RR1, Tech_Score_RR2, Tech_Score_RR3, Tech_Score_RR4, Tech_Score_RR5,
@@ -340,17 +346,17 @@ Tech_Score_RR_All = pd.DataFrame([Tech_Score_RR1, Tech_Score_RR2, Tech_Score_RR3
 Tech_Score_RR_All.columns = ['RR1', 'RR2', 'RR3', 'RR4', 'RR5', 'RR6']
 
 # Technology Performance Values - Environmental (LCA) Criteria
-lca_baseline = pd.read_csv(os.path.join(data_path, 'lca_baseline.tsv'), index_col=0, sep='\t')
-H_ind = [ind for ind in lca_baseline.index if ind.startswith('H_')]
-Tech_Score_Env1 = lca_baseline[lca_baseline.index==H_ind[0]].values[0]  # Ecosystem Quality
-Tech_Score_Env2 = lca_baseline[lca_baseline.index==H_ind[1]].values[0]  # Human Health
-Tech_Score_Env3 = lca_baseline[lca_baseline.index==H_ind[2]].values[0]  # Resource Depletion
+H_ind = [ind for ind in baseline.index if ind[1].startswith('H_')]
+Tech_Score_Env1 = baseline[baseline.index==H_ind[0]].values[0]  # Ecosystem Quality
+Tech_Score_Env2 = baseline[baseline.index==H_ind[1]].values[0]  # Human Health
+Tech_Score_Env3 = baseline[baseline.index==H_ind[2]].values[0]  # Resource Depletion
 
 Tech_Score_Env_All = pd.DataFrame([Tech_Score_Env1, Tech_Score_Env2, Tech_Score_Env3]).transpose()
 Tech_Score_Env_All.columns = ['Env1', 'Env2', 'Env3']
 
 # Technology Performance Values - Economic Criteria
-Tech_Score_Econ1 = pd.read_excel(data_path_tech_scores, sheet_name='user_net_cost').expected
+Tech_Score_Econ1 = baseline.loc[('TEA results', 'Net cost')].values
+# Tech_Score_Econ1 = pd.read_excel(data_path_tech_scores, sheet_name='user_net_cost').expected
 
 Tech_Score_Econ_All = pd.DataFrame([Tech_Score_Econ1]).transpose()
 Tech_Score_Econ_All.columns = ['Econ1']
