@@ -319,7 +319,7 @@ Tech_Score_T5 = pd.read_excel(data_path_tech_scores, sheet_name='construction_sk
 Tech_Score_T6 = pd.read_excel(data_path_tech_scores, sheet_name='OM_complexity').expected
 Tech_Score_T7 = pd.read_excel(data_path_tech_scores, sheet_name='pop_flexibility').expected
 Tech_Score_T8 = pd.read_excel(data_path_tech_scores, sheet_name='storm_flexibility').expected
-Tech_Score_T9 = pd.read_excel(data_path_tech_scores, sheet_name='temp_flexibility').expected
+Tech_Score_T9 = pd.read_excel(data_path_tech_scores, sheet_name='electricity_flexibility').expected
 Tech_Score_T10 = pd.read_excel(data_path_tech_scores, sheet_name='drought_flexibility').expected
 
 Tech_Score_T_All = pd.DataFrame([Tech_Score_T1, Tech_Score_T2, Tech_Score_T3, Tech_Score_T4,
