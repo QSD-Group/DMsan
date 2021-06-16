@@ -5,7 +5,7 @@ Modified on Fri June 11, 2021
 @author:
     torimorgan <vlmorgan@illinois.edu>,
     Hannah Lohman <hlohman94@gmail.com>,
-    stetsonrowles,
+    Stetson Rowles, <stetsonsc@gmail.com>
     Yalin Li <zoe.yalin.li@gmail.com>
 
 test change
@@ -151,20 +151,20 @@ t7 = (pop_growth.loc[location, 'Value'])
 T7 = (t7/4.5*100)
 
 # Local Weight Indicator T8:
-# relates to the climate risk
+# relates to the flexibility to water table rise, wind damage, or flooding
 climate_risk = pd.read_excel(data_path+'/location.xlsx', sheet_name='ClimateRiskIndex', index_col='Country')
 t8 = (climate_risk.loc[location, 'Value'])
 T8 = (100-(t8/118*100))
 
 # Local Weight Indicator T9:
-# relates to the temperature anomalies
-temperature_anomalies = pd.read_excel(data_path+'/location.xlsx', sheet_name='TemperatureAnomalies',
+# relates to the grid-electricity flexibility
+electricity_blackouts = pd.read_excel(data_path+'/location.xlsx', sheet_name='ElectricityBlackouts',
                                       index_col='Country')
-t9 = (temperature_anomalies.loc[location, 'Value'])
-T9 = (100-(t9/3.6*100))
+t9 = (electricity_blackouts.loc[location, 'Value'])
+T9 = (100-(t9/72.5*100))
 
 # Local Weight Indicator T10:
-# relates to the water stress
+# relates to the drought flexibility
 water_stress = pd.read_excel(data_path+'/location.xlsx', sheet_name='WaterStress', index_col='Country')
 t10 = (water_stress.loc[location, 'Value'])
 T10 = (100-(t10/4.82*100))
