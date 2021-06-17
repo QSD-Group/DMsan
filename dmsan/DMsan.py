@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 import country_converter as coco
 import os
+from scipy.stats import rankdata
 
 data_path = os.path.join(os.path.dirname(__file__), 'data')
 result_path = os.path.join(os.path.dirname(__file__), 'results')
@@ -804,9 +805,9 @@ for i in range(num_weight):
         performance_score = pd.DataFrame([performance_score])
         performance_score_DF = pd.concat([performance_score_DF, performance_score], axis=0).reset_index(drop=True)
 
-        # Ranking of Each Sanitation System
-        ranking_DF = performance_score_DF.rank()
-        ranking_DF = ranking_DF.transpose()
+    # Ranking of Each Sanitation System
+    rank = (len(performance_score_DF) + 1) - rankdata(performance_score_DF).astype(int)
+    ranking_DF = pd.DataFrame(rank).transpose()
 
     performance_score_DF = performance_score_DF.transpose()
     performance_score_FINAL = pd.concat([performance_score_FINAL, performance_score_DF]).reset_index(drop=True)
