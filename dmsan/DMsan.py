@@ -335,7 +335,7 @@ baseline = pd.read_csv(os.path.join(data_path, 'bwaise_baseline.tsv'), index_col
 Tech_Score_RR2 = baseline.loc[('Net recovery', 'N')].values
 Tech_Score_RR3 = baseline.loc[('Net recovery', 'P')].values
 Tech_Score_RR4 = baseline.loc[('Net recovery', 'K')].values
-Tech_Score_RR5 = baseline.loc[('Net recovery', 'COD')].values
+Tech_Score_RR5 = baseline.loc[('Net recovery', 'energy')].values
 # Tech_Score_RR2 = pd.read_excel(data_path_tech_scores, sheet_name='N_nutrient_recovery').expected
 # Tech_Score_RR3 = pd.read_excel(data_path_tech_scores, sheet_name='P_nutrient_recovery').expected
 # Tech_Score_RR4 = pd.read_excel(data_path_tech_scores, sheet_name='K_nutrient_recovery').expected

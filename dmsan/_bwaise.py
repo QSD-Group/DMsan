@@ -58,8 +58,7 @@ def get_baseline():
     lcas = update_lca()
     inds = lcas[0].indicators
     idxs = pd.MultiIndex.from_tuples([
-        *zip(('Net recovery',)*4, ('COD', 'N', 'P', 'K')),
-        # ('Net recovery', 'COD'), ('Net recovery', 'N'), ('Net recovery', 'P'), ('Net recovery', 'K'),
+        *zip(('Net recovery',)*4, ('N', 'P', 'K', 'energy')),
         ('TEA results', 'Net cost'),
         *zip(('LCA results',)*len(inds), inds)
         ])
@@ -69,8 +68,9 @@ def get_baseline():
     for sys in (bw.sysA, bw.sysB, bw.sysC):
         data = baseline_dct[sys.ID]
         func_dct = bw.systems.get_summarizing_fuctions(sys)
-        for i in ('COD', 'N', 'P', 'K'):
+        for i in ('N', 'P', 'K'):
             data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
+        data.append(func_dct['get_gas_COD_recovery'](sys, 'COD')) # energy
 
         tea = sys_dct['TEA'][sys.ID]
         ppl = sys_dct['ppl'][sys.ID]
