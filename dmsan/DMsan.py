@@ -849,9 +849,7 @@ writer.save()
                         # (C/D23, C/D23, C/D23, C/D23, C/D23),
                         # (C/D31, C/D31, C/D31, C/D31, C/D31),
                         # (C/D32, C/D32, C/D32, C/D32, C/D32)]
-performance_score_ELECTRE = pd.DataFrame()
-ranking_ELECTRE = pd.DataFrame()
-concordance = pd.DataFrame()
+
 
 
 #Step 4: Calculate Concordance (Dominance) Interval Matrix
