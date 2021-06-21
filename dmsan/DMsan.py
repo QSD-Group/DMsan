@@ -27,6 +27,7 @@ data_path_tech_scores = os.path.join(data_path, 'technology_scores.xlsx')
 data_path_weight_scenarios = os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
 
 # class MCDA:
+    
 
 # Step 1: Identify Location
 
@@ -832,23 +833,70 @@ writer.save()
 #already defined in TOPSIS
 
 ##Step 2: Normalize the Matrix
-#!!!! Double check if this is the same normlization as TOPSIS
-#ELECTRE -> square values, sum column, take square root of column, divide each cell in column by square root value
-#normal_matrix_FINAL.columns = indicators
-#weighted_normal_matrix_FINAL.columns = indicators
-#if same method then used weighted normal matrix from TOPSIS 
+#already coded in TOPSIS
 
 #Step 3: Find the concordance and discordance sets
-#loop if A1 is > or = to A2, then A1 = 1 else 0
-#for concordance A12 = Criteria = 1 i.e. if A1 > or = A2 for C1, C4, C5
-    #then C12 = (1, 4, 5) and D12 = (2, 3)
-#matrix should look like filled with 0 for discordance or 1 for concordance
-                        # [(C/D12, C/D12, C/D12, C/D12, C/D12),
-                        # (C/D13, C/D13, C/D13, C/D13, C/D13),
-                        # (C/D21, C/D21, C/D21, C/D21, C/D21),
-                        # (C/D23, C/D23, C/D23, C/D23, C/D23),
-                        # (C/D31, C/D31, C/D31, C/D31, C/D31),
-                        # (C/D32, C/D32, C/D32, C/D32, C/D32)]
+#loop if A1 is > or = to A2 for each indicator, pull associated weight into sum
+#if not input 0 into sum
+
+for j in range(num_indicator):
+        # Ideal Best and Ideal Worst Value for Each Sub-Criteria
+        indicator_category = indicator_type.iloc[1, j]  # 0 is non-beneficial (want low value) and 1 is beneficial
+        if indicator_category == 0:  # sub-criteria is non-beneficial, so ideal best is the lowest value
+            if weighted_normal_matrix_FINAL.iloc[0,j]<weighted_normal_matrix_FINAL.iloc[1,j]:
+                A_1_2 = 1
+            else:
+                A_1_2 = 0
+            if weighted_normal_matrix_FINAL.iloc[0,j]<weighted_normal_matrix_FINAL.iloc[2,j]:
+                A_1_3 = 1
+            else:
+                A_1_3 = 0
+            if weighted_normal_matrix_FINAL.iloc[1,j]<weighted_normal_matrix_FINAL.iloc[0,j]:
+                A_2_1 = 1
+            else:
+                A_2_1 = 0
+            if weighted_normal_matrix_FINAL.iloc[1,j]<weighted_normal_matrix_FINAL.iloc[2,j]:
+                A_2_3 = 1
+            else:
+                A_2_3 = 0
+            if weighted_normal_matrix_FINAL.iloc[2,j]<weighted_normal_matrix_FINAL.iloc[0,j]:
+                A_3_1 = 1
+            else:
+                A_3_1 = 0
+            if weighted_normal_matrix_FINAL.iloc[2,j]<weighted_normal_matrix_FINAL.iloc[1,j]:
+                A_3_2 = 1
+            else:
+                A_3_2 = 0    
+        elif indicator_category == 1:  # sub-criteria is beneficial, so ideal best is the highest value
+            if weighted_normal_matrix_FINAL.iloc[0,j]>weighted_normal_matrix_FINAL.iloc[1,j]:
+                A_1_2 = 1
+            else:
+                A_1_2 = 0
+            if weighted_normal_matrix_FINAL.iloc[0,j]>weighted_normal_matrix_FINAL.iloc[2,j]:
+                A_1_3 = 1
+            else:
+                A_1_3 = 0
+            if weighted_normal_matrix_FINAL.iloc[1,j]>weighted_normal_matrix_FINAL.iloc[0,j]:
+                A_2_1 = 1
+            else:
+                A_2_1 = 0
+            if weighted_normal_matrix_FINAL.iloc[1,j]>weighted_normal_matrix_FINAL.iloc[2,j]:
+                A_2_3 = 1
+            else:
+                A_2_3 = 0
+            if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[0,j]:
+                A_3_1 = 1
+            else:
+                A_3_1 = 0
+            if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[1,j]:
+                A_3_2 = 1
+            else:
+                A_3_2 = 0  
+        else:
+            print("ELECTRE Input Error")
+            
+        concordance_set = pd.DataFrame([A_1_2, A_1_3, A_2_1, A_2_3, A_3_1, A_3_2])
+        print(concordance_set)
 
 
 
@@ -858,14 +906,29 @@ writer.save()
 
 #Step 5: Calculate Discordance (Weakness) Interval Matrix 
 #Calculate absolute value of A2 - A1 from the normalized weighted matrix 
-#matrix should be 
-#diaganals should be 0 
+#find the maximum value of the discordance set values and divide by the maximum of the whole row
+#input the discordance values into a matrix
+
+
+
 
 #Step 6: Find cordance index matrix
 #sum row for concordance interval matrix
-#m = number of global weights
+#m = number of global weights/number of local weights? 
 #concordance_index = sum/m(m-1) = sum/20 = cbar
-#if ConcordanceIntervalMatrixij > or = cbar, then ConcordanceIndexMatrixij = 1
+#if ConcordanceIntervalMatrixij > or = cbar, then ConcordanceIndexMatrix(ij) = 1
+#if ConcordanceIntervalMatrixij < cbar, then Concordance Index Matrix(ij) = 0
 
 #Step 7: Find disconcordance index matrix
 #Step 8: Calculate next superior and inferior values
+
+# concordance_set = pd.DataFrame()
+# row_number = 1
+# for r in rows :
+#     if r = row_number
+#      new_matrix[r,r] = 0
+#     else: 
+#         for c in columns:
+#             a = get  [row_number, c]
+#             if ac>a:
+#                 count = count c.weight
