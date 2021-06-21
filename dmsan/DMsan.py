@@ -826,3 +826,48 @@ performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
 ranking_FINAL.to_excel(writer, sheet_name='ranking')
 
 writer.save()
+
+##ELECTRE
+##Step 1: Forming Decision Making Matrix
+#already defined in TOPSIS
+
+##Step 2: Normalize the Matrix
+#!!!! Double check if this is the same normlization as TOPSIS
+#ELECTRE -> square values, sum column, take square root of column, divide each cell in column by square root value
+#normal_matrix_FINAL.columns = indicators
+#weighted_normal_matrix_FINAL.columns = indicators
+#if same method then used weighted normal matrix from TOPSIS 
+
+#Step 3: Find the concordance and discordance sets
+#loop if A1 is > or = to A2, then A1 = 1 else 0
+#for concordance A12 = Criteria = 1 i.e. if A1 > or = A2 for C1, C4, C5
+    #then C12 = (1, 4, 5) and D12 = (2, 3)
+#matrix should look like filled with 0 for discordance or 1 for concordance
+                        # [(C/D12, C/D12, C/D12, C/D12, C/D12),
+                        # (C/D13, C/D13, C/D13, C/D13, C/D13),
+                        # (C/D21, C/D21, C/D21, C/D21, C/D21),
+                        # (C/D23, C/D23, C/D23, C/D23, C/D23),
+                        # (C/D31, C/D31, C/D31, C/D31, C/D31),
+                        # (C/D32, C/D32, C/D32, C/D32, C/D32)]
+performance_score_ELECTRE = pd.DataFrame()
+ranking_ELECTRE = pd.DataFrame()
+concordance = pd.DataFrame()
+
+
+#Step 4: Calculate Concordance (Dominance) Interval Matrix
+#3x3 Matrix sum the criteria weights when ij = 0
+
+
+#Step 5: Calculate Discordance (Weakness) Interval Matrix 
+#Calculate absolute value of A2 - A1 from the normalized weighted matrix 
+#matrix should be 
+#diaganals should be 0 
+
+#Step 6: Find cordance index matrix
+#sum row for concordance interval matrix
+#m = number of global weights
+#concordance_index = sum/m(m-1) = sum/20 = cbar
+#if ConcordanceIntervalMatrixij > or = cbar, then ConcordanceIndexMatrixij = 1
+
+#Step 7: Find disconcordance index matrix
+#Step 8: Calculate next superior and inferior values
