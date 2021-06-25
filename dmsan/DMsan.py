@@ -838,6 +838,7 @@ writer.save()
 #Step 3: Find the concordance and discordance sets
 #loop if A1 is > or = to A2 for each indicator, pull associated weight into sum
 #if not input 0 into sum
+concordance = pd.DataFrame()
 
 for j in range(num_indicator):
         # Ideal Best and Ideal Worst Value for Each Sub-Criteria
@@ -896,12 +897,49 @@ for j in range(num_indicator):
             print("ELECTRE Input Error")
             
         concordance_set = pd.DataFrame([A_1_2, A_1_3, A_2_1, A_2_3, A_3_1, A_3_2])
-        print(concordance_set)
 
+#concordance set
+        concordance = pd.concat([concordance, concordance_set], axis=1)        
+concordance.columns = indicators
+#print(concordance)
+    # #Step 4: Calculate Concordance (Dominance) Interval Matrix
+    # #3x3 Matrix sum the criteria weights when ij = 1
 
+#add criteria weight row to concordance set
+concordance_interval_matrix = pd.DataFrame()
+for i in range(concordance_set.shape[0]):
+   sum_criteria = 0
+   for j in range (num_indicator):
+       matrix_value = subcriteria_weights.iloc[0,j]
+       if concordance.iloc[i,j] == 1:
+          sum_criteria = sum_criteria + matrix_value
+       else: 
+          sum_criteria = sum_criteria
+   concordance_interval_matrix_1_1 = 0.0
+   concordance_interval_matrix_2_2 = 0.0
+   concordance_interval_matrix_3_3 = 0.0  
+   if i == 0:
+       concordance_interval_matrix_1_2 = sum_criteria
+   elif i == 1: 
+       concordanc_interval_matrix_1_3 = sum_criteria
+   elif i == 2: 
+       concordance_interval_matrix_2_1 = sum_criteria
+   elif i == 3: 
+       concordance_interval_matrix_2_3 = sum_criteria
+   elif i == 4: 
+       concordance_interval_matrix_3_1 = sum_criteria
+   elif i == 5: 
+       concordance_interval_matrix_3_2 = sum_criteria
+concordance_interval_matrix = pd.DataFrame([[concordance_interval_matrix_1_1, 
+         concordance_interval_matrix_1_2, concordanc_interval_matrix_1_3], 
+         [concordance_interval_matrix_2_1, concordance_interval_matrix_2_2,
+         concordance_interval_matrix_2_3], [concordance_interval_matrix_3_1,
+          concordance_interval_matrix_3_2, concordance_interval_matrix_3_3]])
 
-#Step 4: Calculate Concordance (Dominance) Interval Matrix
-#3x3 Matrix sum the criteria weights when ij = 0
+print(concordance_interval_matrix)
+
+       
+
 
 
 #Step 5: Calculate Discordance (Weakness) Interval Matrix 
@@ -910,9 +948,72 @@ for j in range(num_indicator):
 #input the discordance values into a matrix
 
 
-
-
 #Step 6: Find cordance index matrix
+
+# concordance_index = pd.DataFrame()
+# for j in range(concordance.columns):
+#           #sum columns of concordance interval matrix
+#           sum_concordance_interval_matrix = concordance.columns.iloc[0,j] 
+#           + concordance.columns.iloc[1,j] + concordance.columns.iloc[2,j]
+#           c_bar = sum_concordance_columns / (32(32-1))
+         
+# for i in range(concordance_interval_matrix):
+#     indicator_category = indicator_type.iloc[1, j]  # 0 is non-beneficial (want low value) and 1 is beneficial
+#     if indicator_category == 0:  # sub-criteria is non-beneficial, so ideal best is the lowest value
+#             if concordance_interval_matrix.iloc[0,j]<c_bar:
+#                 A_1_2 = 1
+#             else:
+#                 A_1_2 = 0
+#             if concordance_interval_matrix.iloc[1,j]<c_bar:
+#                 A_1_3 = 1
+#             else:
+#                 A_1_3 = 0
+#             if weighted_normal_matrix_FINAL.iloc[1,j]c_bar:
+#                 A_2_1 = 1
+#             else:
+#                 A_2_1 = 0
+#             if weighted_normal_matrix_FINAL.iloc[1,j]<c_bar]:
+#                 A_2_3 = 1
+#             else:
+#                 A_2_3 = 0
+#             if weighted_normal_matrix_FINAL.iloc[2,j]<c_bar:
+#                 A_3_1 = 1
+#             else:
+#                 A_3_1 = 0
+#             if weighted_normal_matrix_FINAL.iloc[2,j]<c_bar:
+#                 A_3_2 = 1
+#             else:
+#                 A_3_2 = 0    
+#         elif indicator_category == 1:  # sub-criteria is beneficial, so ideal best is the highest value
+#             if weighted_normal_matrix_FINAL.iloc[0,j]>c_bar:
+#                 A_1_2 = 1
+#             else:
+#                 A_1_2 = 0
+#             if weighted_normal_matrix_FINAL.iloc[0,j]>c_bar:
+#                 A_1_3 = 1
+#             else:
+#                 A_1_3 = 0
+#             if weighted_normal_matrix_FINAL.iloc[1,j]>c_bar:
+#                 A_2_1 = 1
+#             else:
+#                 A_2_1 = 0
+#             if weighted_normal_matrix_FINAL.iloc[1,j]>weighted_normal_matrix_FINAL.iloc[2,j]:
+#                 A_2_3 = 1
+#             else:
+#                 A_2_3 = 0
+#             if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[0,j]:
+#                 A_3_1 = 1
+#             else:
+#                 A_3_1 = 0
+#             if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[1,j]:
+#                 A_3_2 = 1
+#             else:
+#                 A_3_2 = 0  
+#         else:
+#             print("ELECTRE Input Error")
+
+
+
 #sum row for concordance interval matrix
 #m = number of global weights/number of local weights? 
 #concordance_index = sum/m(m-1) = sum/20 = cbar
