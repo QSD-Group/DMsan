@@ -711,7 +711,7 @@ num_system = perform_values.shape[0]  # quantity of sanitation system alternativ
 num_indicator = indicator_type.shape[1]  # quantity of indicators included in the model
 
 # Output Excel File of Results
-writer = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_TOPSIS.xlsx'))
+writer1 = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_AHP_TOPSIS.xlsx'))
 
 # Indicator Column Names
 indicators = list(indicator_type.columns)
@@ -823,10 +823,10 @@ criteria_weight_scenario.columns = ['weight_scenario']
 performance_score_FINAL = pd.concat([criteria_weight_scenario, performance_score_FINAL], axis=1)
 ranking_FINAL = pd.concat([criteria_weight_scenario, ranking_FINAL], axis=1)
 
-performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
-ranking_FINAL.to_excel(writer, sheet_name='ranking')
+performance_score_FINAL.to_excel(writer1, sheet_name='perform_score')
+ranking_FINAL.to_excel(writer1, sheet_name='ranking')
 
-writer.save()
+writer1.save()
 
 ##ELECTRE
 ##Step 1: Forming Decision Making Matrix
