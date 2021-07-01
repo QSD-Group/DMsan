@@ -715,7 +715,7 @@ num_system = perform_values.shape[0]  # quantity of sanitation system alternativ
 num_indicator = indicator_type.shape[1]  # quantity of indicators included in the model
 
 # Output Excel File of Results
-writer = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_TOPSIS.xlsx'))
+writer1 = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_AHP_TOPSIS.xlsx'))
 
 # Indicator Column Names
 indicators = list(indicator_type.columns)
@@ -827,12 +827,17 @@ criteria_weight_scenario.columns = ['weight_scenario']
 performance_score_FINAL = pd.concat([criteria_weight_scenario, performance_score_FINAL], axis=1)
 ranking_FINAL = pd.concat([criteria_weight_scenario, ranking_FINAL], axis=1)
 
-performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
-ranking_FINAL.to_excel(writer, sheet_name='ranking')
-weighted_normal_matrix_FINAL.to_excel(writer, sheet_name='weighted_matrix')
-subcriteria_weights.to_excel(writer, sheet_name='subcriteria_weights')
+# <<<<<<< HEAD
+# performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
+# ranking_FINAL.to_excel(writer, sheet_name='ranking')
+# weighted_normal_matrix_FINAL.to_excel(writer, sheet_name='weighted_matrix')
+# subcriteria_weights.to_excel(writer, sheet_name='subcriteria_weights')
+# =======
+# performance_score_FINAL.to_excel(writer1, sheet_name='perform_score')
+# ranking_FINAL.to_excel(writer1, sheet_name='ranking')
+# >>>>>>> 49e72dce05cfc2f64983ff2cad47ceb594dd77df
 
-writer.save()
+# writer1.save()
 
 ##ELECTRE
 ##Step 1: Forming Decision Making Matrix
@@ -1067,12 +1072,12 @@ C = np.array(discordance_interval_matrix_sum)
 D = np.array(discordance_interval_matrix_col_sum)
 # print(concordance_interval_matrix_row_sum )
 # print(concordance_interval_matrix_col_sum)
-print(discordance_interval_matrix_sum)
-print(discordance_interval_matrix_col_sum)
+print(concordance_interval_matrix_row_sum)
+print(concordance_interval_matrix_col_sum)
 superior_values = np.subtract(A,B)
 inferior_values = np.subtract(C,D)
 # print(superior_values)
-print(inferior_values)
+print(superior_values)
 # print(inferior_values)
 
 
