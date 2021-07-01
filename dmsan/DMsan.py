@@ -37,9 +37,13 @@ location = ['Uganda']
 # converting location to match the database
 location = coco.convert(names=location, to='name_short')
 
+#number_of_alternatives 
+m = 3.0
+
 # manual inputs defined here
 
 X = 0.00001
+
 
 # Criteria: Social
 # Sub-criteria: End-user acceptability
@@ -626,7 +630,7 @@ def column_sum(S_W):
 S_W_col_sum = np.array(column_sum(S_W))
 
 
-# Step 2: Normalize She matrix
+# Step 2: Normalize the matrix
 S_W_N = S_W_a / S_W_col_sum
 
 
@@ -825,6 +829,8 @@ ranking_FINAL = pd.concat([criteria_weight_scenario, ranking_FINAL], axis=1)
 
 performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
 ranking_FINAL.to_excel(writer, sheet_name='ranking')
+weighted_normal_matrix_FINAL.to_excel(writer, sheet_name='weighted_matrix')
+subcriteria_weights.to_excel(writer, sheet_name='subcriteria_weights')
 
 writer.save()
 
@@ -839,6 +845,11 @@ writer.save()
 #loop if A1 is > or = to A2 for each indicator, pull associated weight into sum
 #if not input 0 into sum
 concordance = pd.DataFrame()
+
+# for i in range(weighted_normal_matrix_FINAL):
+#     for j in range(num_indicator):
+#         concordance_set_1 = np.where(weighted_normal_matrix_FINAL.loc[i,j]<weighted_normal_matrix_FINAL.loc[i + 1,j], 0, 1)
+# print(concordance_set_1)
 
 for j in range(num_indicator):
         # Ideal Best and Ideal Worst Value for Each Sub-Criteria
@@ -869,27 +880,27 @@ for j in range(num_indicator):
             else:
                 A_3_2 = 0    
         elif indicator_category == 1:  # sub-criteria is beneficial, so ideal best is the highest value
-            if weighted_normal_matrix_FINAL.iloc[0,j]>weighted_normal_matrix_FINAL.iloc[1,j]:
+            if weighted_normal_matrix_FINAL.iloc[0,j]>=weighted_normal_matrix_FINAL.iloc[1,j]:
                 A_1_2 = 1
             else:
                 A_1_2 = 0
-            if weighted_normal_matrix_FINAL.iloc[0,j]>weighted_normal_matrix_FINAL.iloc[2,j]:
+            if weighted_normal_matrix_FINAL.iloc[0,j]>=weighted_normal_matrix_FINAL.iloc[2,j]:
                 A_1_3 = 1
             else:
                 A_1_3 = 0
-            if weighted_normal_matrix_FINAL.iloc[1,j]>weighted_normal_matrix_FINAL.iloc[0,j]:
+            if weighted_normal_matrix_FINAL.iloc[1,j]>=weighted_normal_matrix_FINAL.iloc[0,j]:
                 A_2_1 = 1
             else:
                 A_2_1 = 0
-            if weighted_normal_matrix_FINAL.iloc[1,j]>weighted_normal_matrix_FINAL.iloc[2,j]:
+            if weighted_normal_matrix_FINAL.iloc[1,j]>=weighted_normal_matrix_FINAL.iloc[2,j]:
                 A_2_3 = 1
             else:
                 A_2_3 = 0
-            if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[0,j]:
+            if weighted_normal_matrix_FINAL.iloc[2,j]>=weighted_normal_matrix_FINAL.iloc[0,j]:
                 A_3_1 = 1
             else:
                 A_3_1 = 0
-            if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[1,j]:
+            if weighted_normal_matrix_FINAL.iloc[2,j]>=weighted_normal_matrix_FINAL.iloc[1,j]:
                 A_3_2 = 1
             else:
                 A_3_2 = 0  
@@ -904,7 +915,7 @@ concordance.columns = indicators
 #print(concordance)
     # #Step 4: Calculate Concordance (Dominance) Interval Matrix
     # #3x3 Matrix sum the criteria weights when ij = 1
-
+#will have to fix so it can be a range of alterantives, right now this is for only 3
 #add criteria weight row to concordance set
 concordance_interval_matrix = pd.DataFrame()
 for i in range(concordance_set.shape[0]):
@@ -936,100 +947,147 @@ concordance_interval_matrix = pd.DataFrame([[concordance_interval_matrix_1_1,
          concordance_interval_matrix_2_3], [concordance_interval_matrix_3_1,
           concordance_interval_matrix_3_2, concordance_interval_matrix_3_3]])
 
-print(concordance_interval_matrix)
-
-       
-
-
+#print(concordance_interval_matrix)
 
 #Step 5: Calculate Discordance (Weakness) Interval Matrix 
 #Calculate absolute value of A2 - A1 from the normalized weighted matrix 
-#find the maximum value of the discordance set values and divide by the maximum of the whole row
-#input the discordance values into a matrix
+#find the maximum value of the discordance value rows (all values)
+#find the maximum value of the discordance value rows (only for values when concordance = 0)
+#divide discordance max (all values) by discordance value rows (only when C = 0)
 
+
+discordance = pd.DataFrame()
+for row in weighted_normal_matrix_FINAL.iterrows():
+    weighted_normal_matrix_FINAL.loc
+df = weighted_normal_matrix_FINAL
+for j in range(num_indicator):
+    df.loc['D12'] = abs(df.loc[0,:] - df.loc[1,:])
+    df.loc['D13'] = abs(df.loc[0,:] - df.loc[2,:])
+    df.loc['D21'] = abs(df.loc[1,:] - df.loc[0,:])
+    df.loc['D23'] = abs(df.loc[1,:] - df.loc[2,:])
+    df.loc['D31'] = abs(df.loc[2,:] - df.loc[0,:])
+    df.loc['D32'] = abs(df.loc[2,:] - df.loc[1,:])
+discordance = pd.DataFrame([df.loc['D12'], df.loc['D13'], df.loc['D21'], df.loc['D23'], df.loc['D31'], df.loc['D32']])
+
+#find the max value across the whole row of the discordance set
+#Dmax1
+for row in discordance.iterrows():
+    D12_abs_max = max(df.loc['D12'])
+    D13_abs_max = max(df.loc['D13'])
+    D21_abs_max = max(df.loc['D21'])
+    D23_abs_max = max(df.loc['D23'])
+    D31_abs_max = max(df.loc['D31'])
+    D32_abs_max = max(df.loc['D32'])
+discordance_abs_max = pd.DataFrame([D12_abs_max, D13_abs_max, D21_abs_max, D23_abs_max, D31_abs_max, D32_abs_max])   
+
+
+#create a discordance set where for each value that is 1 in concordance, the discordance value will replace it
+discordance_matrix_array = np.where(concordance == 0, 0, discordance)
+
+discordance_matrix = pd.DataFrame(discordance_matrix_array)
+#find the max value across the whole row of the discordance interval matrix
+#Dmax2
+discordance_max = pd.DataFrame()
+D12_max = max(discordance_matrix.iloc[0,:])
+D13_max = max(discordance_matrix.iloc[1,:])
+D21_max = max(discordance_matrix.iloc[2,:])
+D23_max = max(discordance_matrix.iloc[3,:])
+D31_max = max(discordance_matrix.iloc[4,:])
+D32_max = max(discordance_matrix.iloc[5,:])
+
+discordance_max = pd.DataFrame([D12_max, D13_max, D21_max, D23_max, D31_max, D32_max])
+
+#divide Dmax2/Dmax1
+D12_maximum = D12_max/D12_abs_max
+D13_maximum = D13_max/D13_abs_max
+D21_maximum = D21_max/D21_abs_max
+D23_maximum = D23_max/D23_abs_max
+D31_maximum = D31_max/D31_abs_max
+D32_maximum = D32_max/D32_abs_max
+
+discordance_interval_matrix = pd.DataFrame([[0, D12_maximum, D13_maximum], [D21_maximum,0, D23_maximum], [D31_maximum, D32_maximum,0]])
 
 #Step 6: Find cordance index matrix
+#sum rows and columns for concordance interval matrix
 
-# concordance_index = pd.DataFrame()
-# for j in range(concordance.columns):
-#           #sum columns of concordance interval matrix
-#           sum_concordance_interval_matrix = concordance.columns.iloc[0,j] 
-#           + concordance.columns.iloc[1,j] + concordance.columns.iloc[2,j]
-#           c_bar = sum_concordance_columns / (32(32-1))
-         
-# for i in range(concordance_interval_matrix):
-#     indicator_category = indicator_type.iloc[1, j]  # 0 is non-beneficial (want low value) and 1 is beneficial
-#     if indicator_category == 0:  # sub-criteria is non-beneficial, so ideal best is the lowest value
-#             if concordance_interval_matrix.iloc[0,j]<c_bar:
-#                 A_1_2 = 1
-#             else:
-#                 A_1_2 = 0
-#             if concordance_interval_matrix.iloc[1,j]<c_bar:
-#                 A_1_3 = 1
-#             else:
-#                 A_1_3 = 0
-#             if weighted_normal_matrix_FINAL.iloc[1,j]c_bar:
-#                 A_2_1 = 1
-#             else:
-#                 A_2_1 = 0
-#             if weighted_normal_matrix_FINAL.iloc[1,j]<c_bar]:
-#                 A_2_3 = 1
-#             else:
-#                 A_2_3 = 0
-#             if weighted_normal_matrix_FINAL.iloc[2,j]<c_bar:
-#                 A_3_1 = 1
-#             else:
-#                 A_3_1 = 0
-#             if weighted_normal_matrix_FINAL.iloc[2,j]<c_bar:
-#                 A_3_2 = 1
-#             else:
-#                 A_3_2 = 0    
-#         elif indicator_category == 1:  # sub-criteria is beneficial, so ideal best is the highest value
-#             if weighted_normal_matrix_FINAL.iloc[0,j]>c_bar:
-#                 A_1_2 = 1
-#             else:
-#                 A_1_2 = 0
-#             if weighted_normal_matrix_FINAL.iloc[0,j]>c_bar:
-#                 A_1_3 = 1
-#             else:
-#                 A_1_3 = 0
-#             if weighted_normal_matrix_FINAL.iloc[1,j]>c_bar:
-#                 A_2_1 = 1
-#             else:
-#                 A_2_1 = 0
-#             if weighted_normal_matrix_FINAL.iloc[1,j]>weighted_normal_matrix_FINAL.iloc[2,j]:
-#                 A_2_3 = 1
-#             else:
-#                 A_2_3 = 0
-#             if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[0,j]:
-#                 A_3_1 = 1
-#             else:
-#                 A_3_1 = 0
-#             if weighted_normal_matrix_FINAL.iloc[2,j]>weighted_normal_matrix_FINAL.iloc[1,j]:
-#                 A_3_2 = 1
-#             else:
-#                 A_3_2 = 0  
-#         else:
-#             print("ELECTRE Input Error")
+concordance_interval_matrix["sum"] = concordance_interval_matrix.sum(axis=1)
+concordance_interval_matrix_row_sum = (concordance_interval_matrix["sum"])
 
 
+#sum concordance interval matrix row sums
 
-#sum row for concordance interval matrix
-#m = number of global weights/number of local weights? 
-#concordance_index = sum/m(m-1) = sum/20 = cbar
-#if ConcordanceIntervalMatrixij > or = cbar, then ConcordanceIndexMatrix(ij) = 1
-#if ConcordanceIntervalMatrixij < cbar, then Concordance Index Matrix(ij) = 0
+concordance_interval_matrix_row_sum["sum"] = concordance_interval_matrix_row_sum.sum()
+concordance_interval_matrix_row_sums = (concordance_interval_matrix_row_sum["sum"])
+
+# concordance_interval_matrix_col_sum["sum"] = concordance_interval_matrix_col_sum.sum()
+# concordance_interval_matrix_col_sums = (concordance_interval_matrix_col_sum["sum"])
+
+# #row sums should equal column sums;if equal, yes = 1, no =0
+# check = np.where(concordance_interval_matrix == concordance_interval_matrix, 1, 0)
+# print(check)
+
+#c_bar = concordance_interval_matrix_row_sum/ (number of alternatives(number of alternatives -1))
+c_bar = concordance_interval_matrix_row_sums / (m * (m-1))
+
+#if concordance interval matrix value is less than c_bar, then concordance index matrix is 0, else 1
+concordance_index_matrix = np.where(concordance_interval_matrix.values < c_bar, 0, 1)
 
 #Step 7: Find disconcordance index matrix
-#Step 8: Calculate next superior and inferior values
 
-# concordance_set = pd.DataFrame()
-# row_number = 1
-# for r in rows :
-#     if r = row_number
-#      new_matrix[r,r] = 0
-#     else: 
-#         for c in columns:
-#             a = get  [row_number, c]
-#             if ac>a:
-#                 count = count c.weight
+#find the sum of the rows for the discordance interval matrix
+discordance_interval_matrix["sum"] = discordance_interval_matrix.sum(axis=1)
+discordance_interval_matrix_sum = (discordance_interval_matrix["sum"])
+
+#sum concordance interval matrix row sums
+discordance_interval_matrix_sum["sum"] = discordance_interval_matrix_sum.sum()
+discordance_interval_matrix_row_sum = (discordance_interval_matrix_sum["sum"])
+
+#d_bar = discordance interval matrix / (number of alternatives (number of alternatives - 1))
+d_bar = discordance_interval_matrix_row_sum / (m*(m-1))
+
+#if discordance interval matrix value is greater than c_bar, then concordance index matrix is 0, else 1
+discordance_index_matrix = np.where(discordance_interval_matrix.values > d_bar, 0, 1)
+
+#Step 8: Calculate next superior and inferior values
+#for the concordance interval matrix, take the row sum - the column sum
+concordance_interval_matrix_col_sum = pd.DataFrame(concordance_interval_matrix.sum())
+concordance_interval_matrix_row_sum = pd.DataFrame(concordance_interval_matrix_row_sum)
+discordance_interval_matrix_col_sum = pd.DataFrame(discordance_interval_matrix.sum())
+discordance_interval_matrix_sum = pd.DataFrame(discordance_interval_matrix_sum)
+
+concordance_interval_matrix_row_sum = concordance_interval_matrix_row_sum[:3]
+concordance_interval_matrix_col_sum = concordance_interval_matrix_col_sum[:3]
+discordance_interval_matrix_sum = discordance_interval_matrix_sum[:3]
+discordance_interval_matrix_col_sum = discordance_interval_matrix_col_sum[:3]
+
+A = np.array(concordance_interval_matrix_row_sum)
+B = np.array(concordance_interval_matrix_col_sum)
+
+C = np.array(discordance_interval_matrix_sum)
+D = np.array(discordance_interval_matrix_col_sum)
+# print(concordance_interval_matrix_row_sum )
+# print(concordance_interval_matrix_col_sum)
+print(discordance_interval_matrix_sum)
+print(discordance_interval_matrix_col_sum)
+superior_values = np.subtract(A,B)
+inferior_values = np.subtract(C,D)
+# print(superior_values)
+print(inferior_values)
+# print(inferior_values)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
