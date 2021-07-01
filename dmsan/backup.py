@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul  1 10:55:46 2021
+
+@author: torimorgan
+"""
+
 # -*- coding: utf-8 -*-
 """
 Modified on Fri June 11, 2021
@@ -715,7 +723,7 @@ num_system = perform_values.shape[0]  # quantity of sanitation system alternativ
 num_indicator = indicator_type.shape[1]  # quantity of indicators included in the model
 
 # Output Excel File of Results
-writer1 = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_AHP_TOPSIS.xlsx'))
+writer = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_TOPSIS.xlsx'))
 
 # Indicator Column Names
 indicators = list(indicator_type.columns)
@@ -827,17 +835,12 @@ criteria_weight_scenario.columns = ['weight_scenario']
 performance_score_FINAL = pd.concat([criteria_weight_scenario, performance_score_FINAL], axis=1)
 ranking_FINAL = pd.concat([criteria_weight_scenario, ranking_FINAL], axis=1)
 
+performance_score_FINAL.to_excel(writer, sheet_name='perform_score')
+ranking_FINAL.to_excel(writer, sheet_name='ranking')
+weighted_normal_matrix_FINAL.to_excel(writer, sheet_name='weighted_matrix')
+subcriteria_weights.to_excel(writer, sheet_name='subcriteria_weights')
 
-weighted_normal_matrix_FINAL.to_excel(writer1, sheet_name='weighted_matrix')
-subcriteria_weights.to_excel(writer1, sheet_name='subcriteria_weights')
-performance_score_FINAL.to_excel(writer1, sheet_name='perform_score')
-ranking_FINAL.to_excel(writer1, sheet_name='ranking')
-
-
-writer1.save()
-
-
-
+writer.save()
 
 ##ELECTRE
 ##Step 1: Forming Decision Making Matrix
@@ -860,27 +863,27 @@ for j in range(num_indicator):
         # Ideal Best and Ideal Worst Value for Each Sub-Criteria
         indicator_category = indicator_type.iloc[1, j]  # 0 is non-beneficial (want low value) and 1 is beneficial
         if indicator_category == 0:  # sub-criteria is non-beneficial, so ideal best is the lowest value
-            if weighted_normal_matrix_FINAL.iloc[0,j]<=weighted_normal_matrix_FINAL.iloc[1,j]:
+            if weighted_normal_matrix_FINAL.iloc[0,j]<weighted_normal_matrix_FINAL.iloc[1,j]:
                 A_1_2 = 1
             else:
                 A_1_2 = 0
-            if weighted_normal_matrix_FINAL.iloc[0,j]<=weighted_normal_matrix_FINAL.iloc[2,j]:
+            if weighted_normal_matrix_FINAL.iloc[0,j]<weighted_normal_matrix_FINAL.iloc[2,j]:
                 A_1_3 = 1
             else:
                 A_1_3 = 0
-            if weighted_normal_matrix_FINAL.iloc[1,j]<=weighted_normal_matrix_FINAL.iloc[0,j]:
+            if weighted_normal_matrix_FINAL.iloc[1,j]<weighted_normal_matrix_FINAL.iloc[0,j]:
                 A_2_1 = 1
             else:
                 A_2_1 = 0
-            if weighted_normal_matrix_FINAL.iloc[1,j]<=weighted_normal_matrix_FINAL.iloc[2,j]:
+            if weighted_normal_matrix_FINAL.iloc[1,j]<weighted_normal_matrix_FINAL.iloc[2,j]:
                 A_2_3 = 1
             else:
                 A_2_3 = 0
-            if weighted_normal_matrix_FINAL.iloc[2,j]<=weighted_normal_matrix_FINAL.iloc[0,j]:
+            if weighted_normal_matrix_FINAL.iloc[2,j]<weighted_normal_matrix_FINAL.iloc[0,j]:
                 A_3_1 = 1
             else:
                 A_3_1 = 0
-            if weighted_normal_matrix_FINAL.iloc[2,j]<=weighted_normal_matrix_FINAL.iloc[1,j]:
+            if weighted_normal_matrix_FINAL.iloc[2,j]<weighted_normal_matrix_FINAL.iloc[1,j]:
                 A_3_2 = 1
             else:
                 A_3_2 = 0    
@@ -924,41 +927,35 @@ concordance.columns = indicators
 #add criteria weight row to concordance set
 concordance_interval_matrix = pd.DataFrame()
 for i in range(concordance_set.shape[0]):
-    sum_criteria = 0
-    for j in range (num_indicator):
-        matrix_value = subcriteria_weights.iloc[0,j]
-        if concordance.iloc[i,j] == 1:
+   sum_criteria = 0
+   for j in range (num_indicator):
+       matrix_value = subcriteria_weights.iloc[0,j]
+       if concordance.iloc[i,j] == 1:
           sum_criteria = sum_criteria + matrix_value
-        else: 
+       else: 
           sum_criteria = sum_criteria
-    concordance_interval_matrix_1_1 = 0.0
-    concordance_interval_matrix_2_2 = 0.0
-    concordance_interval_matrix_3_3 = 0.0  
-    if i == 0:
-        concordance_interval_matrix_1_2 = sum_criteria
-    elif i == 1: 
-        concordanc_interval_matrix_1_3 = sum_criteria
-    elif i == 2: 
-        concordance_interval_matrix_2_1 = sum_criteria
-    elif i == 3: 
-        concordance_interval_matrix_2_3 = sum_criteria
-    elif i == 4: 
-        concordance_interval_matrix_3_1 = sum_criteria
-    elif i == 5: 
-        concordance_interval_matrix_3_2 = sum_criteria
+   concordance_interval_matrix_1_1 = 0.0
+   concordance_interval_matrix_2_2 = 0.0
+   concordance_interval_matrix_3_3 = 0.0  
+   if i == 0:
+       concordance_interval_matrix_1_2 = sum_criteria
+   elif i == 1: 
+       concordanc_interval_matrix_1_3 = sum_criteria
+   elif i == 2: 
+       concordance_interval_matrix_2_1 = sum_criteria
+   elif i == 3: 
+       concordance_interval_matrix_2_3 = sum_criteria
+   elif i == 4: 
+       concordance_interval_matrix_3_1 = sum_criteria
+   elif i == 5: 
+       concordance_interval_matrix_3_2 = sum_criteria
 concordance_interval_matrix = pd.DataFrame([[concordance_interval_matrix_1_1, 
-          concordance_interval_matrix_1_2, concordanc_interval_matrix_1_3], 
-          [concordance_interval_matrix_2_1, concordance_interval_matrix_2_2,
-          concordance_interval_matrix_2_3], [concordance_interval_matrix_3_1,
+         concordance_interval_matrix_1_2, concordanc_interval_matrix_1_3], 
+         [concordance_interval_matrix_2_1, concordance_interval_matrix_2_2,
+         concordance_interval_matrix_2_3], [concordance_interval_matrix_3_1,
           concordance_interval_matrix_3_2, concordance_interval_matrix_3_3]])
 
-      
-writer2 = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_AHP_ELECTRE.xlsx'))
-concordance.to_excel(writer2, sheet_name='concordance')
-concordance_interval_matrix.to_excel(writer2, sheet_name='concordance_interval_matrix')
-
-writer2.save()                                      
-
+#print(concordance_interval_matrix)
 
 #Step 5: Calculate Discordance (Weakness) Interval Matrix 
 #Calculate absolute value of A2 - A1 from the normalized weighted matrix 
@@ -1016,15 +1013,19 @@ D23_maximum = D23_max/D23_abs_max
 D31_maximum = D31_max/D31_abs_max
 D32_maximum = D32_max/D32_abs_max
 
-discordance_interval_matrix = (pd.DataFrame([[0, D12_maximum, D13_maximum], [D21_maximum,0, D23_maximum], [D31_maximum, D32_maximum,0]])).transpose()
+discordance_interval_matrix = pd.DataFrame([[0, D12_maximum, D13_maximum], [D21_maximum,0, D23_maximum], [D31_maximum, D32_maximum,0]])
+
 #Step 6: Find cordance index matrix
 #sum rows and columns for concordance interval matrix
+
 concordance_interval_matrix["sum"] = concordance_interval_matrix.sum(axis=1)
 concordance_interval_matrix_row_sum = (concordance_interval_matrix["sum"])
 
 
 #sum concordance interval matrix row sums
-concordance_interval_matrix_row_sums = concordance_interval_matrix_row_sum.sum()
+
+concordance_interval_matrix_row_sum["sum"] = concordance_interval_matrix_row_sum.sum()
+concordance_interval_matrix_row_sums = (concordance_interval_matrix_row_sum["sum"])
 
 # concordance_interval_matrix_col_sum["sum"] = concordance_interval_matrix_col_sum.sum()
 # concordance_interval_matrix_col_sums = (concordance_interval_matrix_col_sum["sum"])
@@ -1073,35 +1074,19 @@ B = np.array(concordance_interval_matrix_col_sum)
 C = np.array(discordance_interval_matrix_sum)
 D = np.array(discordance_interval_matrix_col_sum)
 # print(concordance_interval_matrix_row_sum )
-print(discordance_interval_matrix)
-print(discordance_interval_matrix_col_sum)
-print(discordance_interval_matrix)
-# print(concordance_interval_matrix_row_sum)
 # print(concordance_interval_matrix_col_sum)
+print(discordance_interval_matrix_sum)
+print(discordance_interval_matrix_col_sum)
 superior_values = np.subtract(A,B)
 inferior_values = np.subtract(C,D)
 # print(superior_values)
-# print(superior_values)
 print(inferior_values)
-#Hannah, add global weight scenarios
+# print(inferior_values)
 
-#AHP Method to Rank Alternatives
-weighted_normal_matrix_FINAL.drop(
-    labels=["D12", "D13", "D21", "D23", "D31", "D32"],
-    axis=0,
-    inplace=True,
-    )
-AHP_Tech_Score = weighted_normal_matrix_FINAL.iloc[:, 0:10].sum(axis=1)
-AHP_RR_Score = weighted_normal_matrix_FINAL.iloc[:, 11:16].sum(axis=1)
-AHP_Env_Score = weighted_normal_matrix_FINAL.iloc[:, 17:19].sum(axis=1)
-AHP_Econ_Score = weighted_normal_matrix_FINAL.iloc[:, 20]
-AHP_Soc_Score = weighted_normal_matrix_FINAL.iloc[:, 21:32].sum(axis=1)
-AHP_Scores = pd.DataFrame([AHP_Tech_Score, AHP_RR_Score, AHP_Env_Score, AHP_Econ_Score, AHP_Soc_Score])
-criteria_names = ('T', 'RR', 'Env', 'Econ', 'Soc')
-alternative_names = ("Sys A", "Sys B", "Sys C")
-AHP_Scores.index = criteria_names
-AHP_Scores.columns = alternative_names
-#Hannah add global weight scenarios similar to topsis 
+
+
+
+
 
 
 
