@@ -952,14 +952,6 @@ concordance_interval_matrix = pd.DataFrame([[concordance_interval_matrix_1_1,
           concordance_interval_matrix_2_3], [concordance_interval_matrix_3_1,
           concordance_interval_matrix_3_2, concordance_interval_matrix_3_3]])
 
-      
-writer2 = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_AHP_ELECTRE.xlsx'))
-concordance.to_excel(writer2, sheet_name='concordance')
-concordance_interval_matrix.to_excel(writer2, sheet_name='concordance_interval_matrix')
-
-writer2.save()                                      
-
-
 #Step 5: Calculate Discordance (Weakness) Interval Matrix 
 #Calculate absolute value of A2 - A1 from the normalized weighted matrix 
 #find the maximum value of the discordance value rows (all values)
@@ -993,7 +985,7 @@ discordance_abs_max = pd.DataFrame([D12_abs_max, D13_abs_max, D21_abs_max, D23_a
 
 
 #create a discordance set where for each value that is 1 in concordance, the discordance value will replace it
-discordance_matrix_array = np.where(concordance == 0, 0, discordance)
+discordance_matrix_array = np.where(concordance == 0, discordance, 0)
 
 discordance_matrix = pd.DataFrame(discordance_matrix_array)
 #find the max value across the whole row of the discordance interval matrix
@@ -1016,7 +1008,7 @@ D23_maximum = D23_max/D23_abs_max
 D31_maximum = D31_max/D31_abs_max
 D32_maximum = D32_max/D32_abs_max
 
-discordance_interval_matrix = (pd.DataFrame([[0, D12_maximum, D13_maximum], [D21_maximum,0, D23_maximum], [D31_maximum, D32_maximum,0]])).transpose()
+discordance_interval_matrix = (pd.DataFrame([[0, D12_maximum, D13_maximum], [D21_maximum,0, D23_maximum], [D31_maximum, D32_maximum,0]]))
 #Step 6: Find cordance index matrix
 #sum rows and columns for concordance interval matrix
 concordance_interval_matrix["sum"] = concordance_interval_matrix.sum(axis=1)
@@ -1073,17 +1065,27 @@ B = np.array(concordance_interval_matrix_col_sum)
 C = np.array(discordance_interval_matrix_sum)
 D = np.array(discordance_interval_matrix_col_sum)
 # print(concordance_interval_matrix_row_sum )
-print(discordance_interval_matrix)
-print(discordance_interval_matrix_col_sum)
-print(discordance_interval_matrix)
+# print(discordance_interval_matrix)
+# print(discordance_interval_matrix_col_sum)
+# print(discordance_interval_matrix)
 # print(concordance_interval_matrix_row_sum)
 # print(concordance_interval_matrix_col_sum)
 superior_values = np.subtract(A,B)
 inferior_values = np.subtract(C,D)
 # print(superior_values)
 # print(superior_values)
-print(inferior_values)
+# print(inferior_values)
 #Hannah, add global weight scenarios
+
+writer2 = pd.ExcelWriter(os.path.join(result_path, 'RESULTS_AHP_ELECTRE.xlsx'))
+concordance.to_excel(writer2, sheet_name='concordance')
+concordance_interval_matrix.to_excel(writer2, sheet_name='concordance_interval_matrix')
+discordance.to_excel(writer2, sheet_name='discordance')
+discordance_matrix.to_excel(writer2, sheet_name = 'discordance_matrix')
+
+
+writer2.save()                                      
+
 
 #AHP Method to Rank Alternatives
 weighted_normal_matrix_FINAL.drop(
