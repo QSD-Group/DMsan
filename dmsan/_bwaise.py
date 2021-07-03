@@ -90,7 +90,7 @@ def save_baseline(path=''):
     baseline_df.to_csv(os.path.join(data_path, 'bwaise_baseline.tsv'), sep=sep)
     return baseline_df
 
-baseline_df = save_baseline()
+# baseline_df = save_baseline()
 
 
 # %%
@@ -129,4 +129,4 @@ def save_uncertainties(path=''):
 
     return uncertainty_dct
 
-uncertainty_dct = save_uncertainties()
+# uncertainty_dct = save_uncertainties()

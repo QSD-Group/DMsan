@@ -9,9 +9,9 @@ Modified on Fri July 2, 2021
     Yalin Li <zoe.yalin.li@gmail.com>
 
 This model is developed to assist sanitation system research, development, and
-deployment. Users of the model need to manually input where exclamation points 
-(!) are located in the comments (i.e. location, number of alternatives, etc., 
-end-user and/or management preference socres, etc.). 
+deployment. Users of the model need to manually input where exclamation points
+(!) are located in the comments (i.e. location, number of alternatives, etc.,
+end-user and/or management preference socres, etc.).
 """
 
 # ## DMsan Model ##
@@ -36,7 +36,8 @@ location = ['Uganda']
 # converting location to match the database
 location = coco.convert(names=location, to='name_short')
 
-# number_of_alternatives 
+
+# number_of_alternatives
 # !!! input the number of alternatives evaluated in the model
 m = 3.0
 
@@ -80,7 +81,7 @@ S6 = 22
 S7 = X
 
 # Sub-criteria: Management Acceptability
-# !!! Input management (i.e., landlord) preference 
+# !!! Input management (i.e., landlord) preference
 # Local Weight Indicator S8: Disposal convenience preference
 # relates to the preference for disposal requirements
 # 0 being low importance to frequency of disposal to 100 being high importance for frequency of disposal
@@ -1002,4 +1003,3 @@ AHP_Scores_FINAL = pd.concat([criteria_weight_scenario, criteria_weight_descript
 AHP_Scores_FINAL.to_excel(writer7)
 
 writer7.save()
-
