@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Jul  3 11:40:50 2021
-
 @authors:
     Tori Morgan <vlmorgan@illinois.edu>,
     Hannah Lohman <hlohman94@gmail.com>,
@@ -15,36 +13,35 @@ deployment. Users of the model need to manually input where exclamation points
 end-user and/or management preference socres, etc.).
 """
 
+
 # %%
 
 import numpy as np
 import pandas as pd
-import os
-from scipy.stats import rankdata
-from . import Location, data_path
+from . import Location
 
-# Data files associated with the model
-result_path = os.path.join(os.path.dirname(__file__), 'results')
-data_path_tech_scores = os.path.join(data_path, 'technology_scores.xlsx')
-data_path_weight_scenarios = os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
-
+__all__ = ('AHP',)
 
 
 # %%
 
-class LocalWeights:
+class AHP:
     '''
-    Contains the information for local weights of technical,
-    resource recovery, economic, environmental, and social criteria.
+    Determine the local weights of indicators in technical, resource recovery,
+    economic, environmental, and social criteria using the
+    analytic hierarchy process (AHP).
 
     Parameters
     ----------
+    file_path : str
+        Path for the Excel data file containing contextual parameters for
+        different countires, default path (and file) will be used if not provdided.
     location_name : str
         Name of the location by country.
     num_alt : int
-        Default values when an indicator is empty (i.e., N/A).
-    num_alt : int
         Number of alternatives to be evaluated.
+    na_default : float
+        Default values when an indicator is empty (i.e., N/A).
     RI : dict
         Random indices corresponding to the number of the sub-criteria,
         default ones will be used if not given.
@@ -54,10 +51,10 @@ class LocalWeights:
     NOT READY YET.
 
     '''
-    def __init__(self, location_name='Uganda', num_alt=3, na_default=0.00001,
-                 random_index={}):
+    def __init__(self, file_path='', location_name='Uganda', num_alt=3,
+                 na_default=0.00001, random_index={}):
         # Convert location to match the database
-        self.location = Location(location_name)
+        self.set_location(file_path=file_path, location_name=location_name)
         self.num_alt = int(num_alt)
         self.na_default = na_default
         if not random_index:
@@ -80,21 +77,23 @@ class LocalWeights:
         self.init_weights = {}
 
         # Set initial weights for different criteria
-        self._set_T_weights()
-        self._set_RR_weights()
-        self._set_Econ_weights()
-        self._set_Env_weights()
-        self._set_S_weights()
+        self._set_init_T_weights()
+        self._set_init_RR_weights()
+        self._set_init_Econ_weights()
+        self._set_init_Env_weights()
+        self._set_init_S_weights()
+        self._AHP_weights = None # initiate the property
+        self.get_AHP_weights()
 
     def _get_val(self, df, col='Value'):
         '''Util function for retrieving data.'''
         return df.loc[self.location.location_name, col]
 
     def _set_init_T_weights(self):
-        '''Set initial weights for technical criteria.'''
+        '''Set initial weights for technical indicators.'''
         get_val = self._get_val
         location = self.location
-        self.init_weights['technical'] = weights = []
+        self.init_weights['T'] = weights = []
 
         # Sub-criteria: Resilience
         # Local Weight Indicator T1: Extent of training
@@ -136,54 +135,54 @@ class LocalWeights:
 
 
     def _set_init_RR_weights(self):
-        '''Set initial weights for resource recovery criteria.'''
+        '''Set initial weights for resource recovery indicators.'''
         get_val = self._get_val
         location = self.location
-        self.init_weights['resource_recovery'] = weights = []
+        self.init_weights['RR'] = weights = []
 
         # Local Weight Indicator RR1:
         # related to the water stress (Water Recovery)
-        weights.append(self.init_weights['technical'][-1])
+        weights.append(self.init_weights['T'][-1])
 
         # Local Weight Indicator RR2:
         # related to nitrogen (N) fertilizer fulfillment (Nutrient Recovery)
-        weights.append(1 - (get_val(location.n_fertilizer_fulfillment)/100)) * 100
+        weights.append((1-(get_val(location.n_fertilizer_fulfillment)/100))*100)
 
         # Local Weight Indicator RR3:
         # related to phosphorus (P) fertilizer fulfillment (Nutrient Recovery)
-        weights.append(1 - (get_val(location.p_fertilizer_fulfillment)/100)) * 100
+        weights.append((1-(get_val(location.p_fertilizer_fulfillment)/100))*100)
 
         # Local Weight Indicator RR4:
         # related to potassium (K) fertilizer fulfillment (Nutrient Recovery)
-        weights.append(1 - (get_val(location.k_fertilizer_fulfillment)/100)) * 100
+        weights.append((1-(get_val(location.k_fertilizer_fulfillment)/100))*100)
 
         # Local Weight Indicator RR5:
         # related to renewable energy consumption (Energy Recovery)
-        weights.append(1 - (get_val(location.renewable_energy)/100)) * 100
+        weights.append((1-(get_val(location.renewable_energy)/100))*100)
 
         # Local Weight Indicator RR6:
         # related to infrastructure quality (Supply Chain Infrastructure)
-        weights.append(1 - (get_val(location.infrastructure)/7)) * 100
+        weights.append((1-(get_val(location.infrastructure)/7))*100)
 
     def _set_init_Econ_weights(self):
-        '''Set initial weights for economic criteria.'''
-        self.init_weights['economic'] = [1] # only one for the net cost
+        '''Set initial weights for economic indicators.'''
+        self.init_weights['Econ'] = [1] # only one for the net cost
 
     def _set_init_Env_weights(self):
-        '''Set initial weights for economic criteria.'''
+        '''Set initial weights for economic indicators.'''
         # Local Weight Indicator
         # Env1: ecosystem quality (LCA)
         # Env2: human health (LCA)
         # Env3: resource depletion (LCA)
-        self.init_weights['environmental'] = [1/self.num_alt] * self.num_alt
+        self.init_weights['Env'] = [1/self.num_alt] * self.num_alt
 
 
     def _set_init_S_weights(self):
-        '''Set initial weights for social criteria.'''
+        '''Set initial weights for social indicators.'''
         get_val = self._get_val
         location = self.location
         X = self.na_default
-        self.init_weights['social'] = weights = []
+        self.init_weights['S'] = weights = []
 
         # Sub-criteria: Job Creation
         # Local Weight Indicator S1: Unemployment
@@ -244,16 +243,21 @@ class LocalWeights:
         weights.append(X)
 
 
-    def get_AHP_weights(self):
-        '''Analytic hierarchy process (AHP) to determine sub-criteria weights.'''
+    def get_AHP_weights(self, return_results=False):
+        '''Analytic hierarchy process (AHP) to determine indicators weights.'''
         RI = self.random_index
+        norm_weights = self.norm_weights = {} # sub-criteria weights
+        CRs = self.CRs = {} # consistency ration
 
-        for weights in self.init_weights.values():
-            if len(weights) < 3:
+        for indicator, weights in self.init_weights.items():
+            num = len(weights)
+            index = [f'{indicator}{i+1}' for i in range(num)]
+
+            if num < 3: # skip ones that does not have random index (RI)
+                norm_weights[indicator] = pd.DataFrame([1], index=index).transpose()
                 continue
 
             # Step 1: Assign criteria weights in array
-            num = len(weights)
             # "A" stands for array
             A1 = [[i]*num for i in weights] # e.g., [[T1, T1], [T2, T2]]
             A2 = [weights] * num # e.g., [[T1, T2], [T1, T2]]
@@ -268,6 +272,8 @@ class LocalWeights:
             # Step 4: Calculate criteria weights by finding the row averages
             A_norm_sum = A_norm.sum(1)
             A_norm_avg = A_norm_sum / num
+            norm_weights[indicator] = \
+                pd.DataFrame(A_norm_avg, index=index).transpose()
 
             # Step 5 Find the Consistency ratio
             # Step 5a: Calculate the weighted array by multiplying the array by the criteria weight
@@ -280,6 +286,22 @@ class LocalWeights:
             CI = (delta_max - num) / (num - 1)
             # Step 5e: Find the consistency ratio (CR) by dividing CI by RI,
             # if CR < 0.1 then our matrix is consistent
-            CR = CI / RI[num]
+            CRs[indicator] = CI / RI[num]
 
-    #!!! PAUSED, AHP finished, now need to add TOPSIS and ELECTRE
+        self._norm_weights_df = pd.concat([i for i in norm_weights.values()], axis=1)
+
+        if return_results:
+            return self.norm_weights_df
+
+    def set_location(self, location_name, file_path=''):
+        self._location = Location(file_path=file_path, location_name=location_name)
+
+    @property
+    def location(self):
+        '''[:class:`~.Location`].'''
+        return self._location
+
+    @property
+    def norm_weights_df(self):
+        '''[:class:`pandas.DataFrame`] Normalized indicator weights.'''
+        return self._norm_weights_df

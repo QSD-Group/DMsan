@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Jul  3 18:05:58 2021
-
-@author: Yalin Li <zoe.yalin.li@gmail.com>
+@authors:
+    Tori Morgan <vlmorgan@illinois.edu>,
+    Hannah Lohman <hlohman94@gmail.com>,
+    Stetson Rowles <stetsonsc@gmail.com>,
+    Yalin Li <zoe.yalin.li@gmail.com>
 """
+
 
 # %%
 
 import pandas as pd
 import country_converter as coco
-import os
+from . import data_path
 
-# Data files associated with the model
-data_path = os.path.join(os.path.dirname(__file__), 'data')
-
-__all__ = ('Location', 'data_path')
+__all__ = ('Location',)
 
 
 # %%
@@ -23,10 +23,10 @@ __all__ = ('Location', 'data_path')
 class Location:
     '''Contains the contextual parameters related to a given location.'''
 
-    def __init__(self, path='', location_name='Uganda'):
-        path = path if path else data_path+'/location.xlsx'
-        file = pd.ExcileFile(path)
-        read_excel = lambda name: pd.read_excel(file, name, index_col='Country')
+    def __init__(self, file_path='', location_name='Uganda'):
+        path = file_path if file_path else data_path+'/location.xlsx'
+        file = pd.ExcelFile(path)
+        read_excel = lambda name: pd.read_excel(file, name, index_col='Country') # name is sheet name
         self.location_name = coco.convert(names=[location_name], to='name_short')
 
         # Technical

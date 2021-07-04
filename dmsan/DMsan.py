@@ -682,7 +682,7 @@ for i in range(num_weight):
         performance_score = distance_worst / (distance_best + distance_worst)
         performance_score = pd.DataFrame([performance_score])
         performance_score_DF = pd.concat([performance_score_DF, performance_score], axis=0).reset_index(drop=True)
-
+    breakpoint()
     # Ranking of Each Sanitation System
     rank = (len(performance_score_DF) + 1) - rankdata(performance_score_DF).astype(int)
     ranking_DF = pd.DataFrame(rank).transpose()
@@ -707,7 +707,7 @@ ranking_FINAL = pd.concat([criteria_weight_scenario, criteria_weight_description
 performance_score_FINAL.to_excel(writer1, sheet_name='perform_score')
 ranking_FINAL.to_excel(writer1, sheet_name='ranking')
 
-writer1.save()
+# writer1.save()
 
 
 # ELECTRE Methodology to Rank Alternatives #
@@ -955,7 +955,7 @@ inferior_values_FINAL = pd.concat([criteria_weight_scenario, criteria_weight_des
 superior_values_FINAL.to_excel(writer2, sheet_name='superior_values')
 inferior_values_FINAL.to_excel(writer2, sheet_name='inferior_values')
 
-writer2.save(), writer3.save(), writer4.save(), writer5.save(), writer6.save()
+# writer2.save(), writer3.save(), writer4.save(), writer5.save(), writer6.save()
 
 
 # AHP Methodology to Rank Alternatives #
@@ -1009,4 +1009,4 @@ for i2 in range(num_weight):
 AHP_Scores_FINAL = pd.concat([criteria_weight_scenario, criteria_weight_description, AHP_Scores_FINAL], axis=1)
 AHP_Scores_FINAL.to_excel(writer7)
 
-writer7.save()
+# writer7.save()
