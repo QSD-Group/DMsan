@@ -2,10 +2,10 @@
 """
 Modified on Fri July 2, 2021
 
-@author:
+@authors:
     Tori Morgan <vlmorgan@illinois.edu>,
     Hannah Lohman <hlohman94@gmail.com>,
-    Stetson Rowles, <stetsonsc@gmail.com>
+    Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
 
 This model is developed to assist sanitation system research, development, and
@@ -38,13 +38,18 @@ location = coco.convert(names=location, to='name_short')
 
 
 # number_of_alternatives
-# !!! input the number of alternatives evaluated in the model
-m = 3.0
+# !!! input the number of alternatives evaluated in the model,
+# this should be an integer
+m = 3
 
 # default values when an indicator is N/A
 X = 0.00001
 
+# Local Weights #
+
+# =============================================================================
 # Criteria: Social
+# =============================================================================
 # Sub-criteria: End-user acceptability
 # !!! Input community preference
 # Local Weight Indicator S3: Disposal convenience preference for user
@@ -94,10 +99,29 @@ S8 = X
 # 0 being low importance to frequency of cleaning to 100 being high importance for frequency of cleaning
 S9 = X
 
+# Sub-criteria: Job Creation
+# Local Weight Indicator S1: Unemployment
+# relates to the unemployment rate
+unemployment_rate = pd.read_excel(data_path+'/location.xlsx', sheet_name='UnemploymentTotal', index_col='Country')
+s1 = (unemployment_rate.loc[location, 'Value'])
+S1 = (s1/28.74*100)
 
-# Local Weights #
+# Local Weight Indicator S2: High paying jobs
+# relates to the need for higher paying jobs
+high_pay_jobs = pd.read_excel(data_path+'/location.xlsx', sheet_name='HighPayJobRate', index_col='Country')
+s2 = (high_pay_jobs.loc[location, 'Value'])
+S2 = (s2/94.3*100)
 
+# Sub-criteria: End-user acceptability
+# S3-S7 were manually inputed above
+
+# Sub-criteria: Management acceptability
+# S8-S9 were manually inputed above
+
+
+# =============================================================================
 # Criteria: Technical
+# =============================================================================
 # Sub-criteria: Resilience
 # Local Weight Indicator T1: Extent of training
 # relates to how much training is available to train users and personnel
@@ -156,7 +180,9 @@ t9 = (water_stress.loc[location, 'Value'])
 T9 = (100-(t9/4.82*100))
 
 
+# =============================================================================
 # Criteria: Resource Recovery Potential
+# =============================================================================
 # Local Weight Indicator RR1:
 # relates to the water stress (Water Recovery)
 RR1 = T9
@@ -197,7 +223,9 @@ rr6 = (infrastructure.loc[location, 'Value'])
 RR6 = (1 - (rr6/7)) * 100
 
 
+# =============================================================================
 # Criteria: Environmental
+# =============================================================================
 # Local Weight Indicator Env1:
 # relates to the ecosystem quality (LCA)
 Env1 = 0.34
@@ -209,27 +237,6 @@ Env2 = 0.33
 # Local Weight Indicator Env3:
 # relates to the resource depletion (LCA)
 Env3 = 0.33
-
-
-# Criteria: Social
-# Sub-criteria: Job Creation
-# Local Weight Indicator S1: Unemployment
-# relates to the unemployment rate
-unemployment_rate = pd.read_excel(data_path+'/location.xlsx', sheet_name='UnemploymentTotal', index_col='Country')
-s1 = (unemployment_rate.loc[location, 'Value'])
-S1 = (s1/28.74*100)
-
-# Local Weight Indicator S2: High paying jobs
-# relates to the need for higher paying jobs
-high_pay_jobs = pd.read_excel(data_path+'/location.xlsx', sheet_name='HighPayJobRate', index_col='Country')
-s2 = (high_pay_jobs.loc[location, 'Value'])
-S2 = (s2/94.3*100)
-
-# Sub-criteria: End-user acceptability
-# S3-S7 were manually inputed above
-
-# Sub-criteria: Management acceptability
-# S8-S9 were manually inputed above
 
 
 # Tech/System Performance Scores #
@@ -304,14 +311,14 @@ Tech_Scores_compiled = pd.concat([Tech_Score_T_All, Tech_Score_RR_All, Tech_Scor
 # Technological/Functional Sub-criteria Matrix
 # Step 1: Assign criteria weights in matrix
 T_W = [[T1/T1, T1/T2, T1/T3, T1/T4, T1/T5, T1/T6, T1/T7, T1/T8, T1/T9],
-         [T2/T1, T2/T2, T2/T3, T2/T4, T2/T5, T2/T6, T2/T7, T2/T8, T2/T9],
-         [T3/T1, T3/T2, T3/T3, T3/T4, T3/T5, T3/T6, T3/T7, T3/T8, T3/T9],
-         [T4/T1, T4/T2, T4/T3, T4/T4, T4/T5, T4/T6, T4/T7, T4/T8, T4/T9],
-         [T5/T1, T5/T2, T5/T3, T5/T4, T5/T5, T5/T6, T5/T7, T5/T8, T5/T9],
-         [T6/T1, T6/T2, T6/T3, T6/T4, T6/T5, T6/T6, T6/T7, T6/T8, T6/T9],
-         [T7/T1, T7/T2, T7/T3, T7/T4, T7/T5, T7/T6, T7/T7, T7/T8, T7/T9],
-         [T8/T1, T8/T2, T8/T3, T8/T4, T8/T5, T8/T6, T8/T7, T8/T8, T8/T9],
-         [T9/T1, T9/T2, T9/T3, T9/T4, T9/T5, T9/T6, T9/T7, T9/T8, T9/T9]]
+       [T2/T1, T2/T2, T2/T3, T2/T4, T2/T5, T2/T6, T2/T7, T2/T8, T2/T9],
+       [T3/T1, T3/T2, T3/T3, T3/T4, T3/T5, T3/T6, T3/T7, T3/T8, T3/T9],
+       [T4/T1, T4/T2, T4/T3, T4/T4, T4/T5, T4/T6, T4/T7, T4/T8, T4/T9],
+       [T5/T1, T5/T2, T5/T3, T5/T4, T5/T5, T5/T6, T5/T7, T5/T8, T5/T9],
+       [T6/T1, T6/T2, T6/T3, T6/T4, T6/T5, T6/T6, T6/T7, T6/T8, T6/T9],
+       [T7/T1, T7/T2, T7/T3, T7/T4, T7/T5, T7/T6, T7/T7, T7/T8, T7/T9],
+       [T8/T1, T8/T2, T8/T3, T8/T4, T8/T5, T8/T6, T8/T7, T8/T8, T8/T9],
+       [T9/T1, T9/T2, T9/T3, T9/T4, T9/T5, T9/T6, T9/T7, T9/T8, T9/T9]]
 
 T_W_a = np.array(T_W)
 
@@ -357,7 +364,7 @@ CI_T = (delta_maxT - n) / (n - 1)
 
 # Step 5e: Divide the Consistency index by the Random index
 # RI Values
-# n=3, R.I.=0.58; n=4, R.I.=0.90; n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49;
+# n=3, RI=0.58; n=4, RI=0.90; n=5, RI=1.12; n=6, RI=1.24; n=7, RI=1.32; n=8, RI=1.41; n=9, RI=1.45; n=10, RI=1.49;
 # n=11, RI=1.51; n=12, RI=1.54
 # If CR < 0.1 then our matrix is consistent
 RI = 1.45
