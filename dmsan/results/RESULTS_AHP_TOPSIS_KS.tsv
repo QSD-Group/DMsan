@@ -1,0 +1,1333 @@
+	Input x	Input y	KS-d	p-value
+0	('Excretion-B1', 'E cal [kcal/cap/d]')	Alternative B	1.0	1.0825088224469026e-05
+1	('Excretion-B1', 'P veg [g/cap/d]')	Alternative B	1.0	1.0825088224469026e-05
+2	('Excretion-B1', 'P anim [g/cap/d]')	Alternative B	1.0	1.0825088224469026e-05
+3	('Excretion-B1', 'N prot [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+4	('Excretion-B1', 'P prot v [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+5	('Excretion-B1', 'P prot a [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+6	('Excretion-B1', 'K cal [g K/1000 kcal]')	Alternative B	1.0	1.0825088224469026e-05
+7	('Excretion-B1', 'N exc [fraction of intake]')	Alternative B	1.0	1.0825088224469026e-05
+8	('Excretion-B1', 'P exc [fraction of intake]')	Alternative B	1.0	1.0825088224469026e-05
+9	('Excretion-B1', 'K exc [fraction of intake]')	Alternative B	0.7	0.012340600575894691
+10	('Excretion-B1', 'E exc [fraction of intake]')	Alternative B	1.0	1.0825088224469026e-05
+11	('Excretion-B1', 'N ur [fraction of total]')	Alternative B	0.7	0.012340600575894691
+12	('Excretion-B1', 'P ur [fraction of total]')	Alternative B	0.4	0.41752365281777043
+13	('Excretion-B1', 'K ur [fraction of total]')	Alternative B	0.4	0.41752365281777043
+14	('Excretion-B1', 'E fec [fraction of total]')	Alternative B	0.7	0.012340600575894691
+15	('Excretion-B1', 'N ur  nh3 [fraction of total N in urine]')	Alternative B	0.7	0.012340600575894691
+16	('Excretion-B1', 'N fec  nh3 [fraction of total N in feces]')	Alternative B	0.9	0.00021650176448938054
+17	('Excretion-B1', 'Ur exc [g/cap/d]')	Alternative B	1.0	1.0825088224469026e-05
+18	('Excretion-B1', 'Fec exc [g/cap/d]')	Alternative B	1.0	1.0825088224469026e-05
+19	('Excretion-B1', 'Ur moi [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+20	('Excretion-B1', 'Fec moi [fraction]')	Alternative B	0.8	0.002056766762649115
+21	('Excretion-B1', 'Mg ur [g Mg/cap/d]')	Alternative B	1.0	1.0825088224469026e-05
+22	('Excretion-B1', 'Mg fec [g Mg/cap/d]')	Alternative B	0.9	0.00021650176448938054
+23	('Excretion-B1', 'Ca ur [g Ca/cap/d]')	Alternative B	0.9	0.00021650176448938054
+24	('Excretion-B1', 'Ca fec [g Ca/cap/d]')	Alternative B	0.8	0.002056766762649115
+25	('Excretion-B1', 'Household size [cap/household]')	Alternative B	0.9	0.00021650176448938054
+26	('Excretion-B1', 'Toilet density [household/toilet]')	Alternative B	1.0	1.0825088224469026e-05
+27	('Pit latrine-B2', 'Max  ch4 emission [g CH4/g COD]')	Alternative B	0.9	0.00021650176448938054
+28	('Pit latrine-B2', 'Full degradation time [yr]')	Alternative B	1.0	1.0825088224469026e-05
+29	('Pit latrine-B2', 'Log degradation [-]')	Alternative B	1.0	1.0825088224469026e-05
+30	('Pit latrine-B2', 'Toilet paper [kg/cap/hr]')	Alternative B	1.0	1.0825088224469026e-05
+31	('Pit latrine-B2', 'Flushing water [kg/cap/hr]')	Alternative B	0.4	0.41752365281777043
+32	('Pit latrine-B2', 'Cleansing water [kg/cap/hr]')	Alternative B	1.0	1.0825088224469026e-05
+33	('Pit latrine-B2', 'Desiccant  V [m3/cap/hr]')	Alternative B	1.0	1.0825088224469026e-05
+34	('Pit latrine-B2', 'Desiccant rho [kg/m3]')	Alternative B	1.0	1.0825088224469026e-05
+35	('Pit latrine-B2', 'COD max decay [fraction of oxygen demand removal]')	Alternative B	0.5	0.16782134274394334
+36	('Pit latrine-B2', 'N max decay [fraction of N removal after N leaching]')	Alternative B	0.7	0.012340600575894691
+37	('Pit latrine-B2', 'N2 O  EF aq [fraction of N emitted as N2O]')	Alternative B	1.0	1.0825088224469026e-05
+38	('Pit latrine-B2', 'Emptying period [years]')	Alternative B	0.7	0.012340600575894691
+39	('Pit latrine-B2', 'Sludge accum rate [L/cap/yr]')	Alternative B	1.0	1.0825088224469026e-05
+40	('Pit latrine-B2', 'N leaching [fraction of N input]')	Alternative B	0.9	0.00021650176448938054
+41	('Pit latrine-B2', 'P leaching [fraction of P input]')	Alternative B	0.9	0.00021650176448938054
+42	('Pit latrine-B2', 'K leaching [fraction of K input]')	Alternative B	0.9	0.00021650176448938054
+43	('Pit latrine-B2', 'N volatilization [fraction of N input]')	Alternative B	1.0	1.0825088224469026e-05
+44	('Pit latrine-B2', 'N2 O  EF decay [fraction of N emitted as N2O]')	Alternative B	1.0	1.0825088224469026e-05
+45	('Pit latrine-B2', 'Sludge ppl [-]')	Alternative B	1.0	1.0825088224469026e-05
+46	('Trucking-B3', 'Transportation loss [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+47	('Trucking-B3', 'Transportation distance [km]')	Alternative B	1.0	1.0825088224469026e-05
+48	('Trucking-B3', 'Emptying fee [USD]')	Alternative B	0.9	0.00021650176448938054
+49	('Anaerobic baffled reactor-B5', 'Tau [days]')	Alternative B	1.0	1.0825088224469026e-05
+50	('Anaerobic baffled reactor-B5', 'COD removal [fraction of total COD]')	Alternative B	0.8	0.002056766762649115
+51	('Anaerobic baffled reactor-B5', 'N removal [fraction of N removed]')	Alternative B	1.0	1.0825088224469026e-05
+52	('Anaerobic baffled reactor-B5', 'N max decay [fraction of N removal]')	Alternative B	0.7	0.012340600575894691
+53	('Anaerobic baffled reactor-B5', 'N2 O  EF decay [fraction of degraded N emitted as N2O]')	Alternative B	1.0	1.0825088224469026e-05
+54	('Anaerobic baffled reactor-B5', 'Reactor  H [m]')	Alternative B	1.0	1.0825088224469026e-05
+55	('Anaerobic baffled reactor-B5', 'Add concrete [fraction of total]')	Alternative B	0.9	0.00021650176448938054
+56	('Anaerobic baffled reactor-B5', 'Concrete thickness [m]')	Alternative B	0.9	0.00021650176448938054
+57	('Anaerobic baffled reactor-B5', 'Biogas energy [kJ/mol CH4]')	Alternative B	1.0	1.0825088224469026e-05
+58	('Sludge separator-B6', 'Settled frac [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+59	('Sludge separator-B6', 'Frac of settled TS [fraction]')	Alternative B	0.7	0.012340600575894691
+60	('Sludge separator-B6', 'Frac of settled COD [fraction]')	Alternative B	0.7	0.012340600575894691
+61	('Sludge separator-B6', 'Frac of settled N [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+62	('Sludge separator-B6', 'Frac of settled P [fraction]')	Alternative B	0.9	0.00021650176448938054
+63	('Sludge separator-B6', 'Frac of settled K [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+64	('Sludge separator-B6', 'Frac of settled mg [fraction]')	Alternative B	0.9	0.00021650176448938054
+65	('Sludge separator-B6', 'Frac of settled ca [fraction]')	Alternative B	0.9	0.00021650176448938054
+66	('Liquid treatment bed-B7', 'Tau [days]')	Alternative B	1.0	1.0825088224469026e-05
+67	('Liquid treatment bed-B7', 'COD max decay [% of total COD]')	Alternative B	0.5	0.16782134274394334
+68	('Liquid treatment bed-B7', 'N max decay [% N removal]')	Alternative B	0.7	0.012340600575894691
+69	('Liquid treatment bed-B7', 'N2 O  EF decay [% of degraded N emitted as N2O]')	Alternative B	1.0	1.0825088224469026e-05
+70	('Liquid treatment bed-B7', 'Bed  H [m]')	Alternative B	1.0	1.0825088224469026e-05
+71	('Liquid treatment bed-B7', 'Concrete thickness [m]')	Alternative B	0.9	0.00021650176448938054
+72	('Planted drying bed-B8', 'Tau [days]')	Alternative B	1.0	1.0825088224469026e-05
+73	('Planted drying bed-B8', 'COD max decay [fraction of total COD]')	Alternative B	0.5	0.16782134274394334
+74	('Planted drying bed-B8', 'N max decay [fraction of N removal]')	Alternative B	0.7	0.012340600575894691
+75	('Planted drying bed-B8', 'N2 O  EF decay [fraction of degraded N emitted as N2O]')	Alternative B	1.0	1.0825088224469026e-05
+76	('Planted drying bed-B8', 'Column  H [m]')	Alternative B	1.0	1.0825088224469026e-05
+77	('Planted drying bed-B8', 'Column unit mass [kg/m]')	Alternative B	1.0	1.0825088224469026e-05
+78	('Planted drying bed-B8', 'Concrete thickness [m]')	Alternative B	0.9	0.00021650176448938054
+79	('Planted drying bed-B8', 'Cover slope [degrees]')	Alternative B	1.0	1.0825088224469026e-05
+80	('Planted drying bed-B8', 'Cover unit mass [kg/m2]')	Alternative B	1.0	1.0825088224469026e-05
+81	('Planted drying bed-B8', 'Sol frac [fraction]')	Alternative B	0.4	0.41752365281777043
+82	('Planted drying bed-B8', 'Non storage bed  H [m]')	Alternative B	0.3	0.7869297884777761
+83	('Planted drying bed-B8', 'Storage bed  H [m]')	Alternative B	1.0	1.0825088224469026e-05
+84	('Crop application-B9', 'NH3 application loss [fraction of applied]')	Alternative B	1.0	1.0825088224469026e-05
+85	('Crop application-B9', 'Other application losses [fraction of applied]')	Alternative B	1.0	1.0825088224469026e-05
+86	('Biogas combustion-B14', 'Biogas loss ratio [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+87	('Excretion-B1', 'Exchange rate [UGX/USD]')	Alternative B	1.0	1.0825088224469026e-05
+88	('Pit latrine-B2', 'Plastic density [kg/m2]')	Alternative B	0.4	0.41752365281777043
+89	('Pit latrine-B2', 'Brick density [kg/m3]')	Alternative B	1.0	1.0825088224469026e-05
+90	('Pit latrine-B2', 'SS sheet density [kg/m2]')	Alternative B	1.0	1.0825088224469026e-05
+91	('Pit latrine-B2', 'Gravel density [kg/m3]')	Alternative B	1.0	1.0825088224469026e-05
+92	('Pit latrine-B2', 'Sand density [kg/m3]')	Alternative B	1.0	1.0825088224469026e-05
+93	('Pit latrine-B2', 'Steel density [kg/m3]')	Alternative B	1.0	1.0825088224469026e-05
+94	('TEA', 'Price factor [-]')	Alternative B	0.9	0.00021650176448938054
+95	('TEA', 'N fertilizer price [USD/kg N]')	Alternative B	1.0	1.0825088224469026e-05
+96	('TEA', 'P fertilizer price [USD/kg P]')	Alternative B	1.0	1.0825088224469026e-05
+97	('TEA', 'K fertilizer price [USD/kg K]')	Alternative B	1.0	1.0825088224469026e-05
+98	('TEA', 'Discount rate [fraction]')	Alternative B	1.0	1.0825088224469026e-05
+99	('TEA', 'Electricity price [$/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+100	('Pit latrine-B2', 'Pit latrine capital cost [USD]')	Alternative B	1.0	1.0825088224469026e-05
+101	('Pit latrine-B2', 'Pit latrine operating cost [fraction of capital cost]')	Alternative B	1.0	1.0825088224469026e-05
+102	('Lumped WWTP cost-B4', 'Plant  CAPEX [USD]')	Alternative B	1.0	1.0825088224469026e-05
+103	('TEA/LCA', 'Plant lifetime [yr]')	Alternative B	1.0	1.0825088224469026e-05
+104	('TEA', 'Unskilled staff num [-]')	Alternative B	0.9	0.00021650176448938054
+105	('TEA', 'Unskilled staff salary [USD]')	Alternative B	0.3	0.7869297884777761
+106	('TEA', 'Liquid petroleum gas price [UGX]')	Alternative B	1.0	1.0825088224469026e-05
+107	('TEA/LCA', 'Liquid petroleum gas energy [MJ/kg]')	Alternative B	1.0	1.0825088224469026e-05
+108	('LCA', 'Brick  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+109	('LCA', 'Brick  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+110	('LCA', 'Brick  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+111	('LCA', 'Brick  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+112	('LCA', 'Brick  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+113	('LCA', 'Brick  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+114	('LCA', 'Brick  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+115	('LCA', 'Brick  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+116	('LCA', 'Brick  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+117	('LCA', 'Brick  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+118	('LCA', 'Brick  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+119	('LCA', 'Brick  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+120	('LCA', 'Brick  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	0.9	0.00021650176448938054
+121	('LCA', 'Brick  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+122	('LCA', 'Brick  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+123	('LCA', 'Brick  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+124	('LCA', 'Brick  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+125	('LCA', 'Brick  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+126	('LCA', 'Brick  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+127	('LCA', 'Brick  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+128	('LCA', 'Brick  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+129	('LCA', 'Brick  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+130	('LCA', 'Brick  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+131	('LCA', 'Brick  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+132	('LCA', 'Brick  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+133	('LCA', 'Brick  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+134	('LCA', 'Brick  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+135	('LCA', 'Brick  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+136	('LCA', 'Brick  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+137	('LCA', 'Brick  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+138	('LCA', 'Brick  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+139	('LCA', 'Brick  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+140	('LCA', 'Brick  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+141	('LCA', 'Brick  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+142	('LCA', 'Brick  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+143	('LCA', 'Brick  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+144	('LCA', 'Brick  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+145	('LCA', 'Brick  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+146	('LCA', 'Brick  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+147	('LCA', 'Brick  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+148	('LCA', 'Brick  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+149	('LCA', 'Brick  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+150	('LCA', 'Brick  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+151	('LCA', 'Brick  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+152	('LCA', 'Brick  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+153	('LCA', 'Brick  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+154	('LCA', 'Brick  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+155	('LCA', 'Brick  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+156	('LCA', 'Brick  global warming  CF [kg CO2-Eq/kg]')	Alternative B	0.9	0.00021650176448938054
+157	('LCA', 'Brick  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+158	('LCA', 'Brick  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+159	('LCA', 'Brick  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+160	('LCA', 'Brick  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+161	('LCA', 'Brick  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+162	('LCA', 'Brick  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+163	('LCA', 'Brick  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+164	('LCA', 'Brick  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+165	('LCA', 'Brick  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+166	('LCA', 'Brick  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+167	('LCA', 'Brick  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+168	('LCA', 'Brick  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+169	('LCA', 'Brick  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+170	('LCA', 'Brick  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+171	('LCA', 'Brick  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+172	('LCA', 'Brick  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+173	('LCA', 'Brick  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+174	('LCA', 'Brick  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+175	('LCA', 'Brick  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+176	('LCA', 'Brick  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+177	('LCA', 'Brick  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+178	('LCA', 'Brick  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+179	('LCA', 'Brick  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+180	('LCA', 'Cement  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+181	('LCA', 'Cement  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+182	('LCA', 'Cement  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+183	('LCA', 'Cement  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+184	('LCA', 'Cement  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+185	('LCA', 'Cement  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+186	('LCA', 'Cement  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+187	('LCA', 'Cement  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+188	('LCA', 'Cement  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+189	('LCA', 'Cement  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+190	('LCA', 'Cement  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+191	('LCA', 'Cement  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+192	('LCA', 'Cement  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	0.9	0.00021650176448938054
+193	('LCA', 'Cement  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+194	('LCA', 'Cement  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+195	('LCA', 'Cement  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+196	('LCA', 'Cement  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+197	('LCA', 'Cement  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+198	('LCA', 'Cement  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+199	('LCA', 'Cement  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+200	('LCA', 'Cement  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+201	('LCA', 'Cement  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+202	('LCA', 'Cement  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+203	('LCA', 'Cement  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+204	('LCA', 'Cement  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+205	('LCA', 'Cement  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+206	('LCA', 'Cement  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+207	('LCA', 'Cement  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+208	('LCA', 'Cement  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+209	('LCA', 'Cement  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+210	('LCA', 'Cement  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+211	('LCA', 'Cement  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+212	('LCA', 'Cement  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+213	('LCA', 'Cement  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+214	('LCA', 'Cement  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+215	('LCA', 'Cement  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+216	('LCA', 'Cement  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+217	('LCA', 'Cement  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+218	('LCA', 'Cement  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+219	('LCA', 'Cement  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+220	('LCA', 'Cement  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+221	('LCA', 'Cement  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+222	('LCA', 'Cement  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+223	('LCA', 'Cement  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+224	('LCA', 'Cement  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+225	('LCA', 'Cement  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+226	('LCA', 'Cement  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+227	('LCA', 'Cement  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+228	('LCA', 'Cement  global warming  CF [kg CO2-Eq/kg]')	Alternative B	0.7	0.012340600575894691
+229	('LCA', 'Cement  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+230	('LCA', 'Cement  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+231	('LCA', 'Cement  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+232	('LCA', 'Cement  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+233	('LCA', 'Cement  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+234	('LCA', 'Cement  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+235	('LCA', 'Cement  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+236	('LCA', 'Cement  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+237	('LCA', 'Cement  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+238	('LCA', 'Cement  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+239	('LCA', 'Cement  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+240	('LCA', 'Cement  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+241	('LCA', 'Cement  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+242	('LCA', 'Cement  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+243	('LCA', 'Cement  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+244	('LCA', 'Cement  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+245	('LCA', 'Cement  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+246	('LCA', 'Cement  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+247	('LCA', 'Cement  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+248	('LCA', 'Cement  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+249	('LCA', 'Cement  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+250	('LCA', 'Cement  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+251	('LCA', 'Cement  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+252	('LCA', 'Concrete  H  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+253	('LCA', 'Concrete  E  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+254	('LCA', 'Concrete  H  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+255	('LCA', 'Concrete  I  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+256	('LCA', 'Concrete  H  human toxicity  CF [points/m3]')	Alternative B	0.5	0.16782134274394334
+257	('LCA', 'Concrete  E  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+258	('LCA', 'Concrete  I  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+259	('LCA', 'Concrete  E  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+260	('LCA', 'Concrete  H  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+261	('LCA', 'Concrete  non carcinogenics  CF [kg toluen./m3]')	Alternative B	1.0	1.0825088224469026e-05
+262	('LCA', 'Concrete  I  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+263	('LCA', 'Concrete  H  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+264	('LCA', 'Concrete  ecotoxicity  CF [kg 2,4-D-./m3]')	Alternative B	1.0	1.0825088224469026e-05
+265	('LCA', 'Concrete  ozone depletion  CF [kg CFC-11./m3]')	Alternative B	1.0	1.0825088224469026e-05
+266	('LCA', 'Concrete  H  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+267	('LCA', 'Concrete  I  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+268	('LCA', 'Concrete  H  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+269	('LCA', 'Concrete  H  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+270	('LCA', 'Concrete  I  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+271	('LCA', 'Concrete  respiratory effects average  CF [kg PM2.5-./m3]')	Alternative B	0.9	0.00021650176448938054
+272	('LCA', 'Concrete  E  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+273	('LCA', 'Concrete  E  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+274	('LCA', 'Concrete  I  human toxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+275	('LCA', 'Concrete  E  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+276	('LCA', 'Concrete  H  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+277	('LCA', 'Concrete  I  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+278	('LCA', 'Concrete  I  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+279	('LCA', 'Concrete  E  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+280	('LCA', 'Concrete  I  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+281	('LCA', 'Concrete  H  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+282	('LCA', 'Concrete  H  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+283	('LCA', 'Concrete  I  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+284	('LCA', 'Concrete  I  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+285	('LCA', 'Concrete  H  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+286	('LCA', 'Concrete  I  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+287	('LCA', 'Concrete  E  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+288	('LCA', 'Concrete  H  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+289	('LCA', 'Concrete  I  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+290	('LCA', 'Concrete  H  agricultural land occupation  CF [points/m3]')	Alternative B	0.9	0.00021650176448938054
+291	('LCA', 'Concrete  I  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+292	('LCA', 'Concrete  I  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+293	('LCA', 'Concrete  E  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+294	('LCA', 'Concrete  H  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+295	('LCA', 'Concrete  E  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+296	('LCA', 'Concrete  I  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+297	('LCA', 'Concrete  H  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+298	('LCA', 'Concrete  carcinogenics  CF [kg benzen./m3]')	Alternative B	0.9	0.00021650176448938054
+299	('LCA', 'Concrete  H  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+300	('LCA', 'Concrete  global warming  CF [kg CO2-Eq/m3]')	Alternative B	1.0	1.0825088224469026e-05
+301	('LCA', 'Concrete  E  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+302	('LCA', 'Concrete  I  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+303	('LCA', 'Concrete  I  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+304	('LCA', 'Concrete  E  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+305	('LCA', 'Concrete  H  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+306	('LCA', 'Concrete  E  human toxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+307	('LCA', 'Concrete  I  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+308	('LCA', 'Concrete  E  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+309	('LCA', 'Concrete  I  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+310	('LCA', 'Concrete  H  natural land transformation  CF [points/m3]')	Alternative B	0.9	0.00021650176448938054
+311	('LCA', 'Concrete  E  marine ecotoxicity  CF [points/m3]')	Alternative B	0.9	0.00021650176448938054
+312	('LCA', 'Concrete  E  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+313	('LCA', 'Concrete  acidification  CF [moles of ./m3]')	Alternative B	1.0	1.0825088224469026e-05
+314	('LCA', 'Concrete  eutrophication  CF [kg N/m3]')	Alternative B	1.0	1.0825088224469026e-05
+315	('LCA', 'Concrete  I  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+316	('LCA', 'Concrete  E  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+317	('LCA', 'Concrete  H  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+318	('LCA', 'Concrete  E  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+319	('LCA', 'Concrete  E  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+320	('LCA', 'Concrete  H  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+321	('LCA', 'Concrete  E  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+322	('LCA', 'Concrete  photochemical oxidation  CF [kg NOx-Eq/m3]')	Alternative B	0.8	0.002056766762649115
+323	('LCA', 'Concrete  E  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+324	('LCA', 'Excavation  H  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+325	('LCA', 'Excavation  E  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+326	('LCA', 'Excavation  H  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+327	('LCA', 'Excavation  I  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+328	('LCA', 'Excavation  H  human toxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+329	('LCA', 'Excavation  E  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+330	('LCA', 'Excavation  I  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+331	('LCA', 'Excavation  E  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+332	('LCA', 'Excavation  H  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+333	('LCA', 'Excavation  non carcinogenics  CF [kg toluen./m3]')	Alternative B	0.6	0.05244755244755244
+334	('LCA', 'Excavation  I  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+335	('LCA', 'Excavation  H  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+336	('LCA', 'Excavation  ecotoxicity  CF [kg 2,4-D-./m3]')	Alternative B	1.0	1.0825088224469026e-05
+337	('LCA', 'Excavation  ozone depletion  CF [kg CFC-11./m3]')	Alternative B	1.0	1.0825088224469026e-05
+338	('LCA', 'Excavation  H  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+339	('LCA', 'Excavation  I  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+340	('LCA', 'Excavation  H  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+341	('LCA', 'Excavation  H  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+342	('LCA', 'Excavation  I  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+343	('LCA', 'Excavation  respiratory effects average  CF [kg PM2.5-./m3]')	Alternative B	1.0	1.0825088224469026e-05
+344	('LCA', 'Excavation  E  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+345	('LCA', 'Excavation  E  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+346	('LCA', 'Excavation  I  human toxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+347	('LCA', 'Excavation  E  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+348	('LCA', 'Excavation  H  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+349	('LCA', 'Excavation  I  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+350	('LCA', 'Excavation  I  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+351	('LCA', 'Excavation  E  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+352	('LCA', 'Excavation  I  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+353	('LCA', 'Excavation  H  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+354	('LCA', 'Excavation  H  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+355	('LCA', 'Excavation  I  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+356	('LCA', 'Excavation  I  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+357	('LCA', 'Excavation  H  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+358	('LCA', 'Excavation  I  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+359	('LCA', 'Excavation  E  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+360	('LCA', 'Excavation  H  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+361	('LCA', 'Excavation  I  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+362	('LCA', 'Excavation  H  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+363	('LCA', 'Excavation  I  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+364	('LCA', 'Excavation  I  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+365	('LCA', 'Excavation  E  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+366	('LCA', 'Excavation  H  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+367	('LCA', 'Excavation  E  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+368	('LCA', 'Excavation  I  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+369	('LCA', 'Excavation  H  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+370	('LCA', 'Excavation  carcinogenics  CF [kg benzen./m3]')	Alternative B	1.0	1.0825088224469026e-05
+371	('LCA', 'Excavation  H  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+372	('LCA', 'Excavation  global warming  CF [kg CO2-Eq/m3]')	Alternative B	0.7	0.012340600575894691
+373	('LCA', 'Excavation  E  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+374	('LCA', 'Excavation  I  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+375	('LCA', 'Excavation  I  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+376	('LCA', 'Excavation  E  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+377	('LCA', 'Excavation  H  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+378	('LCA', 'Excavation  E  human toxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+379	('LCA', 'Excavation  I  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+380	('LCA', 'Excavation  E  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+381	('LCA', 'Excavation  I  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+382	('LCA', 'Excavation  H  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+383	('LCA', 'Excavation  E  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+384	('LCA', 'Excavation  E  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+385	('LCA', 'Excavation  acidification  CF [moles of ./m3]')	Alternative B	0.9	0.00021650176448938054
+386	('LCA', 'Excavation  eutrophication  CF [kg N/m3]')	Alternative B	1.0	1.0825088224469026e-05
+387	('LCA', 'Excavation  I  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+388	('LCA', 'Excavation  E  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+389	('LCA', 'Excavation  H  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+390	('LCA', 'Excavation  E  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+391	('LCA', 'Excavation  E  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+392	('LCA', 'Excavation  H  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+393	('LCA', 'Excavation  E  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+394	('LCA', 'Excavation  photochemical oxidation  CF [kg NOx-Eq/m3]')	Alternative B	1.0	1.0825088224469026e-05
+395	('LCA', 'Excavation  E  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+396	('LCA', 'Gravel  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+397	('LCA', 'Gravel  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+398	('LCA', 'Gravel  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+399	('LCA', 'Gravel  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+400	('LCA', 'Gravel  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+401	('LCA', 'Gravel  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+402	('LCA', 'Gravel  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+403	('LCA', 'Gravel  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+404	('LCA', 'Gravel  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+405	('LCA', 'Gravel  non carcinogenics  CF [kg toluen./kg]')	Alternative B	0.9	0.00021650176448938054
+406	('LCA', 'Gravel  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+407	('LCA', 'Gravel  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+408	('LCA', 'Gravel  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+409	('LCA', 'Gravel  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+410	('LCA', 'Gravel  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+411	('LCA', 'Gravel  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+412	('LCA', 'Gravel  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+413	('LCA', 'Gravel  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+414	('LCA', 'Gravel  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+415	('LCA', 'Gravel  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+416	('LCA', 'Gravel  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+417	('LCA', 'Gravel  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+418	('LCA', 'Gravel  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+419	('LCA', 'Gravel  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+420	('LCA', 'Gravel  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+421	('LCA', 'Gravel  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+422	('LCA', 'Gravel  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+423	('LCA', 'Gravel  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+424	('LCA', 'Gravel  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+425	('LCA', 'Gravel  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+426	('LCA', 'Gravel  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+427	('LCA', 'Gravel  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+428	('LCA', 'Gravel  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+429	('LCA', 'Gravel  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+430	('LCA', 'Gravel  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+431	('LCA', 'Gravel  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+432	('LCA', 'Gravel  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+433	('LCA', 'Gravel  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+434	('LCA', 'Gravel  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+435	('LCA', 'Gravel  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+436	('LCA', 'Gravel  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+437	('LCA', 'Gravel  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+438	('LCA', 'Gravel  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+439	('LCA', 'Gravel  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+440	('LCA', 'Gravel  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+441	('LCA', 'Gravel  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+442	('LCA', 'Gravel  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+443	('LCA', 'Gravel  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+444	('LCA', 'Gravel  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+445	('LCA', 'Gravel  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+446	('LCA', 'Gravel  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+447	('LCA', 'Gravel  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+448	('LCA', 'Gravel  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+449	('LCA', 'Gravel  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+450	('LCA', 'Gravel  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+451	('LCA', 'Gravel  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+452	('LCA', 'Gravel  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+453	('LCA', 'Gravel  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+454	('LCA', 'Gravel  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+455	('LCA', 'Gravel  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+456	('LCA', 'Gravel  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+457	('LCA', 'Gravel  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+458	('LCA', 'Gravel  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+459	('LCA', 'Gravel  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+460	('LCA', 'Gravel  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+461	('LCA', 'Gravel  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+462	('LCA', 'Gravel  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+463	('LCA', 'Gravel  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+464	('LCA', 'Gravel  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+465	('LCA', 'Gravel  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+466	('LCA', 'Gravel  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+467	('LCA', 'Gravel  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+468	('LCA', 'Plastic  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+469	('LCA', 'Plastic  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+470	('LCA', 'Plastic  H  fossil depletion  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+471	('LCA', 'Plastic  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+472	('LCA', 'Plastic  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+473	('LCA', 'Plastic  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+474	('LCA', 'Plastic  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+475	('LCA', 'Plastic  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+476	('LCA', 'Plastic  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+477	('LCA', 'Plastic  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+478	('LCA', 'Plastic  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+479	('LCA', 'Plastic  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+480	('LCA', 'Plastic  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	0.4	0.41752365281777043
+481	('LCA', 'Plastic  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+482	('LCA', 'Plastic  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+483	('LCA', 'Plastic  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+484	('LCA', 'Plastic  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+485	('LCA', 'Plastic  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+486	('LCA', 'Plastic  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+487	('LCA', 'Plastic  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+488	('LCA', 'Plastic  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+489	('LCA', 'Plastic  E  all  CF [points/kg]')	Alternative B	0.7	0.012340600575894691
+490	('LCA', 'Plastic  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+491	('LCA', 'Plastic  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+492	('LCA', 'Plastic  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+493	('LCA', 'Plastic  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+494	('LCA', 'Plastic  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+495	('LCA', 'Plastic  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+496	('LCA', 'Plastic  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+497	('LCA', 'Plastic  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+498	('LCA', 'Plastic  H  all  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+499	('LCA', 'Plastic  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+500	('LCA', 'Plastic  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+501	('LCA', 'Plastic  H  resources  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+502	('LCA', 'Plastic  I  all  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+503	('LCA', 'Plastic  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+504	('LCA', 'Plastic  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+505	('LCA', 'Plastic  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+506	('LCA', 'Plastic  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+507	('LCA', 'Plastic  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+508	('LCA', 'Plastic  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+509	('LCA', 'Plastic  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+510	('LCA', 'Plastic  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+511	('LCA', 'Plastic  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+512	('LCA', 'Plastic  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+513	('LCA', 'Plastic  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+514	('LCA', 'Plastic  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+515	('LCA', 'Plastic  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+516	('LCA', 'Plastic  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+517	('LCA', 'Plastic  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+518	('LCA', 'Plastic  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+519	('LCA', 'Plastic  I  resources  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+520	('LCA', 'Plastic  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+521	('LCA', 'Plastic  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+522	('LCA', 'Plastic  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+523	('LCA', 'Plastic  I  fossil depletion  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+524	('LCA', 'Plastic  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+525	('LCA', 'Plastic  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+526	('LCA', 'Plastic  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+527	('LCA', 'Plastic  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+528	('LCA', 'Plastic  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+529	('LCA', 'Plastic  acidification  CF [moles of ./kg]')	Alternative B	0.9	0.00021650176448938054
+530	('LCA', 'Plastic  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+531	('LCA', 'Plastic  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+532	('LCA', 'Plastic  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+533	('LCA', 'Plastic  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+534	('LCA', 'Plastic  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+535	('LCA', 'Plastic  E  resources  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+536	('LCA', 'Plastic  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+537	('LCA', 'Plastic  E  fossil depletion  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+538	('LCA', 'Plastic  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+539	('LCA', 'Plastic  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+540	('LCA', 'Sand  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+541	('LCA', 'Sand  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+542	('LCA', 'Sand  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+543	('LCA', 'Sand  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+544	('LCA', 'Sand  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+545	('LCA', 'Sand  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+546	('LCA', 'Sand  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+547	('LCA', 'Sand  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+548	('LCA', 'Sand  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+549	('LCA', 'Sand  non carcinogenics  CF [kg toluen./kg]')	Alternative B	0.9	0.00021650176448938054
+550	('LCA', 'Sand  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+551	('LCA', 'Sand  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+552	('LCA', 'Sand  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+553	('LCA', 'Sand  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+554	('LCA', 'Sand  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+555	('LCA', 'Sand  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+556	('LCA', 'Sand  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+557	('LCA', 'Sand  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+558	('LCA', 'Sand  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+559	('LCA', 'Sand  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+560	('LCA', 'Sand  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+561	('LCA', 'Sand  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+562	('LCA', 'Sand  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+563	('LCA', 'Sand  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+564	('LCA', 'Sand  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+565	('LCA', 'Sand  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+566	('LCA', 'Sand  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+567	('LCA', 'Sand  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+568	('LCA', 'Sand  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+569	('LCA', 'Sand  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+570	('LCA', 'Sand  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+571	('LCA', 'Sand  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+572	('LCA', 'Sand  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+573	('LCA', 'Sand  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+574	('LCA', 'Sand  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+575	('LCA', 'Sand  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+576	('LCA', 'Sand  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+577	('LCA', 'Sand  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+578	('LCA', 'Sand  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+579	('LCA', 'Sand  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+580	('LCA', 'Sand  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+581	('LCA', 'Sand  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+582	('LCA', 'Sand  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+583	('LCA', 'Sand  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+584	('LCA', 'Sand  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+585	('LCA', 'Sand  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+586	('LCA', 'Sand  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+587	('LCA', 'Sand  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+588	('LCA', 'Sand  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+589	('LCA', 'Sand  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+590	('LCA', 'Sand  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+591	('LCA', 'Sand  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+592	('LCA', 'Sand  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+593	('LCA', 'Sand  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+594	('LCA', 'Sand  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+595	('LCA', 'Sand  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+596	('LCA', 'Sand  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+597	('LCA', 'Sand  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+598	('LCA', 'Sand  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+599	('LCA', 'Sand  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+600	('LCA', 'Sand  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+601	('LCA', 'Sand  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+602	('LCA', 'Sand  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+603	('LCA', 'Sand  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+604	('LCA', 'Sand  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+605	('LCA', 'Sand  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+606	('LCA', 'Sand  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+607	('LCA', 'Sand  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+608	('LCA', 'Sand  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+609	('LCA', 'Sand  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+610	('LCA', 'Sand  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+611	('LCA', 'Sand  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+612	('LCA', 'Stainless steel  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+613	('LCA', 'Stainless steel  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+614	('LCA', 'Stainless steel  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+615	('LCA', 'Stainless steel  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+616	('LCA', 'Stainless steel  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+617	('LCA', 'Stainless steel  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+618	('LCA', 'Stainless steel  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+619	('LCA', 'Stainless steel  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+620	('LCA', 'Stainless steel  H  metal depletion  CF [points/kg]')	Alternative B	0.5	0.16782134274394334
+621	('LCA', 'Stainless steel  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+622	('LCA', 'Stainless steel  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+623	('LCA', 'Stainless steel  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+624	('LCA', 'Stainless steel  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+625	('LCA', 'Stainless steel  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+626	('LCA', 'Stainless steel  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+627	('LCA', 'Stainless steel  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+628	('LCA', 'Stainless steel  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+629	('LCA', 'Stainless steel  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+630	('LCA', 'Stainless steel  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+631	('LCA', 'Stainless steel  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+632	('LCA', 'Stainless steel  E  metal depletion  CF [points/kg]')	Alternative B	0.5	0.16782134274394334
+633	('LCA', 'Stainless steel  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+634	('LCA', 'Stainless steel  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+635	('LCA', 'Stainless steel  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+636	('LCA', 'Stainless steel  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+637	('LCA', 'Stainless steel  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+638	('LCA', 'Stainless steel  I  human health  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+639	('LCA', 'Stainless steel  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+640	('LCA', 'Stainless steel  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+641	('LCA', 'Stainless steel  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+642	('LCA', 'Stainless steel  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+643	('LCA', 'Stainless steel  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+644	('LCA', 'Stainless steel  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+645	('LCA', 'Stainless steel  H  resources  total  CF [points/kg]')	Alternative B	0.7	0.012340600575894691
+646	('LCA', 'Stainless steel  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+647	('LCA', 'Stainless steel  E  human health  total  CF [points/kg]')	Alternative B	0.8	0.002056766762649115
+648	('LCA', 'Stainless steel  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+649	('LCA', 'Stainless steel  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+650	('LCA', 'Stainless steel  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+651	('LCA', 'Stainless steel  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+652	('LCA', 'Stainless steel  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+653	('LCA', 'Stainless steel  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+654	('LCA', 'Stainless steel  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+655	('LCA', 'Stainless steel  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+656	('LCA', 'Stainless steel  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+657	('LCA', 'Stainless steel  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+658	('LCA', 'Stainless steel  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+659	('LCA', 'Stainless steel  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+660	('LCA', 'Stainless steel  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+661	('LCA', 'Stainless steel  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+662	('LCA', 'Stainless steel  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+663	('LCA', 'Stainless steel  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+664	('LCA', 'Stainless steel  E  ecosystem quality  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+665	('LCA', 'Stainless steel  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+666	('LCA', 'Stainless steel  E  human toxicity  CF [points/kg]')	Alternative B	0.5	0.16782134274394334
+667	('LCA', 'Stainless steel  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+668	('LCA', 'Stainless steel  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+669	('LCA', 'Stainless steel  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+670	('LCA', 'Stainless steel  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+671	('LCA', 'Stainless steel  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+672	('LCA', 'Stainless steel  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+673	('LCA', 'Stainless steel  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+674	('LCA', 'Stainless steel  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+675	('LCA', 'Stainless steel  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+676	('LCA', 'Stainless steel  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+677	('LCA', 'Stainless steel  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+678	('LCA', 'Stainless steel  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+679	('LCA', 'Stainless steel  E  resources  total  CF [points/kg]')	Alternative B	0.7	0.012340600575894691
+680	('LCA', 'Stainless steel  H  human health  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+681	('LCA', 'Stainless steel  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+682	('LCA', 'Stainless steel  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+683	('LCA', 'Stainless steel  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+684	('LCA', 'Stainless steel sheet  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+685	('LCA', 'Stainless steel sheet  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+686	('LCA', 'Stainless steel sheet  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+687	('LCA', 'Stainless steel sheet  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+688	('LCA', 'Stainless steel sheet  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+689	('LCA', 'Stainless steel sheet  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+690	('LCA', 'Stainless steel sheet  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+691	('LCA', 'Stainless steel sheet  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+692	('LCA', 'Stainless steel sheet  H  metal depletion  CF [points/kg]')	Alternative B	0.6	0.05244755244755244
+693	('LCA', 'Stainless steel sheet  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+694	('LCA', 'Stainless steel sheet  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+695	('LCA', 'Stainless steel sheet  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+696	('LCA', 'Stainless steel sheet  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+697	('LCA', 'Stainless steel sheet  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+698	('LCA', 'Stainless steel sheet  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+699	('LCA', 'Stainless steel sheet  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+700	('LCA', 'Stainless steel sheet  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+701	('LCA', 'Stainless steel sheet  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+702	('LCA', 'Stainless steel sheet  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+703	('LCA', 'Stainless steel sheet  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+704	('LCA', 'Stainless steel sheet  E  metal depletion  CF [points/kg]')	Alternative B	0.6	0.05244755244755244
+705	('LCA', 'Stainless steel sheet  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+706	('LCA', 'Stainless steel sheet  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+707	('LCA', 'Stainless steel sheet  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+708	('LCA', 'Stainless steel sheet  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+709	('LCA', 'Stainless steel sheet  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+710	('LCA', 'Stainless steel sheet  I  human health  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+711	('LCA', 'Stainless steel sheet  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+712	('LCA', 'Stainless steel sheet  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+713	('LCA', 'Stainless steel sheet  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+714	('LCA', 'Stainless steel sheet  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+715	('LCA', 'Stainless steel sheet  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+716	('LCA', 'Stainless steel sheet  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+717	('LCA', 'Stainless steel sheet  H  resources  total  CF [points/kg]')	Alternative B	0.8	0.002056766762649115
+718	('LCA', 'Stainless steel sheet  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+719	('LCA', 'Stainless steel sheet  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+720	('LCA', 'Stainless steel sheet  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+721	('LCA', 'Stainless steel sheet  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+722	('LCA', 'Stainless steel sheet  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+723	('LCA', 'Stainless steel sheet  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+724	('LCA', 'Stainless steel sheet  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+725	('LCA', 'Stainless steel sheet  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+726	('LCA', 'Stainless steel sheet  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+727	('LCA', 'Stainless steel sheet  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+728	('LCA', 'Stainless steel sheet  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+729	('LCA', 'Stainless steel sheet  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+730	('LCA', 'Stainless steel sheet  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+731	('LCA', 'Stainless steel sheet  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+732	('LCA', 'Stainless steel sheet  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+733	('LCA', 'Stainless steel sheet  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+734	('LCA', 'Stainless steel sheet  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+735	('LCA', 'Stainless steel sheet  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+736	('LCA', 'Stainless steel sheet  E  ecosystem quality  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+737	('LCA', 'Stainless steel sheet  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+738	('LCA', 'Stainless steel sheet  E  human toxicity  CF [points/kg]')	Alternative B	0.7	0.012340600575894691
+739	('LCA', 'Stainless steel sheet  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+740	('LCA', 'Stainless steel sheet  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+741	('LCA', 'Stainless steel sheet  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+742	('LCA', 'Stainless steel sheet  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+743	('LCA', 'Stainless steel sheet  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+744	('LCA', 'Stainless steel sheet  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+745	('LCA', 'Stainless steel sheet  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+746	('LCA', 'Stainless steel sheet  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+747	('LCA', 'Stainless steel sheet  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+748	('LCA', 'Stainless steel sheet  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+749	('LCA', 'Stainless steel sheet  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+750	('LCA', 'Stainless steel sheet  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+751	('LCA', 'Stainless steel sheet  E  resources  total  CF [points/kg]')	Alternative B	0.8	0.002056766762649115
+752	('LCA', 'Stainless steel sheet  H  human health  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+753	('LCA', 'Stainless steel sheet  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+754	('LCA', 'Stainless steel sheet  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+755	('LCA', 'Stainless steel sheet  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+756	('LCA', 'Steel  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+757	('LCA', 'Steel  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+758	('LCA', 'Steel  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+759	('LCA', 'Steel  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+760	('LCA', 'Steel  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+761	('LCA', 'Steel  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+762	('LCA', 'Steel  I  metal depletion  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+763	('LCA', 'Steel  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+764	('LCA', 'Steel  H  metal depletion  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+765	('LCA', 'Steel  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+766	('LCA', 'Steel  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+767	('LCA', 'Steel  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+768	('LCA', 'Steel  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+769	('LCA', 'Steel  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+770	('LCA', 'Steel  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+771	('LCA', 'Steel  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+772	('LCA', 'Steel  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+773	('LCA', 'Steel  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+774	('LCA', 'Steel  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+775	('LCA', 'Steel  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+776	('LCA', 'Steel  E  metal depletion  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+777	('LCA', 'Steel  E  all  CF [points/kg]')	Alternative B	0.7	0.012340600575894691
+778	('LCA', 'Steel  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+779	('LCA', 'Steel  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+780	('LCA', 'Steel  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+781	('LCA', 'Steel  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+782	('LCA', 'Steel  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+783	('LCA', 'Steel  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+784	('LCA', 'Steel  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+785	('LCA', 'Steel  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+786	('LCA', 'Steel  H  all  CF [points/kg]')	Alternative B	0.5	0.16782134274394334
+787	('LCA', 'Steel  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+788	('LCA', 'Steel  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+789	('LCA', 'Steel  H  resources  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+790	('LCA', 'Steel  I  all  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+791	('LCA', 'Steel  E  human health  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+792	('LCA', 'Steel  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+793	('LCA', 'Steel  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+794	('LCA', 'Steel  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+795	('LCA', 'Steel  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+796	('LCA', 'Steel  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+797	('LCA', 'Steel  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+798	('LCA', 'Steel  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+799	('LCA', 'Steel  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+800	('LCA', 'Steel  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+801	('LCA', 'Steel  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+802	('LCA', 'Steel  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+803	('LCA', 'Steel  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+804	('LCA', 'Steel  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+805	('LCA', 'Steel  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+806	('LCA', 'Steel  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+807	('LCA', 'Steel  I  resources  total  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+808	('LCA', 'Steel  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+809	('LCA', 'Steel  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+810	('LCA', 'Steel  E  human toxicity  CF [points/kg]')	Alternative B	0.9	0.00021650176448938054
+811	('LCA', 'Steel  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+812	('LCA', 'Steel  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+813	('LCA', 'Steel  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+814	('LCA', 'Steel  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+815	('LCA', 'Steel  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+816	('LCA', 'Steel  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+817	('LCA', 'Steel  acidification  CF [moles of ./kg]')	Alternative B	0.9	0.00021650176448938054
+818	('LCA', 'Steel  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+819	('LCA', 'Steel  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+820	('LCA', 'Steel  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+821	('LCA', 'Steel  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+822	('LCA', 'Steel  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+823	('LCA', 'Steel  E  resources  total  CF [points/kg]')	Alternative B	0.8	0.002056766762649115
+824	('LCA', 'Steel  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+825	('LCA', 'Steel  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+826	('LCA', 'Steel  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+827	('LCA', 'Steel  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+828	('LCA', 'Wood  H  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+829	('LCA', 'Wood  E  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+830	('LCA', 'Wood  H  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+831	('LCA', 'Wood  I  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+832	('LCA', 'Wood  H  human toxicity  CF [points/m3]')	Alternative B	0.6	0.05244755244755244
+833	('LCA', 'Wood  E  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+834	('LCA', 'Wood  I  metal depletion  CF [points/m3]')	Alternative B	0.7	0.012340600575894691
+835	('LCA', 'Wood  E  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+836	('LCA', 'Wood  H  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+837	('LCA', 'Wood  non carcinogenics  CF [kg toluen./m3]')	Alternative B	1.0	1.0825088224469026e-05
+838	('LCA', 'Wood  I  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+839	('LCA', 'Wood  H  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+840	('LCA', 'Wood  ecotoxicity  CF [kg 2,4-D-./m3]')	Alternative B	1.0	1.0825088224469026e-05
+841	('LCA', 'Wood  ozone depletion  CF [kg CFC-11./m3]')	Alternative B	1.0	1.0825088224469026e-05
+842	('LCA', 'Wood  H  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+843	('LCA', 'Wood  I  particulate matter formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+844	('LCA', 'Wood  H  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+845	('LCA', 'Wood  H  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+846	('LCA', 'Wood  I  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+847	('LCA', 'Wood  respiratory effects average  CF [kg PM2.5-./m3]')	Alternative B	0.9	0.00021650176448938054
+848	('LCA', 'Wood  E  metal depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+849	('LCA', 'Wood  E  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+850	('LCA', 'Wood  I  human toxicity  CF [points/m3]')	Alternative B	0.7	0.012340600575894691
+851	('LCA', 'Wood  E  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+852	('LCA', 'Wood  H  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+853	('LCA', 'Wood  I  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+854	('LCA', 'Wood  I  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+855	('LCA', 'Wood  E  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+856	('LCA', 'Wood  I  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+857	('LCA', 'Wood  H  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+858	('LCA', 'Wood  H  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+859	('LCA', 'Wood  I  urban land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+860	('LCA', 'Wood  I  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+861	('LCA', 'Wood  H  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+862	('LCA', 'Wood  I  all  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+863	('LCA', 'Wood  E  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+864	('LCA', 'Wood  H  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+865	('LCA', 'Wood  I  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+866	('LCA', 'Wood  H  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+867	('LCA', 'Wood  I  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+868	('LCA', 'Wood  I  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+869	('LCA', 'Wood  E  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+870	('LCA', 'Wood  H  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+871	('LCA', 'Wood  E  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+872	('LCA', 'Wood  I  marine ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+873	('LCA', 'Wood  H  climate change human health  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+874	('LCA', 'Wood  carcinogenics  CF [kg benzen./m3]')	Alternative B	1.0	1.0825088224469026e-05
+875	('LCA', 'Wood  H  freshwater eutrophication  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+876	('LCA', 'Wood  global warming  CF [kg CO2-Eq/m3]')	Alternative B	1.0	1.0825088224469026e-05
+877	('LCA', 'Wood  E  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+878	('LCA', 'Wood  I  ionising radiation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+879	('LCA', 'Wood  I  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+880	('LCA', 'Wood  E  ecosystem quality  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+881	('LCA', 'Wood  H  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+882	('LCA', 'Wood  E  human toxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+883	('LCA', 'Wood  I  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+884	('LCA', 'Wood  E  agricultural land occupation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+885	('LCA', 'Wood  I  climate change ecosystems  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+886	('LCA', 'Wood  H  natural land transformation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+887	('LCA', 'Wood  E  marine ecotoxicity  CF [points/m3]')	Alternative B	0.9	0.00021650176448938054
+888	('LCA', 'Wood  E  terrestrial ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+889	('LCA', 'Wood  acidification  CF [moles of ./m3]')	Alternative B	1.0	1.0825088224469026e-05
+890	('LCA', 'Wood  eutrophication  CF [kg N/m3]')	Alternative B	1.0	1.0825088224469026e-05
+891	('LCA', 'Wood  I  terrestrial acidification  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+892	('LCA', 'Wood  E  particulate matter formation  CF [points/m3]')	Alternative B	0.9	0.00021650176448938054
+893	('LCA', 'Wood  H  freshwater ecotoxicity  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+894	('LCA', 'Wood  E  photochemical oxidant formation  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+895	('LCA', 'Wood  E  resources  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+896	('LCA', 'Wood  H  human health  total  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+897	('LCA', 'Wood  E  fossil depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+898	('LCA', 'Wood  photochemical oxidation  CF [kg NOx-Eq/m3]')	Alternative B	0.3	0.7869297884777761
+899	('LCA', 'Wood  E  ozone depletion  CF [points/m3]')	Alternative B	1.0	1.0825088224469026e-05
+900	('LCA', 'Trucking  H  particulate matter formation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+901	('LCA', 'Trucking  E  freshwater eutrophication  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+902	('LCA', 'Trucking  H  fossil depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+903	('LCA', 'Trucking  I  photochemical oxidant formation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+904	('LCA', 'Trucking  H  human toxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+905	('LCA', 'Trucking  E  freshwater ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+906	('LCA', 'Trucking  I  metal depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+907	('LCA', 'Trucking  E  urban land occupation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+908	('LCA', 'Trucking  H  metal depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+909	('LCA', 'Trucking  non carcinogenics  CF [kg toluen./tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+910	('LCA', 'Trucking  I  agricultural land occupation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+911	('LCA', 'Trucking  H  urban land occupation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+912	('LCA', 'Trucking  ecotoxicity  CF [kg 2,4-D-./tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+913	('LCA', 'Trucking  ozone depletion  CF [kg CFC-11./tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+914	('LCA', 'Trucking  H  ecosystem quality  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+915	('LCA', 'Trucking  I  particulate matter formation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+916	('LCA', 'Trucking  H  marine ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+917	('LCA', 'Trucking  H  terrestrial acidification  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+918	('LCA', 'Trucking  I  natural land transformation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+919	('LCA', 'Trucking  respiratory effects average  CF [kg PM2.5-./tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+920	('LCA', 'Trucking  E  metal depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+921	('LCA', 'Trucking  E  all  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+922	('LCA', 'Trucking  I  human toxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+923	('LCA', 'Trucking  E  climate change human health  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+924	('LCA', 'Trucking  H  ionising radiation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+925	('LCA', 'Trucking  I  climate change human health  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+926	('LCA', 'Trucking  I  human health  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+927	('LCA', 'Trucking  E  terrestrial acidification  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+928	('LCA', 'Trucking  I  freshwater ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+929	('LCA', 'Trucking  H  terrestrial ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+930	('LCA', 'Trucking  H  all  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+931	('LCA', 'Trucking  I  urban land occupation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+932	('LCA', 'Trucking  I  ozone depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+933	('LCA', 'Trucking  H  resources  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+934	('LCA', 'Trucking  I  all  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+935	('LCA', 'Trucking  E  human health  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+936	('LCA', 'Trucking  H  ozone depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+937	('LCA', 'Trucking  I  terrestrial ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+938	('LCA', 'Trucking  H  agricultural land occupation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+939	('LCA', 'Trucking  I  ecosystem quality  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+940	('LCA', 'Trucking  I  freshwater eutrophication  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+941	('LCA', 'Trucking  E  climate change ecosystems  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+942	('LCA', 'Trucking  H  photochemical oxidant formation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+943	('LCA', 'Trucking  E  natural land transformation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+944	('LCA', 'Trucking  I  marine ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+945	('LCA', 'Trucking  H  climate change human health  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+946	('LCA', 'Trucking  carcinogenics  CF [kg benzen./tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+947	('LCA', 'Trucking  H  freshwater eutrophication  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+948	('LCA', 'Trucking  global warming  CF [kg CO2-Eq/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+949	('LCA', 'Trucking  E  ionising radiation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+950	('LCA', 'Trucking  I  ionising radiation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+951	('LCA', 'Trucking  I  resources  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+952	('LCA', 'Trucking  E  ecosystem quality  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+953	('LCA', 'Trucking  H  climate change ecosystems  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+954	('LCA', 'Trucking  E  human toxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+955	('LCA', 'Trucking  I  fossil depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+956	('LCA', 'Trucking  E  agricultural land occupation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+957	('LCA', 'Trucking  I  climate change ecosystems  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+958	('LCA', 'Trucking  H  natural land transformation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+959	('LCA', 'Trucking  E  marine ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+960	('LCA', 'Trucking  E  terrestrial ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+961	('LCA', 'Trucking  acidification  CF [moles of ./tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+962	('LCA', 'Trucking  eutrophication  CF [kg N/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+963	('LCA', 'Trucking  I  terrestrial acidification  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+964	('LCA', 'Trucking  E  particulate matter formation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+965	('LCA', 'Trucking  H  freshwater ecotoxicity  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+966	('LCA', 'Trucking  E  photochemical oxidant formation  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+967	('LCA', 'Trucking  E  resources  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+968	('LCA', 'Trucking  H  human health  total  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+969	('LCA', 'Trucking  E  fossil depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+970	('LCA', 'Trucking  photochemical oxidation  CF [kg NOx-Eq/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+971	('LCA', 'Trucking  E  ozone depletion  CF [points/tonne*km]')	Alternative B	1.0	1.0825088224469026e-05
+972	('LCA', 'Biogas item  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+973	('LCA', 'Biogas item  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+974	('LCA', 'Biogas item  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+975	('LCA', 'Biogas item  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+976	('LCA', 'Biogas item  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+977	('LCA', 'Biogas item  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+978	('LCA', 'Biogas item  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+979	('LCA', 'Biogas item  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+980	('LCA', 'Biogas item  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+981	('LCA', 'Biogas item  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+982	('LCA', 'Biogas item  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+983	('LCA', 'Biogas item  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+984	('LCA', 'Biogas item  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+985	('LCA', 'Biogas item  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+986	('LCA', 'Biogas item  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+987	('LCA', 'Biogas item  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+988	('LCA', 'Biogas item  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+989	('LCA', 'Biogas item  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+990	('LCA', 'Biogas item  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+991	('LCA', 'Biogas item  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+992	('LCA', 'Biogas item  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+993	('LCA', 'Biogas item  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+994	('LCA', 'Biogas item  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+995	('LCA', 'Biogas item  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+996	('LCA', 'Biogas item  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+997	('LCA', 'Biogas item  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+998	('LCA', 'Biogas item  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+999	('LCA', 'Biogas item  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1000	('LCA', 'Biogas item  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1001	('LCA', 'Biogas item  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1002	('LCA', 'Biogas item  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1003	('LCA', 'Biogas item  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1004	('LCA', 'Biogas item  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1005	('LCA', 'Biogas item  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1006	('LCA', 'Biogas item  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1007	('LCA', 'Biogas item  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1008	('LCA', 'Biogas item  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1009	('LCA', 'Biogas item  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1010	('LCA', 'Biogas item  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1011	('LCA', 'Biogas item  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1012	('LCA', 'Biogas item  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1013	('LCA', 'Biogas item  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1014	('LCA', 'Biogas item  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1015	('LCA', 'Biogas item  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1016	('LCA', 'Biogas item  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1017	('LCA', 'Biogas item  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1018	('LCA', 'Biogas item  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1019	('LCA', 'Biogas item  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1020	('LCA', 'Biogas item  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1021	('LCA', 'Biogas item  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1022	('LCA', 'Biogas item  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1023	('LCA', 'Biogas item  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1024	('LCA', 'Biogas item  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1025	('LCA', 'Biogas item  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1026	('LCA', 'Biogas item  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1027	('LCA', 'Biogas item  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1028	('LCA', 'Biogas item  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1029	('LCA', 'Biogas item  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1030	('LCA', 'Biogas item  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1031	('LCA', 'Biogas item  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1032	('LCA', 'Biogas item  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1033	('LCA', 'Biogas item  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1034	('LCA', 'Biogas item  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1035	('LCA', 'Biogas item  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1036	('LCA', 'Biogas item  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1037	('LCA', 'Biogas item  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1038	('LCA', 'Biogas item  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1039	('LCA', 'Biogas item  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1040	('LCA', 'Biogas item  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1041	('LCA', 'Biogas item  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1042	('LCA', 'Biogas item  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1043	('LCA', 'Biogas item  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1044	('LCA', 'N item  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1045	('LCA', 'N item  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1046	('LCA', 'N item  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1047	('LCA', 'N item  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1048	('LCA', 'N item  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1049	('LCA', 'N item  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1050	('LCA', 'N item  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1051	('LCA', 'N item  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1052	('LCA', 'N item  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1053	('LCA', 'N item  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1054	('LCA', 'N item  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1055	('LCA', 'N item  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1056	('LCA', 'N item  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1057	('LCA', 'N item  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1058	('LCA', 'N item  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1059	('LCA', 'N item  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1060	('LCA', 'N item  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1061	('LCA', 'N item  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1062	('LCA', 'N item  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1063	('LCA', 'N item  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1064	('LCA', 'N item  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1065	('LCA', 'N item  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1066	('LCA', 'N item  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1067	('LCA', 'N item  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1068	('LCA', 'N item  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1069	('LCA', 'N item  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1070	('LCA', 'N item  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1071	('LCA', 'N item  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1072	('LCA', 'N item  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1073	('LCA', 'N item  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1074	('LCA', 'N item  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1075	('LCA', 'N item  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1076	('LCA', 'N item  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1077	('LCA', 'N item  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1078	('LCA', 'N item  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1079	('LCA', 'N item  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1080	('LCA', 'N item  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1081	('LCA', 'N item  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1082	('LCA', 'N item  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1083	('LCA', 'N item  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1084	('LCA', 'N item  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1085	('LCA', 'N item  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1086	('LCA', 'N item  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1087	('LCA', 'N item  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1088	('LCA', 'N item  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1089	('LCA', 'N item  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1090	('LCA', 'N item  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1091	('LCA', 'N item  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1092	('LCA', 'N item  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1093	('LCA', 'N item  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1094	('LCA', 'N item  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1095	('LCA', 'N item  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1096	('LCA', 'N item  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1097	('LCA', 'N item  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1098	('LCA', 'N item  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1099	('LCA', 'N item  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1100	('LCA', 'N item  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1101	('LCA', 'N item  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1102	('LCA', 'N item  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1103	('LCA', 'N item  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1104	('LCA', 'N item  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1105	('LCA', 'N item  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1106	('LCA', 'N item  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1107	('LCA', 'N item  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1108	('LCA', 'N item  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1109	('LCA', 'N item  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1110	('LCA', 'N item  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1111	('LCA', 'N item  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1112	('LCA', 'N item  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1113	('LCA', 'N item  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1114	('LCA', 'N item  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1115	('LCA', 'N item  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1116	('LCA', 'P item  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1117	('LCA', 'P item  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1118	('LCA', 'P item  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1119	('LCA', 'P item  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1120	('LCA', 'P item  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1121	('LCA', 'P item  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1122	('LCA', 'P item  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1123	('LCA', 'P item  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1124	('LCA', 'P item  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1125	('LCA', 'P item  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1126	('LCA', 'P item  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1127	('LCA', 'P item  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1128	('LCA', 'P item  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1129	('LCA', 'P item  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1130	('LCA', 'P item  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1131	('LCA', 'P item  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1132	('LCA', 'P item  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1133	('LCA', 'P item  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1134	('LCA', 'P item  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1135	('LCA', 'P item  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1136	('LCA', 'P item  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1137	('LCA', 'P item  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1138	('LCA', 'P item  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1139	('LCA', 'P item  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1140	('LCA', 'P item  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1141	('LCA', 'P item  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1142	('LCA', 'P item  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1143	('LCA', 'P item  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1144	('LCA', 'P item  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1145	('LCA', 'P item  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1146	('LCA', 'P item  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1147	('LCA', 'P item  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1148	('LCA', 'P item  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1149	('LCA', 'P item  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1150	('LCA', 'P item  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1151	('LCA', 'P item  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1152	('LCA', 'P item  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1153	('LCA', 'P item  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1154	('LCA', 'P item  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1155	('LCA', 'P item  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1156	('LCA', 'P item  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1157	('LCA', 'P item  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1158	('LCA', 'P item  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1159	('LCA', 'P item  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1160	('LCA', 'P item  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1161	('LCA', 'P item  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1162	('LCA', 'P item  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1163	('LCA', 'P item  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1164	('LCA', 'P item  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1165	('LCA', 'P item  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1166	('LCA', 'P item  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1167	('LCA', 'P item  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1168	('LCA', 'P item  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1169	('LCA', 'P item  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1170	('LCA', 'P item  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1171	('LCA', 'P item  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1172	('LCA', 'P item  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1173	('LCA', 'P item  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1174	('LCA', 'P item  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1175	('LCA', 'P item  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1176	('LCA', 'P item  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1177	('LCA', 'P item  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1178	('LCA', 'P item  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1179	('LCA', 'P item  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1180	('LCA', 'P item  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1181	('LCA', 'P item  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1182	('LCA', 'P item  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1183	('LCA', 'P item  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1184	('LCA', 'P item  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1185	('LCA', 'P item  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1186	('LCA', 'P item  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1187	('LCA', 'P item  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1188	('LCA', 'K item  H  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1189	('LCA', 'K item  E  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1190	('LCA', 'K item  H  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1191	('LCA', 'K item  I  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1192	('LCA', 'K item  H  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1193	('LCA', 'K item  E  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1194	('LCA', 'K item  I  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1195	('LCA', 'K item  E  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1196	('LCA', 'K item  H  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1197	('LCA', 'K item  non carcinogenics  CF [kg toluen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1198	('LCA', 'K item  I  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1199	('LCA', 'K item  H  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1200	('LCA', 'K item  ecotoxicity  CF [kg 2,4-D-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1201	('LCA', 'K item  ozone depletion  CF [kg CFC-11./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1202	('LCA', 'K item  H  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1203	('LCA', 'K item  I  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1204	('LCA', 'K item  H  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1205	('LCA', 'K item  H  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1206	('LCA', 'K item  I  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1207	('LCA', 'K item  respiratory effects average  CF [kg PM2.5-./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1208	('LCA', 'K item  E  metal depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1209	('LCA', 'K item  E  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1210	('LCA', 'K item  I  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1211	('LCA', 'K item  E  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1212	('LCA', 'K item  H  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1213	('LCA', 'K item  I  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1214	('LCA', 'K item  I  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1215	('LCA', 'K item  E  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1216	('LCA', 'K item  I  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1217	('LCA', 'K item  H  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1218	('LCA', 'K item  H  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1219	('LCA', 'K item  I  urban land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1220	('LCA', 'K item  I  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1221	('LCA', 'K item  H  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1222	('LCA', 'K item  I  all  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1223	('LCA', 'K item  E  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1224	('LCA', 'K item  H  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1225	('LCA', 'K item  I  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1226	('LCA', 'K item  H  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1227	('LCA', 'K item  I  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1228	('LCA', 'K item  I  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1229	('LCA', 'K item  E  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1230	('LCA', 'K item  H  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1231	('LCA', 'K item  E  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1232	('LCA', 'K item  I  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1233	('LCA', 'K item  H  climate change human health  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1234	('LCA', 'K item  carcinogenics  CF [kg benzen./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1235	('LCA', 'K item  H  freshwater eutrophication  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1236	('LCA', 'K item  global warming  CF [kg CO2-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1237	('LCA', 'K item  E  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1238	('LCA', 'K item  I  ionising radiation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1239	('LCA', 'K item  I  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1240	('LCA', 'K item  E  ecosystem quality  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1241	('LCA', 'K item  H  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1242	('LCA', 'K item  E  human toxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1243	('LCA', 'K item  I  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1244	('LCA', 'K item  E  agricultural land occupation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1245	('LCA', 'K item  I  climate change ecosystems  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1246	('LCA', 'K item  H  natural land transformation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1247	('LCA', 'K item  E  marine ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1248	('LCA', 'K item  E  terrestrial ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1249	('LCA', 'K item  acidification  CF [moles of ./kg]')	Alternative B	1.0	1.0825088224469026e-05
+1250	('LCA', 'K item  eutrophication  CF [kg N/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1251	('LCA', 'K item  I  terrestrial acidification  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1252	('LCA', 'K item  E  particulate matter formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1253	('LCA', 'K item  H  freshwater ecotoxicity  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1254	('LCA', 'K item  E  photochemical oxidant formation  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1255	('LCA', 'K item  E  resources  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1256	('LCA', 'K item  H  human health  total  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1257	('LCA', 'K item  E  fossil depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1258	('LCA', 'K item  photochemical oxidation  CF [kg NOx-Eq/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1259	('LCA', 'K item  E  ozone depletion  CF [points/kg]')	Alternative B	1.0	1.0825088224469026e-05
+1260	('LCA', 'E item  H  particulate matter formation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1261	('LCA', 'E item  E  freshwater eutrophication  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1262	('LCA', 'E item  H  fossil depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1263	('LCA', 'E item  I  photochemical oxidant formation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1264	('LCA', 'E item  H  human toxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1265	('LCA', 'E item  E  freshwater ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1266	('LCA', 'E item  I  metal depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1267	('LCA', 'E item  E  urban land occupation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1268	('LCA', 'E item  H  metal depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1269	('LCA', 'E item  non carcinogenics  CF [kg toluen./kWh]')	Alternative B	0.5	0.16782134274394334
+1270	('LCA', 'E item  I  agricultural land occupation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1271	('LCA', 'E item  H  urban land occupation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1272	('LCA', 'E item  ecotoxicity  CF [kg 2,4-D-./kWh]')	Alternative B	0.9	0.00021650176448938054
+1273	('LCA', 'E item  ozone depletion  CF [kg CFC-11./kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1274	('LCA', 'E item  H  ecosystem quality  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1275	('LCA', 'E item  I  particulate matter formation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1276	('LCA', 'E item  H  marine ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1277	('LCA', 'E item  H  terrestrial acidification  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1278	('LCA', 'E item  I  natural land transformation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1279	('LCA', 'E item  respiratory effects average  CF [kg PM2.5-./kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1280	('LCA', 'E item  E  metal depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1281	('LCA', 'E item  E  all  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1282	('LCA', 'E item  I  human toxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1283	('LCA', 'E item  E  climate change human health  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1284	('LCA', 'E item  H  ionising radiation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1285	('LCA', 'E item  I  climate change human health  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1286	('LCA', 'E item  I  human health  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1287	('LCA', 'E item  E  terrestrial acidification  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1288	('LCA', 'E item  I  freshwater ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1289	('LCA', 'E item  H  terrestrial ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1290	('LCA', 'E item  H  all  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1291	('LCA', 'E item  I  urban land occupation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1292	('LCA', 'E item  I  ozone depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1293	('LCA', 'E item  H  resources  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1294	('LCA', 'E item  I  all  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1295	('LCA', 'E item  E  human health  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1296	('LCA', 'E item  H  ozone depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1297	('LCA', 'E item  I  terrestrial ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1298	('LCA', 'E item  H  agricultural land occupation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1299	('LCA', 'E item  I  ecosystem quality  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1300	('LCA', 'E item  I  freshwater eutrophication  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1301	('LCA', 'E item  E  climate change ecosystems  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1302	('LCA', 'E item  H  photochemical oxidant formation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1303	('LCA', 'E item  E  natural land transformation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1304	('LCA', 'E item  I  marine ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1305	('LCA', 'E item  H  climate change human health  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1306	('LCA', 'E item  carcinogenics  CF [kg benzen./kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1307	('LCA', 'E item  H  freshwater eutrophication  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1308	('LCA', 'E item  global warming  CF [kg CO2-Eq/kWh]')	Alternative B	0.8	0.002056766762649115
+1309	('LCA', 'E item  E  ionising radiation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1310	('LCA', 'E item  I  ionising radiation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1311	('LCA', 'E item  I  resources  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1312	('LCA', 'E item  E  ecosystem quality  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1313	('LCA', 'E item  H  climate change ecosystems  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1314	('LCA', 'E item  E  human toxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1315	('LCA', 'E item  I  fossil depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1316	('LCA', 'E item  E  agricultural land occupation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1317	('LCA', 'E item  I  climate change ecosystems  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1318	('LCA', 'E item  H  natural land transformation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1319	('LCA', 'E item  E  marine ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1320	('LCA', 'E item  E  terrestrial ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1321	('LCA', 'E item  acidification  CF [moles of ./kWh]')	Alternative B	0.9	0.00021650176448938054
+1322	('LCA', 'E item  eutrophication  CF [kg N/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1323	('LCA', 'E item  I  terrestrial acidification  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1324	('LCA', 'E item  E  particulate matter formation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1325	('LCA', 'E item  H  freshwater ecotoxicity  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1326	('LCA', 'E item  E  photochemical oxidant formation  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1327	('LCA', 'E item  E  resources  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1328	('LCA', 'E item  H  human health  total  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1329	('LCA', 'E item  E  fossil depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1330	('LCA', 'E item  photochemical oxidation  CF [kg NOx-Eq/kWh]')	Alternative B	1.0	1.0825088224469026e-05
+1331	('LCA', 'E item  E  ozone depletion  CF [points/kWh]')	Alternative B	1.0	1.0825088224469026e-05

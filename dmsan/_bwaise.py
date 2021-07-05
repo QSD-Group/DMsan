@@ -8,10 +8,16 @@ Created on Sat Jul  3 17:22:03 2021
     Hannah Lohman <hlohman94@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
+
+Part of this module is based on the BioSTEAM and QSD packages:
+https://github.com/BioSTEAMDevelopmentGroup/biosteam
+https://github.com/QSD-group/QSDsan
 """
 
 import os
+import numpy as np
 import pandas as pd
+from scipy import stats
 from dmsan import data_path, results_path, AHP, MCDA
 
 __all__ = ('baseline_tech_scores', )
@@ -118,17 +124,22 @@ varied_inds = [*[f'RR{i}' for i in range(2, 6)],
                *[f'Env{i}' for i in range(1, 4)]]
 # varied_idx = baseline_tech_scores.columns.get_indexer_for(varied_inds)
 
-def get_uncertainty_scores(lca_perspective='H', baseline_scores=None):
+def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
     check_lca(lca_perspective)
 
     if not baseline_scores:
         baseline_scores = get_baseline_tech_scores()
 
-    path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
-    file = pd.ExcelFile(path)
-    sysA = pd.read_excel(file, 'sysA', index_col=0, header=(0, 1))
-    sysB = pd.read_excel(file, 'sysB', index_col=0, header=(0, 1))
-    sysC = pd.read_excel(file, 'sysC', index_col=0, header=(0, 1))
+    file_path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
+    file = pd.ExcelFile(file_path)
+    paramA = pd.read_excel(file, 'sysA-param', index_col=0, header=(0, 1))
+    paramB = pd.read_excel(file, 'sysB-param', index_col=0, header=(0, 1))
+    paramC = pd.read_excel(file, 'sysC-param', index_col=0, header=(0, 1))
+    param_dct = dict(sysA=paramA, sysB=paramB, sysC=paramC)
+
+    sysA = pd.read_excel(file, 'sysA-results', index_col=0, header=(0, 1))
+    sysB = pd.read_excel(file, 'sysB-results', index_col=0, header=(0, 1))
+    sysC = pd.read_excel(file, 'sysC-results', index_col=0, header=(0, 1))
 
     col_names = [
         ('N recovery', 'Total N'),
@@ -151,16 +162,14 @@ def get_uncertainty_scores(lca_perspective='H', baseline_scores=None):
         simulated = pd.DataFrame([sysA_val.iloc[i],
                                   sysB_val.iloc[i],
                                   sysC_val.iloc[i]]).reset_index(drop=True)
-        if simulated.isna().values.any(): # failed evaluation, drop it
-            continue
 
         tech_scores = baseline_scores.copy()
         tech_scores[varied_inds] = simulated
         tech_score_dct[i] = tech_scores
 
-    return tech_score_dct
+    return param_dct, tech_score_dct
 
-uncertainty_tech_scores = get_uncertainty_scores()
+param_dct, tech_score_dct = get_uncertainty_data()
 
 
 # %%
@@ -188,34 +197,37 @@ bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
                    tech_scores=baseline_tech_scores)
 bwaise_mcda.run_MCDA()
 # If want to export the results
-path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
-# with pd.ExcelWriter(path) as writer:
+file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
+# with pd.ExcelWriter(file_path) as writer:
 #     bwaise_mcda.score.to_excel(writer, sheet_name='Score')
 #     bwaise_mcda.rank.to_excel(writer, sheet_name='Rank')
 
+# TODO: Consider making this a function within MCDA
 # Uncertainties
 def run_uncertainty_mcda(mcda, criteria_weights, tech_score_dct):
     scores = []
     ranks = []
 
     for k, v in tech_score_dct.items():
-        mcda.scores = v
+        mcda.tech_scores = v
         mcda.run_MCDA(criteria_weights=criteria_weights)
-        scores.append(mcda.score)
-        ranks.append(mcda.rank)
+        scores.append(mcda.perform_scores)
+        ranks.append(mcda.ranks)
 
-    scores_df = pd.concat(scores)
-    ranks_df = pd.concat(ranks)
+    scores_df = pd.concat(scores).reset_index()
+    ranks_df = pd.concat(ranks).reset_index()
 
     return scores_df, ranks_df
 
+# Note that empty cells (with nan value) are failed simulations
+# (i.e., corresponding tech scores are empty)
 uncertainty_perform_scores, uncertainty_ranks = \
-    run_uncertainty_mcda(bwaise_mcda, bwaise_mcda.criteria_weights.iloc[-1], # 1:1:1:1:1
-                         uncertainty_tech_scores)
+    run_uncertainty_mcda(bwaise_mcda, bwaise_mcda.criteria_weights.iloc[30], # 1:1:1:1:1
+                         tech_score_dct)
 
 # If want to export the results
-path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_uncertainties.xlsx')
-# with pd.ExcelWriter(path) as writer:
+file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_uncertainties.xlsx')
+# with pd.ExcelWriter(file_path) as writer:
 #     uncertainty_perform_scores.to_excel(writer, sheet_name='Score')
 #     uncertainty_ranks.to_excel(writer, sheet_name='Rank')
 
@@ -223,5 +235,84 @@ path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_uncertainties.xlsx')
 # %%
 
 # =============================================================================
-#
+# Run Kolmogorov–Smirnov test for uncertainty analysis
 # =============================================================================
+
+# TODO: Consider making this a function within MCDA
+
+def run_correlation_test(input_x, input_y, kind,
+                         nan_policy='omit', file_path='', **kwargs):
+    '''
+    Get correlation coefficients between two inputs using ``scipy``.
+
+    Parameters
+    ----------
+    input_x : :class:`pandas.DataFrame`
+        The first set of input (typically uncertainty parameters).
+    input_y : :class:`pandas.DataFrame`
+        The second set of input (typicall scores or ranks).
+    kind : str
+        The type of test to run, can be "Spearman" for Spearman's rho,
+        "Pearson" for Pearson's r, "Kendall" for Kendall's tau,
+        or "KS" for Kolmogorov–Smirnov's D.
+    nan_policy : str
+        - "propagate": returns nan.
+        - "raise": raise an error.
+        - "omit": drop the pair from analysis.
+    file_path : str
+        If provided, the results will be saved as an Excel file to the given path.
+    kwargs : dict
+        Other keyword arguments that will be passed to ``scipy``.
+
+    Returns
+    -------
+    Two :class:`pandas.DataFrame` containing the test statistics and p-values.
+
+    See Also
+    --------
+    :func:`scipy.stats.spearmanr`
+
+    :func:`scipy.stats.pearsonr`
+
+    :func:`scipy.stats.kendalltau`
+
+    :func:`scipy.stats.kstest`
+
+    '''
+
+    name = kind.lower()
+    if name == 'spearman':
+        correlation = stats.spearmanr
+    elif name == 'pearson':
+        correlation = stats.pearsonr
+    elif name == 'kendall':
+        correlation = stats.kendalltau
+    elif name == 'ks':
+        correlation = stats.kstest
+    else:
+        raise ValueError('kind can only be "Spearman", "Pearson", '
+                        f'"Kendall", or "KS", not "{kind}".')
+
+    labels = np.array(
+        [[[str(col_x), col_y] for col_x in input_x.columns] for col_y in input_y.columns]
+        )[0]
+    data = np.array(
+        [[correlation(input_x[col_x], input_y[col_y], nan_policy, **kwargs) \
+            for col_x in input_x.columns] for col_y in input_y.columns]
+        )[0]
+    df = pd.DataFrame({
+        'Input x': labels[:, 0],
+        'Input y': labels[:, 1],
+        'KS-d': data[:, 0],
+        'p-value': data[:, 1],
+        })
+
+    if file_path:
+        df.to_csv(file_path, sep='\t')
+    return df
+
+# If want to export the results
+file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_KS.tsv')
+ks_d, ks_p = run_correlation_test(input_x=param_dct['sysB'],
+                                  input_y=uncertainty_perform_scores['Alternative B'].to_frame(),
+                                  kind='KS', file_path=file_path)

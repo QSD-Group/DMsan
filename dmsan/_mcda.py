@@ -67,10 +67,10 @@ class MCDA:
         self.indicator_weights = indicator_weights
         self.tech_scores = tech_scores
         self.method = method
-        self._score = self._rank = None
+        self._perform_socres = self._ranks = None
 
 
-    def run_MCDA(self, criteria_weights=None, save=False, path='',
+    def run_MCDA(self, criteria_weights=None, save=False, file_path='',
                  method=None):
         '''
         MCDA using the set method.
@@ -82,14 +82,14 @@ class MCDA:
             associated criteria in the `criteria_weights` property if left as None.
         save : bool
             If True, the results will be save as an Excel file.
-        path : str
+        file_path : str
             Path for the output Excel file, default path will be used if not provided.
         method : str
             MCDA method, will use value set in the `method` property if not provided.
         '''
         method = self.method if not method else method
         if method.upper() == 'TOPSIS':
-            self._run_TOPSIS(criteria_weights, save, path)
+            self._run_TOPSIS(criteria_weights, save, file_path)
         elif method.upper() == 'ELECTRE':
             self._run_ELECTRE()
         else:
@@ -97,7 +97,7 @@ class MCDA:
                              f'not {method}.')
 
 
-    def _run_TOPSIS(self, criteria_weights=None, save=False, path=''):
+    def _run_TOPSIS(self, criteria_weights=None, save=False, file_path=''):
         cr_wt = self.criteria_weights if criteria_weights is None else criteria_weights
         ind_type = self.indicator_type.iloc[1, :]
         rev_ind_type = np.ones_like(ind_type) - ind_type
@@ -170,12 +170,12 @@ class MCDA:
         score_df = pd.concat([pre_df, score_df], axis=1).reset_index()
         rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index()
 
-        self._score = score_df
-        self._rank = rank_df
+        self._perform_socres = score_df
+        self._ranks = rank_df
 
         if save:
-            path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx') if not path else path
-            with pd.ExcelWriter(path) as writer:
+            file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx') if not file_path else file_path
+            with pd.ExcelWriter(file_path) as writer:
                 score_df.to_excel(writer, sheet_name='Score')
                 rank_df.to_excel(writer, sheet_name='Rank')
 
@@ -186,15 +186,15 @@ class MCDA:
 
 
     @property
-    def score(self):
-        '''[:class:`pandas.DataFrame`] Calculated scores.'''
-        if self._score is None:
+    def perform_scores(self):
+        '''[:class:`pandas.DataFrame`] Calculated performance scores.'''
+        if self._perform_socres is None:
             self.run_MCDA()
-        return self._score
+        return self._perform_socres
 
     @property
-    def rank(self):
+    def ranks(self):
         '''[:class:`pandas.DataFrame`] Calculated ranks.'''
-        if self._rank is None:
+        if self._ranks is None:
             self.run_MCDA()
-        return self._rank
+        return self._ranks
