@@ -42,7 +42,8 @@ class MCDA:
     alt_names : Iterable
         Names of the alternative systems under consideration.
     method : str
-        MCDA method, either TOPSIS or ELECTRE.
+        MCDA method, either TOPSIS (technique for order of preference by similarity
+        to ideal solution) or ELECTRE (ELimination Et Choice Translating REality).
     indicator_weights : :class:`pandas.DataFrame`
         Calculated weights for indicators in the considered criteria.
     tech_scores : :class:`pandas.DataFrame`
@@ -53,32 +54,26 @@ class MCDA:
     NOT READY YET.
 
     '''
-    def __init__(self,  file_path='', alt_names=(), method='TOPSIS', *,
+    def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
+                 criteria_weights=None, *,
                  indicator_weights, tech_scores):
         path = file_path if file_path else data_path+'/criteria_weight_scenarios.xlsx'
         file = pd.ExcelFile(path)
         read_excel = lambda name: pd.read_excel(file, name) # name is sheet name
 
         self.alt_names = alt_names
-        self.criteria_weights = read_excel('weight_scenarios')
-        self.indicator_type = read_excel('indicator_type')
+        self.criteria_weights = criteria_weights if criteria_weights else read_excel('weight_scenarios')
+        self.indicator_type = read_excel('indicator_type') #!!! The first row of this Excel is not needed anymores
         self.indicator_weights = indicator_weights
         self.tech_scores = tech_scores
-
         self.method = method
-        if method.upper() == 'TOPSIS':
-            self.run_TOPSIS()
-        elif method.upper() == 'ELECTRE':
-            self.run_ELECTRE()
-        else:
-            raise ValueError('`method` can only be "TOPSIS" OR "ELECTRE", '
-                             f'not {method}.')
+        self._score = self._rank = None
 
 
-    def run_TOPSIS(self, criteria_weights=None, save=False, path=''):
+    def run_MCDA(self, criteria_weights=None, save=False, path='',
+                 method=None):
         '''
-        MCDA using the TOPSIS (technique for order of preference by similarity
-        to ideal solution) method.
+        MCDA using the set method.
 
         Parameters
         ----------
@@ -89,9 +84,21 @@ class MCDA:
             If True, the results will be save as an Excel file.
         path : str
             Path for the output Excel file, default path will be used if not provided.
-
+        method : str
+            MCDA method, will use value set in the `method` property if not provided.
         '''
-        cr_wt = criteria_weights if criteria_weights else self.criteria_weights
+        method = self.method if not method else method
+        if method.upper() == 'TOPSIS':
+            self._run_TOPSIS(criteria_weights, save, path)
+        elif method.upper() == 'ELECTRE':
+            self._run_ELECTRE()
+        else:
+            raise ValueError('`method` can only be "TOPSIS" OR "ELECTRE", '
+                             f'not {method}.')
+
+
+    def _run_TOPSIS(self, criteria_weights=None, save=False, path=''):
+        cr_wt = self.criteria_weights if criteria_weights is None else criteria_weights
         ind_type = self.indicator_type.iloc[1, :]
         rev_ind_type = np.ones_like(ind_type) - ind_type
         ind_wt = self.indicator_weights
@@ -100,6 +107,7 @@ class MCDA:
         tech_scores_a = tech_scores.values
         num_ind = tech_scores.shape[1]
         num_alt = tech_scores.shape[0]
+        num_cr = cr_wt.shape[0] if len(cr_wt.shape)==2 else 1 # cr_wt will be a Series if only criterion
 
         # Step 1: Normalize tech scores (vector normalization)
         denominators = np.array([sum(tech_scores_a[:, i]**2)**0.5
@@ -116,9 +124,9 @@ class MCDA:
 
         # For all criteria weighing scenarios and all indicators
         norm_indicator_weights = np.concatenate(
-            [np.tile(cr_wt[i].values, (num_ind_dct[i], 1)) for i in criteria]
+            [np.tile(cr_wt[i], (num_ind_dct[i], 1)) for i in criteria]
             ).transpose() # the shape is (num_of_weighing_scenarios, num_of_indicators)
-        norm_indicator_weights *= np.tile(ind_wt, (36, 1))
+        norm_indicator_weights *= np.tile(ind_wt, (num_cr, 1))
 
 
         #!!! PAUSED, looks like from here and above used in both TOPSIS and ELECTRE
@@ -157,8 +165,10 @@ class MCDA:
         score_df = pd.DataFrame(scores, columns=columns)
         rank_df = pd.DataFrame(ranks, columns=columns)
 
-        score_df = pd.concat([cr_wt.Ratio, cr_wt.Description, score_df], axis=1)
-        rank_df = pd.concat([cr_wt.Ratio, cr_wt.Description, rank_df], axis=1)
+        pre_df = pd.DataFrame({'Ratio': cr_wt.Ratio, 'Description': cr_wt.Description},
+                              index=score_df.index)
+        score_df = pd.concat([pre_df, score_df], axis=1).reset_index()
+        rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index()
 
         self._score = score_df
         self._rank = rank_df
@@ -170,7 +180,7 @@ class MCDA:
                 rank_df.to_excel(writer, sheet_name='Rank')
 
 
-    def run_ELECTRE(self, criteria_weights=None):
+    def _run_ELECTRE(self, criteria_weights=None):
         '''NOT READY YET.'''
         raise ValueError('Method not ready yet.')
 
@@ -178,9 +188,13 @@ class MCDA:
     @property
     def score(self):
         '''[:class:`pandas.DataFrame`] Calculated scores.'''
+        if self._score is None:
+            self.run_MCDA()
         return self._score
 
     @property
     def rank(self):
-        '''[:class:`pandas.DataFrame`] Calculated scores.'''
+        '''[:class:`pandas.DataFrame`] Calculated ranks.'''
+        if self._rank is None:
+            self.run_MCDA()
         return self._rank

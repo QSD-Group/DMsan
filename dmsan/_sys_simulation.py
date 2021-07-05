@@ -13,10 +13,9 @@ Created on Sun Jun  6 13:31:44 2021
 import os
 import pandas as pd
 from exposan import bwaise as bw
+from dmsan import data_path
 
 __all__ = ('get_baseline', 'save_baseline', 'get_uncertainties', 'save_uncertainties')
-
-data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 
 # %%
@@ -95,7 +94,7 @@ def save_baseline(path=''):
 # Add uncertainties
 # =============================================================================
 
-def get_uncertainties():
+def get_uncertainties(N=1000, seed=None):
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters, run_uncertainty
     models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
 
@@ -105,13 +104,13 @@ def get_uncertainties():
 
     uncertainty_dct = {}
     for model in models:
-        uncertainty_dct[model.system.ID] = run_uncertainty(model, N=10)['data']
+        uncertainty_dct[model.system.ID] = run_uncertainty(model, N=N, seed=seed)['data']
     return uncertainty_dct
 
-def save_uncertainties(path=''):
+def save_uncertainties(N=1000, seed=None, path=''):
     if not path:
         path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
-    uncertainty_dct = get_uncertainties()
+    uncertainty_dct = get_uncertainties(N=N, seed=seed)
     writer = pd.ExcelWriter(path)
 
     for sys_ID, df in uncertainty_dct.items():
@@ -125,4 +124,4 @@ def save_uncertainties(path=''):
 
     return uncertainty_dct
 
-# uncertainty_dct = save_uncertainties()
+# uncertainty_dct = save_uncertainties(N=100, seed=3221)
