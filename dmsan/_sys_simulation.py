@@ -63,7 +63,7 @@ def get_baseline():
     sys_dct = bw.systems.sys_dct
     for sys in (bw.sysA, bw.sysB, bw.sysC):
         data = baseline_dct[sys.ID]
-        func_dct = bw.systems.get_summarizing_fuctions(sys)
+        func_dct = bw.systems.get_summarizing_functions(sys)
         for i in ('N', 'P', 'K'):
             data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
         data.append(func_dct['get_gas_COD_recovery'](sys, 'COD')) # energy
@@ -99,13 +99,25 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters
     models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
 
+    bw.update_lca_data('new')
     if seed:
         np.random.seed(seed)
 
     uncertainty_dct = {}
     for model in models:
         model = update_LCA_CF_parameters(model, 'new')
+        # Only do Recipe, hierarchist perspective
+        model.set_parameters([i for i in model.get_parameters()
+                              if not (' I ' in i.name or
+                                      ' E ' in i.name or
+                                      'global warming' in i.name)])
+
         model = update_metrics(model, 'new')
+        model.metrics = [i for i in model.metrics if (
+            ('recovery' in i.element and 'Total' in i.name) or
+            i.name=='Annual net cost' or
+            ('Net emission' in i.name and 'H_' in i.name)
+            )]
 
         samples = model.sample(N, rule)
         model.load_samples(samples)
@@ -113,13 +125,15 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
         param_col = [col for col in df.columns[0: len(model.parameters)]]
         uncertainty_dct[f'{model.system.ID}-param'] = model.table[param_col]
 
-        result_col = [col for col in df.columns
-                   if 'recovery' in col[0].lower() and 'total' in col[1].lower()]
-        result_col += [col for col in df.columns if 'net cost' in col[1].lower()]
-        result_col += [col for col in df.columns if 'net emission' in col[1].lower()]
+        # # Legacy code to select results
+        # result_col = [col for col in df.columns
+        #            if 'recovery' in col[0].lower() and 'total' in col[1].lower()]
+        # result_col += [col for col in df.columns if 'net cost' in col[1].lower()]
+        # result_col += [col for col in df.columns if 'net emission' in col[1].lower()]
 
         model.evaluate()
-        uncertainty_dct[f'{model.system.ID}-results'] = model.table[result_col]
+        uncertainty_dct[f'{model.system.ID}-results'] = \
+            model.table.iloc[:, len(model.parameters):]
 
     if file_path:
         writer = pd.ExcelWriter(file_path)
@@ -129,9 +143,5 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
 
     return uncertainty_dct
 
-# TODO: figure out why GWP factors are in sysA's parameters
-# TODO: discuss about the parameter selection
-#       now 1.3-1.4K parameters, would probably still be hundreds with the gross total
-
 file_path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
-uncertainty_dct = get_uncertainties(N=10, seed=3221, file_path=file_path)
+uncertainty_dct = get_uncertainties(N=100, seed=3221, file_path=file_path)
