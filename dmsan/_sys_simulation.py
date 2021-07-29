@@ -86,7 +86,7 @@ def save_baseline(file_path=''):
     baseline_df.to_csv(os.path.join(data_path, 'bwaise_baseline.tsv'), sep=sep)
     return baseline_df
 
-# baseline_df = save_baseline()
+baseline_df = save_baseline()
 
 
 # %%
@@ -94,6 +94,21 @@ def save_baseline(file_path=''):
 # =============================================================================
 # Add uncertainties
 # =============================================================================
+
+def copy_samples(original, new, exclude=()):
+    '''
+    Copy samples of the shared parameters in the original model to the new model.
+    Parameters in `exclude` will be excluded (i.e., not copied).
+    '''
+    col0 = original.table.columns.get_level_values(1)[:len(original.parameters)]
+    col1 = new.table.columns.get_level_values(1)
+    shared = col0.intersection(col1)
+    shared = shared.difference([i.name_with_units for i in exclude])
+    idx0 = original.table.columns.get_locs([slice(None), shared])
+    idx1 = new.table.columns.get_locs([slice(None), shared])
+    new.table[new.table.columns[idx1]] = new._samples[:, idx1] \
+        = original._samples[:, idx0]
+
 
 def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters
@@ -106,8 +121,9 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
     uncertainty_dct = {}
     for model in models:
         model = update_LCA_CF_parameters(model, 'new')
-        # Only do Recipe, hierarchist perspective
-        model.set_parameters([i for i in model.get_parameters()
+
+        # Only do ReCiPe, hierarchist perspective
+        model.set_parameters([i for i in model.parameters
                               if not (' I ' in i.name or
                                       ' E ' in i.name or
                                       'global warming' in i.name)])
@@ -121,6 +137,12 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
 
         samples = model.sample(N, rule)
         model.load_samples(samples)
+
+    copy_samples(modelA, modelB)
+    copy_samples(modelA, modelC)
+    copy_samples(modelB, modelC, exclude=modelA.parameters)
+
+    for model in models:
         df = model.table
         param_col = [col for col in df.columns[0: len(model.parameters)]]
         uncertainty_dct[f'{model.system.ID}-param'] = model.table[param_col]
@@ -144,4 +166,9 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
     return uncertainty_dct
 
 file_path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
-uncertainty_dct = get_uncertainties(N=100, seed=3221, file_path=file_path)
+from biosteam.utils import TicToc
+timer = TicToc()
+timer.tic()
+uncertainty_dct = get_uncertainties(N=1000, seed=3221, file_path=file_path)
+timer.toc()
+timer.show()
