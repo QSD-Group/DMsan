@@ -175,7 +175,7 @@ param_dct, tech_score_dct = get_uncertainty_data()
 # %%
 
 # =============================================================================
-# MCDA using TOPSIS
+# TOPSIS baseline for all weighing scenarios
 # =============================================================================
 
 # Names of the alternative systems
@@ -196,50 +196,61 @@ bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
                    indicator_weights=bwaise_ahp.norm_weights_df,
                    tech_scores=baseline_tech_scores)
 bwaise_mcda.run_MCDA()
+
 # If want to export the results
 file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     bwaise_mcda.score.to_excel(writer, sheet_name='Score')
-#     bwaise_mcda.rank.to_excel(writer, sheet_name='Rank')
-
-# TODO: Consider making this a function within MCDA
-# Uncertainties
-def run_uncertainty_mcda(mcda, criteria_weights, tech_score_dct):
-    scores = []
-    ranks = []
-
-    for k, v in tech_score_dct.items():
-        mcda.tech_scores = v
-        mcda.run_MCDA(criteria_weights=criteria_weights)
-        scores.append(mcda.perform_scores)
-        ranks.append(mcda.ranks)
-
-    scores_df = pd.concat(scores).reset_index()
-    ranks_df = pd.concat(ranks).reset_index()
-
-    return scores_df, ranks_df
-
-# Note that empty cells (with nan value) are failed simulations
-# (i.e., corresponding tech scores are empty)
-uncertainty_perform_scores, uncertainty_ranks = \
-    run_uncertainty_mcda(bwaise_mcda, bwaise_mcda.criteria_weights.iloc[30], # 1:1:1:1:1
-                         tech_score_dct)
-
-# If want to export the results
-file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_uncertainties.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     uncertainty_perform_scores.to_excel(writer, sheet_name='Score')
-#     uncertainty_ranks.to_excel(writer, sheet_name='Rank')
+with pd.ExcelWriter(file_path) as writer:
+    bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
+    bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
 
 
 # %%
 
 # =============================================================================
-# Run Kolmogorov–Smirnov test for uncertainty analysis
+# TOPSIS uncertainties for selected weighing scenarios
 # =============================================================================
 
 # TODO: Consider making this a function within MCDA
+def run_uncertainty_mcda(mcda, criteria_weights, tech_score_dct):
+    scores_df_dct = {}
+    ranks_df_dct = {}
+    for n, w in criteria_weights.iterrows():
+        scores = []
+        ranks = []
+        for k, v in tech_score_dct.items():
+            mcda.tech_scores = v
+            mcda.run_MCDA(criteria_weights=w)
+            scores.append(mcda.perform_scores)
+            ranks.append(mcda.ranks)
 
+        name = w.Ratio.replace(':', '-')
+        scores_df_dct[name] = pd.concat(scores).reset_index()
+        ranks_df_dct[name] = pd.concat(ranks).reset_index()
+
+    return scores_df_dct, ranks_df_dct
+
+# Note that empty cells (with nan value) are failed simulations
+# (i.e., corresponding tech scores are empty)
+ratios = ['1:0:0:0:0', '0:1:0:0:0', '0:0:1:0:0', '0:0:0:1:0', '0:0:0:0:1', '1:1:1:1:1']
+weights = bwaise_mcda.criteria_weights[bwaise_mcda.criteria_weights.Ratio.isin(ratios)]
+
+scores_df_dct, ranks_df_dct = run_uncertainty_mcda(bwaise_mcda, weights, tech_score_dct)
+
+# If want to export the results
+file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_uncertainties.xlsx')
+with pd.ExcelWriter(file_path) as writer:
+    for k, v in scores_df_dct.items():
+        v.to_excel(writer, sheet_name=k+' score')
+        ranks_df_dct[k].to_excel(writer, sheet_name=k+' rank')
+
+
+# %%
+
+# =============================================================================
+# Kolmogorov–Smirnov test for TOPSIS uncertainties
+# =============================================================================
+
+# TODO: Consider making this a function within MCDA
 def run_correlation_test(input_x, input_y, kind,
                          nan_policy='omit', file_path='', **kwargs):
     '''
@@ -311,8 +322,22 @@ def run_correlation_test(input_x, input_y, kind,
         df.to_csv(file_path, sep='\t')
     return df
 
+
+def run_uncertainty_corr(df_dct):
+    corr_dct = {}
+    for k, v in df_dct.items(): # each key is a weighing scenario
+        for i in ('A', 'B', 'C'):
+            corr_dct[f'{k} {i}'] = run_correlation_test(
+                input_x=param_dct[f'sys{i}'],
+                input_y=v[f'Alternative {i}'].to_frame(),
+                kind='KS')
+    return corr_dct
+
+
+corr_dct = run_uncertainty_corr(ranks_df_dct) # can use score_df_dct for scores
+
 # If want to export the results
-file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_KS.tsv')
-ks_d, ks_p = run_correlation_test(input_x=param_dct['sysB'],
-                                  input_y=uncertainty_perform_scores['Alternative B'].to_frame(),
-                                  kind='KS', file_path=file_path)
+file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS_KS.xlsx')
+with pd.ExcelWriter(file_path) as writer:
+    for k, v in corr_dct.items():
+        v.to_excel(writer, sheet_name=k)

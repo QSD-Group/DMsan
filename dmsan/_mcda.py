@@ -167,14 +167,17 @@ class MCDA:
 
         pre_df = pd.DataFrame({'Ratio': cr_wt.Ratio, 'Description': cr_wt.Description},
                               index=score_df.index)
-        score_df = pd.concat([pre_df, score_df], axis=1).reset_index()
-        rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index()
+        score_df = pd.concat([pre_df, score_df], axis=1)
+        rank_df = pd.concat([pre_df, rank_df], axis=1)
+        # score_df = pd.concat([pre_df, score_df], axis=1).reset_index()
+        # rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index()
 
         self._perform_socres = score_df
         self._ranks = rank_df
 
         if save:
-            file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx') if not file_path else file_path
+            file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx') \
+                if not file_path else file_path
             with pd.ExcelWriter(file_path) as writer:
                 score_df.to_excel(writer, sheet_name='Score')
                 rank_df.to_excel(writer, sheet_name='Rank')
