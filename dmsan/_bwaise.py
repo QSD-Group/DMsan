@@ -362,6 +362,7 @@ def run_MCF(df_dct, **kwargs):
         for i in ('A', 'B', 'C'):
             i_win = param_dct[f'sys{i}'].loc[v[f'Alternative {i}'] == 1]
             i_lose = param_dct[f'sys{i}'].loc[v[f'Alternative {i}'] != 1]
+            if len(i_win) == 0 or len(i_lose) == 0: continue
             D_dct[f'{k} {i} wins'] = run_ks_test(
                 group1_df=i_win,
                 group2_df=i_lose,
