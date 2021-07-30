@@ -13,6 +13,7 @@ Created on Sun Jun  6 13:31:44 2021
 import os
 import numpy as np
 import pandas as pd
+from qsdsan.utils.decorators import time_printer
 from exposan import bwaise as bw
 from dmsan import data_path
 
@@ -101,7 +102,7 @@ def copy_samples(original, new, exclude=()):
     Parameters in `exclude` will be excluded (i.e., not copied).
     '''
     col0 = original.table.columns.get_level_values(1)[:len(original.parameters)]
-    col1 = new.table.columns.get_level_values(1)
+    col1 = new.table.columns.get_level_values(1)[:len(new.parameters)]
     shared = col0.intersection(col1)
     shared = shared.difference([i.name_with_units for i in exclude])
     idx0 = original.table.columns.get_locs([slice(None), shared])
@@ -110,7 +111,8 @@ def copy_samples(original, new, exclude=()):
         = original._samples[:, idx0]
 
 
-def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
+@time_printer
+def get_uncertainties(N=1000, seed=None, rule='L', file_path='', ):
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters
     models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
 
@@ -122,19 +124,20 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
     for model in models:
         model = update_LCA_CF_parameters(model, 'new')
 
-        # Only do ReCiPe, hierarchist perspective
+        # Only do ReCiPe, hierarchist (H) perspective
         model.set_parameters([i for i in model.parameters
                               if not (' I ' in i.name or
                                       ' E ' in i.name or
                                       'global warming' in i.name)])
 
         model = update_metrics(model, 'new')
-        model.metrics = [i for i in model.metrics if (
+        m1 = [i for i in model.metrics if (
             ('recovery' in i.element and 'Total' in i.name) or
-            i.name=='Annual net cost' or
-            ('Net emission' in i.name and 'H_' in i.name)
-            )]
+            i.name=='Annual net cost')]
+        m2 =[i for i in model.metrics if ('Net emission' in i.name and 'H_' in i.name)]
+        m2.sort(key=lambda i: i.name_with_units)
 
+        model.metrics = m1 + m2
         samples = model.sample(N, rule)
         model.load_samples(samples)
 
@@ -166,9 +169,5 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path=''):
     return uncertainty_dct
 
 file_path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
-from biosteam.utils import TicToc
-timer = TicToc()
-timer.tic()
+# file_path = '' # if don't want to save the file but want to see the results
 uncertainty_dct = get_uncertainties(N=1000, seed=3221, file_path=file_path)
-timer.toc()
-timer.show()
