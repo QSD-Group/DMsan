@@ -18,6 +18,7 @@ import os
 import numpy as np
 import pandas as pd
 from scipy import stats
+os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan")
 from dmsan import data_path, results_path, AHP, MCDA
 
 __all__ = ('baseline_tech_scores', )
@@ -265,8 +266,7 @@ def run_correlation_test(input_x, input_y, kind,
         The second set of input (typicall scores or ranks).
     kind : str
         The type of test to run, can be "Spearman" for Spearman's rho,
-        "Pearson" for Pearson's r, "Kendall" for Kendall's tau,
-        or "KS" for Kolmogorov–Smirnov's D.
+        "Pearson" for Pearson's r, or "Kendall" for Kendall's tau.
     nan_policy : str
         - "propagate": returns nan.
         - "raise": raise an error.
@@ -293,8 +293,6 @@ def run_correlation_test(input_x, input_y, kind,
 
     :func:`scipy.stats.kendalltau`
 
-    :func:`scipy.stats.kstest`
-
     '''
 
     name = kind.lower()
@@ -309,12 +307,12 @@ def run_correlation_test(input_x, input_y, kind,
         correlation = stats.kendalltau
         col_name = 'tau'
         kwargs['nan_policy'] = nan_policy
-    elif name == 'ks':
-        correlation = stats.kstest
-        col_name = 'd'
+    # elif name == 'ks':
+    #     correlation = stats.kstest
+    #     col_name = 'd'
     else:
         raise ValueError('kind can only be "Spearman", "Pearson", '
-                        f'"Kendall", or "KS", not "{kind}".')
+                        f'or "Kendall", not "{kind}".')
 
     labels = np.array(
         [[[str(col_x), col_y] for col_x in input_x.columns] for col_y in input_y.columns]
@@ -346,20 +344,45 @@ def run_uncertainty_corr(df_dct, kind):
                 input_y=v[f'Alternative {i}'].to_frame(),
                 kind=kind)
     return corr_dct
+            
+
+def run_ks_test(group1_df, group2_df, alternative='two_sided', mode='auto'):
+    x_names = list(set(group1_df.columns) & set(group2_df.columns))
+    data = np.array(
+        [stats.kstest(group1_df.loc[:,x], group2_df.loc[:,x], alternative=alternative, mode=mode) \
+         for x in x_names])
+    result_df = pd.DataFrame(data, columns=['D', 'p-value'], index=x_names)
+    return result_df
 
 
-# Correlation between parameter values and scores
-score_corr_dct = run_uncertainty_corr(scores_df_dct, 'KS')
+def run_MCF(df_dct, **kwargs):
+    '''Monte Carlo filtering based on ranks.'''
+    D_dct = {}
+    for k, v in df_dct.items():
+        for i in ('A', 'B', 'C'):
+            i_win = param_dct[f'sys{i}'].loc[v[f'Alternative {i}'] == 1]
+            i_lose = param_dct[f'sys{i}'].loc[v[f'Alternative {i}'] != 1]
+            D_dct[f'{k} {i} wins'] = run_ks_test(
+                group1_df=i_win,
+                group2_df=i_lose,
+                **kwargs)
+    return D_dct
 
-# If want to export the results
-file_path = os.path.join(results_path, 'sensitivity/AHP_TOPSIS_KS_scores.xlsx')
-with pd.ExcelWriter(file_path) as writer:
-    for k, v in score_corr_dct.items():
-        v.to_excel(writer, sheet_name=k)
+# # Correlation between parameter values and scores
+# score_corr_dct = run_uncertainty_corr(scores_df_dct, 'KS')
+
+# # If want to export the results
+# file_path = os.path.join(results_path, 'sensitivity/AHP_TOPSIS_KS_scores.xlsx')
+# with pd.ExcelWriter(file_path) as writer:
+#     for k, v in score_corr_dct.items():
+#         v.to_excel(writer, sheet_name=k)
 
 
 # Correlation between parameter values and ranks
-rank_corr_dct = run_uncertainty_corr(ranks_df_dct, 'KS')
+# rank_corr_dct = run_uncertainty_corr(ranks_df_dct, 'KS')
+
+# KS test based on ranks (whether an alternative is ranked 1st or not)
+rank_corr_dct = run_MCF(ranks_df_dct)
 
 # If want to export the results
 file_path = os.path.join(results_path, 'sensitivity/AHP_TOPSIS_KS_ranks.xlsx')
