@@ -8,6 +8,7 @@ Created on Sat Jul  3 17:22:03 2021
     Hannah Lohman <hlohman94@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
+    Joy Cheung <joycheung1994@gmail.com>
 
 Part of this module is based on the BioSTEAM and QSD packages:
 https://github.com/BioSTEAMDevelopmentGroup/biosteam
@@ -18,7 +19,6 @@ import os
 import numpy as np
 import pandas as pd
 from scipy import stats
-os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan")
 from dmsan import data_path, results_path, AHP, MCDA
 
 __all__ = ('baseline_tech_scores', )
