@@ -19,6 +19,7 @@ import os
 import numpy as np
 import pandas as pd
 from scipy import stats
+from qsdsan.utils import time_printer
 from dmsan import data_path, results_path, AHP, MCDA
 
 __all__ = ('baseline_tech_scores', )
@@ -213,37 +214,56 @@ bwaise_mcda.run_MCDA()
 # =============================================================================
 
 # TODO: Consider making this a function within MCDA
-def run_uncertainty_mcda(mcda, criteria_weights, tech_score_dct):
-    scores_df_dct = {}
-    ranks_df_dct = {}
+# TODO: remove extra index column
+@time_printer
+def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_time=True):
+    if criteria_weights is None:
+        criteria_weights = mcda.criteria_weights
+
+    score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
     for n, w in criteria_weights.iterrows():
-        scores = []
-        ranks = []
+        scores, ranks, winners = [], [], []
+        # print(w.Ratio)
         for k, v in tech_score_dct.items():
             mcda.tech_scores = v
             mcda.run_MCDA(criteria_weights=w)
             scores.append(mcda.perform_scores)
             ranks.append(mcda.ranks)
+            winners.append(mcda.winners.Winner.values.item())
 
-        name = w.Ratio.replace(':', '-')
-        scores_df_dct[name] = pd.concat(scores).reset_index()
-        ranks_df_dct[name] = pd.concat(ranks).reset_index()
+        name = w.Ratio
+        score_df_dct[name] = pd.concat(scores).reset_index()
+        rank_df_dct[name] = pd.concat(ranks).reset_index()
+        winner_df_dct[name] = winners
 
-    return scores_df_dct, ranks_df_dct
+    winner_df = pd.DataFrame.from_dict(winner_df_dct)
+
+    return score_df_dct, rank_df_dct, winner_df
+
+# # If want to use selected criteria weights
+# ratios = ['1:0:0:0:0', '0:1:0:0:0', '0:0:1:0:0', '0:0:0:1:0', '0:0:0:0:1', '1:1:1:1:1']
+# weights = bwaise_mcda.criteria_weights[bwaise_mcda.criteria_weights.Ratio.isin(ratios)]
 
 # Note that empty cells (with nan value) are failed simulations
 # (i.e., corresponding tech scores are empty)
-ratios = ['1:0:0:0:0', '0:1:0:0:0', '0:0:1:0:0', '0:0:0:1:0', '0:0:0:0:1', '1:1:1:1:1']
-weights = bwaise_mcda.criteria_weights[bwaise_mcda.criteria_weights.Ratio.isin(ratios)]
-
-scores_df_dct, ranks_df_dct = run_uncertainty_mcda(bwaise_mcda, weights, tech_score_dct)
+score_df_dct, rank_df_dct, winner_df = \
+    run_uncertainty_mcda(mcda=bwaise_mcda, tech_score_dct=tech_score_dct)
 
 # # If want to export the results
 # file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.xlsx')
 # with pd.ExcelWriter(file_path) as writer:
-#     for k, v in scores_df_dct.items():
-#         v.to_excel(writer, sheet_name=k+' score')
-#         ranks_df_dct[k].to_excel(writer, sheet_name=k+' rank')
+#     winner_df.to_excel(writer, sheet_name='Winner')
+
+#     Score = writer.book.add_worksheet('Score')
+#     Rank = writer.book.add_worksheet('Rank')
+#     writer.sheets['Rank'] = Rank
+#     writer.sheets['Score'] = Score
+
+#     col_num = 0
+#     for k, v in score_df_dct.items():
+#         v.to_excel(writer, sheet_name='Score', startcol=col_num)
+#         rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
+#         col_num += v.shape[1]+2
 
 
 # %%
@@ -266,7 +286,14 @@ def run_correlation_test(input_x, input_y, kind,
         The second set of input (typicall scores or ranks).
     kind : str
         The type of test to run, can be "Spearman" for Spearman's rho,
-        "Pearson" for Pearson's r, or "Kendall" for Kendall's tau.
+        "Pearson" for Pearson's r, "Kendall" for Kendall's tau,
+        or "KS" for Kolmogorov–Smirnov's D.
+
+        .. note::
+            If running KS test, then input_y should be the ranks (i.e., not scores),
+            the x inputs will be divided into two groups - ones that results in
+            a given alternative to be ranked first vs. the rest.
+
     nan_policy : str
         - "propagate": returns nan.
         - "raise": raise an error.
@@ -293,100 +320,106 @@ def run_correlation_test(input_x, input_y, kind,
 
     :func:`scipy.stats.kendalltau`
 
+    :func:`scipy.stats.kstest`
     '''
+    df = pd.DataFrame(input_x.columns,
+                      columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
+                                                        names=('Y', 'Stats')))
 
     name = kind.lower()
     if name == 'spearman':
-        correlation = stats.spearmanr
-        col_name = 'rho'
+        func = stats.spearmanr
+        stats_name = 'rho'
         kwargs['nan_policy'] = nan_policy
     elif name == 'pearson':
-        correlation = stats.pearsonr
-        col_name = 'r'
+        func = stats.pearsonr
+        stats_name = 'r'
     elif name == 'kendall':
-        correlation = stats.kendalltau
-        col_name = 'tau'
+        func = stats.kendalltau
+        stats_name = 'tau'
         kwargs['nan_policy'] = nan_policy
-    # elif name == 'ks':
-    #     correlation = stats.kstest
-    #     col_name = 'd'
+    elif name == 'ks':
+        if not int(input_y.iloc[0, 0])==input_y.iloc[0, 0]:
+            raise ValueError('For KS test, `input_y` should be the ranks, not scores.')
+
+        func = stats.kstest
+        stats_name = 'D'
+
+        alternative = kwargs.get('alternative') or 'two_sided'
+        mode = kwargs.get('mode') or 'auto'
     else:
         raise ValueError('kind can only be "Spearman", "Pearson", '
                         f'or "Kendall", not "{kind}".')
 
-    labels = np.array(
-        [[[str(col_x), col_y] for col_x in input_x.columns] for col_y in input_y.columns]
-        )[0]
+    for col_y in input_y.columns:
+        if name == 'ks':
+            y = input_y[col_y]
+            i_win, i_lose = input_x.loc[y==1], input_x.loc[y!=1]
 
-    data = np.array(
-        [[correlation(input_x[col_x], input_y[col_y], **kwargs) \
-          for col_x in input_x.columns] for col_y in input_y.columns]
-        )[0]
+            if len(i_win) == 0 or len(i_lose) == 0:
+                df[(col_y, stats_name)] = df[(col_y, 'p-value')] = None
+                continue
 
-    df = pd.DataFrame({
-        'Input x': labels[:, 0],
-        'Input y': labels[:, 1],
-        col_name: data[:, 0],
-        'p-value': data[:, 1],
-        })
+            else:
+                data = np.array([func(i_win.loc[:, col_x], i_lose.loc[:, col_x],
+                                  alternative=alternative, mode=mode, **kwargs) \
+                                 for col_x in input_x.columns])
+        else:
+            data = np.array([func(input_x[col_x], input_y[col_y], **kwargs)
+                             for col_x in input_x.columns])
+
+        df[(col_y, stats_name)] = data[:, 0]
+        df[(col_y, 'p-value')] = data[:, 1]
 
     if file_path:
         df.to_csv(file_path, sep='\t')
     return df
 
 
-def run_uncertainty_corr(df_dct, kind):
+@time_printer
+def run_uncertainty_corr(df_dct, kind, print_time=True):
     corr_dct = {}
-    for k, v in df_dct.items(): # each key is a weighing scenario
-        for i in ('A', 'B', 'C'):
-            corr_dct[f'{k} {i}'] = run_correlation_test(
+    # Alternatives cannot be consolidated as they have different parameters
+    for i in ('A', 'B', 'C'):
+        corr_df = pd.DataFrame(param_dct[f'sys{i}'].columns,
+                          columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
+                                                            names=('Weights', 'Stats')))
+
+        for k, v in df_dct.items(): # each key is a weighing scenario
+            temp_df = run_correlation_test(
                 input_x=param_dct[f'sys{i}'],
                 input_y=v[f'Alternative {i}'].to_frame(),
                 kind=kind)
+            stats, p = temp_df.columns[-2:]
+            corr_df[(k, stats[1])] = temp_df[stats]
+            corr_df[(k, p[1])] = temp_df[p]
+
+        corr_dct[i] = corr_df
+
     return corr_dct
-            
-
-def run_ks_test(group1_df, group2_df, alternative='two_sided', mode='auto'):
-    x_names = list(set(group1_df.columns) & set(group2_df.columns))
-    data = np.array(
-        [stats.kstest(group1_df.loc[:,x], group2_df.loc[:,x], alternative=alternative, mode=mode) \
-         for x in x_names])
-    result_df = pd.DataFrame(data, columns=['D', 'p-value'], index=x_names)
-    return result_df
 
 
-def run_MCF(df_dct, **kwargs):
-    '''Monte Carlo filtering based on ranks.'''
-    D_dct = {}
-    for k, v in df_dct.items():
-        for i in ('A', 'B', 'C'):
-            i_win = param_dct[f'sys{i}'].loc[v[f'Alternative {i}'] == 1]
-            i_lose = param_dct[f'sys{i}'].loc[v[f'Alternative {i}'] != 1]
-            if len(i_win) == 0 or len(i_lose) == 0: continue
-            D_dct[f'{k} {i} wins'] = run_ks_test(
-                group1_df=i_win,
-                group2_df=i_lose,
-                **kwargs)
-    return D_dct
+# Correlation between parameter values and scores
+kind = 'Spearman'
+score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
 
-# # Correlation between parameter values and scores
-# score_corr_dct = run_uncertainty_corr(scores_df_dct, 'KS')
-
-# # If want to export the results
-# file_path = os.path.join(results_path, 'sensitivity/AHP_TOPSIS_KS_scores.xlsx')
+# # If want to export the results, change `file_path` as needed
+# file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_scores.xlsx')
 # with pd.ExcelWriter(file_path) as writer:
 #     for k, v in score_corr_dct.items():
 #         v.to_excel(writer, sheet_name=k)
 
+rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+# file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_ranks.xlsx')
+# with pd.ExcelWriter(file_path) as writer:
+#     for k, v in rank_corr_dct.items():
+#         v.to_excel(writer, sheet_name=k)
+
 
 # Correlation between parameter values and ranks
-# rank_corr_dct = run_uncertainty_corr(ranks_df_dct, 'KS')
-
-# KS test based on ranks (whether an alternative is ranked 1st or not)
-rank_corr_dct = run_MCF(ranks_df_dct)
-
-# If want to export the results
-file_path = os.path.join(results_path, 'sensitivity/AHP_TOPSIS_KS_ranks.xlsx')
-with pd.ExcelWriter(file_path) as writer:
-    for k, v in rank_corr_dct.items():
-        v.to_excel(writer, sheet_name=k)
+kind = 'KS'
+rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+# file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_ranks.xlsx')
+# with pd.ExcelWriter(file_path) as writer:
+#     for k, v in rank_corr_dct.items():
+#         v.to_excel(writer, sheet_name=k)

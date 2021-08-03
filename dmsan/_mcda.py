@@ -67,7 +67,7 @@ class MCDA:
         self.indicator_weights = indicator_weights
         self.tech_scores = tech_scores
         self.method = method
-        self._perform_socres = self._ranks = None
+        self._perform_socres = self._ranks = self._winners = None
 
 
     def run_MCDA(self, criteria_weights=None, save=False, file_path='',
@@ -132,8 +132,8 @@ class MCDA:
         #!!! PAUSED, looks like from here and above used in both TOPSIS and ELECTRE
 
         # For each weighing scenario considering all alternative systems
-        scores = []
-        ranks = []
+        scores, ranks, winners = [], [], []
+        columns = self.alt_names
         for i in norm_indicator_weights:
             results = i * norm_val
 
@@ -157,28 +157,33 @@ class MCDA:
             # Calculate performance score
             score = d_worst / (d_best+d_worst)
             rank = (num_alt+1) - rankdata(score).astype(int)
-
+            winner = columns.loc[np.where(rank==1)]
             scores.append(score)
             ranks.append(rank)
+            winners.append(winner.values.item())
 
-        columns = self.alt_names
+
         score_df = pd.DataFrame(scores, columns=columns)
         rank_df = pd.DataFrame(ranks, columns=columns)
-
+        winner_df = pd.DataFrame(winners, columns=['Winner'])
         pre_df = pd.DataFrame({'Ratio': cr_wt.Ratio, 'Description': cr_wt.Description},
                               index=score_df.index)
         score_df = pd.concat([pre_df, score_df], axis=1)
         rank_df = pd.concat([pre_df, rank_df], axis=1)
+        winner_df = pd.concat([pre_df, winner_df], axis=1)
         # score_df = pd.concat([pre_df, score_df], axis=1).reset_index()
         # rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index()
+        # winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index()
 
         self._perform_socres = score_df
         self._ranks = rank_df
+        self._winners = winner_df
 
         if save:
             file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx') \
                 if not file_path else file_path
             with pd.ExcelWriter(file_path) as writer:
+                winner_df.to_excel(writer, sheet_name='Winner')
                 score_df.to_excel(writer, sheet_name='Score')
                 rank_df.to_excel(writer, sheet_name='Rank')
 
@@ -201,3 +206,10 @@ class MCDA:
         if self._ranks is None:
             self.run_MCDA()
         return self._ranks
+
+    @property
+    def winners(self):
+        '''[:class:`pandas.DataFrame`] The alternatives that rank first.'''
+        if self._winners is None:
+            self.run_MCDA()
+        return self._winners
