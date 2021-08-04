@@ -19,6 +19,7 @@ import os
 import numpy as np
 import pandas as pd
 from scipy import stats
+from matplotlib import pyplot as plt
 from qsdsan.utils import time_printer
 from dmsan import data_path, results_path, AHP, MCDA
 
@@ -200,12 +201,6 @@ bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
 
 bwaise_mcda.run_MCDA()
 
-# # If want to export the results
-# file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
-#     bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
-
 
 # %%
 
@@ -248,22 +243,6 @@ def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_t
 # (i.e., corresponding tech scores are empty)
 score_df_dct, rank_df_dct, winner_df = \
     run_uncertainty_mcda(mcda=bwaise_mcda, tech_score_dct=tech_score_dct)
-
-# # If want to export the results
-# file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     winner_df.to_excel(writer, sheet_name='Winner')
-
-#     Score = writer.book.add_worksheet('Score')
-#     Rank = writer.book.add_worksheet('Rank')
-#     writer.sheets['Rank'] = Rank
-#     writer.sheets['Score'] = Score
-
-#     col_num = 0
-#     for k, v in score_df_dct.items():
-#         v.to_excel(writer, sheet_name='Score', startcol=col_num)
-#         rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
-#         col_num += v.shape[1]+2
 
 
 # %%
@@ -399,27 +378,123 @@ def run_uncertainty_corr(df_dct, kind, print_time=True):
     return corr_dct
 
 
-# Correlation between parameter values and scores
 kind = 'Spearman'
 score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
-
-# # If want to export the results, change `file_path` as needed
-# file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_scores.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     for k, v in score_corr_dct.items():
-#         v.to_excel(writer, sheet_name=k)
-
 rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-# file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_ranks.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     for k, v in rank_corr_dct.items():
-#         v.to_excel(writer, sheet_name=k)
 
-
-# Correlation between parameter values and ranks
 kind = 'KS'
 rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-# file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_ranks.xlsx')
-# with pd.ExcelWriter(file_path) as writer:
-#     for k, v in rank_corr_dct.items():
-#         v.to_excel(writer, sheet_name=k)
+
+
+# %%
+
+# =============================================================================
+# Result exporting
+# =============================================================================
+
+def export_results(baseline=True, uncertainty=True, sensitivity='KS'):
+    if baseline:
+        file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
+        with pd.ExcelWriter(file_path) as writer:
+            bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
+            bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
+        print(f'Baseline MCDA results exported to {file_path}.')
+
+    if uncertainty:
+        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.xlsx')
+        with pd.ExcelWriter(file_path) as writer:
+            winner_df.to_excel(writer, sheet_name='Winner')
+
+            Score = writer.book.add_worksheet('Score')
+            Rank = writer.book.add_worksheet('Rank')
+            writer.sheets['Rank'] = Rank
+            writer.sheets['Score'] = Score
+
+            col_num = 0
+            for k, v in score_df_dct.items():
+                v.to_excel(writer, sheet_name='Score', startcol=col_num)
+                rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
+                col_num += v.shape[1]+2
+        print(f'Uncertainty MCDA results exported to {file_path}.')
+
+    if sensitivity:
+        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_ranks.xlsx')
+        with pd.ExcelWriter(file_path) as writer:
+            for k, v in rank_corr_dct.items():
+                v.to_excel(writer, sheet_name=k)
+
+        print(f'{kind} sensitivity results (ranks) exported to {file_path}.')
+
+        if sensitivity != 'KS':
+            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_scores.xlsx')
+            with pd.ExcelWriter(file_path) as writer:
+                for k, v in score_corr_dct.items():
+                    v.to_excel(writer, sheet_name=k)
+
+            print(f'{kind} sensitivity results (scores) exported to {file_path}.')
+
+export_results(baseline=True, uncertainty=True, sensitivity='KS')
+
+
+# %%
+
+# =============================================================================
+# Make line plot
+# =============================================================================
+
+def group_weights(alt, over_val=0.75, under_val=0.25):
+    '''
+    Group the weight scenarions into ones that result in the select alternative
+    winning over the given criterion (e.g., 0.5) and below the given criterion.
+    '''
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(list(ratio.replace(':', '')), dtype='float')
+
+    # Separate into the over and under criterion groups
+    over = np.array([ration2float(i) for i in percent[percent>=over_val].index])
+    under = np.array([ration2float(i) for i in percent[percent<=under_val].index])
+
+    # Normalize the weights
+    normalize = lambda array: \
+        array.transpose()/np.tile(array.sum(axis=1), (array.shape[1], 1))
+
+    # The shape is now in
+    # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
+    # when used in plotting the line graph, each row will be the y-axis value of the line
+    # (x-axis value is arbitrary, we can set that to 1-N representing the N weighing aspects)
+    over = normalize(over)
+    under = normalize(under)
+
+    return over, under
+
+
+def get_line_graph(over_arr=None, under_arr=None,
+                   over_plot_kwargs={}, under_plot_kwargs={}):
+    if over_arr is None and under_arr is None:
+        raise ValueError('Neither `over_arr` nor `over_arr` is provided, '
+                         'at least one should be given.')
+
+    get_kwargs = lambda kwargs: (
+        kwargs.get('color') or kwargs.get('c') or 'k',
+        kwargs.get('linewidth') or 0.1
+        )
+
+    if over_arr is not None:
+        plt.plot(over_arr, *get_kwargs(over_plot_kwargs))
+    if under_arr is not None:
+        plt.plot(under_arr, *get_kwargs(under_plot_kwargs))
+
+    return plt.gcf()
+
+over_plot_kwargs = {'c': 'blue', 'linewidth': 1}
+under_plot_kwargs = {'c': 'gray', 'linewidth': 0.1}
+
+plotA = get_line_graph(*group_weights(alt='Alternative A', over_val=0.75, under_val=0.25),
+                        over_plot_kwargs, under_plot_kwargs)
+plotB = get_line_graph(*group_weights(alt='Alternative B', over_val=0.75, under_val=0.25),
+                        over_plot_kwargs, under_plot_kwargs)
+plotC = get_line_graph(*group_weights(alt='Alternative C', over_val=0.75, under_val=0.25),
+                       over_plot_kwargs, under_plot_kwargs)
