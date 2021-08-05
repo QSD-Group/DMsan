@@ -79,8 +79,8 @@ class AHP:
         # Set initial weights for different criteria
         self._set_init_T_weights()
         self._set_init_RR_weights()
-        self._set_init_Econ_weights()
         self._set_init_Env_weights()
+        self._set_init_Econ_weights()
         self._set_init_S_weights()
         self._AHP_weights = None # initiate the property
         self.get_AHP_weights()
@@ -164,9 +164,6 @@ class AHP:
         # related to infrastructure quality (Supply Chain Infrastructure)
         weights.append((1-(get_val(location.infrastructure)/7))*100)
 
-    def _set_init_Econ_weights(self):
-        '''Set initial weights for economic indicators.'''
-        self.init_weights['Econ'] = [1] # only one for the net cost
 
     def _set_init_Env_weights(self):
         '''Set initial weights for economic indicators.'''
@@ -175,6 +172,11 @@ class AHP:
         # Env2: human health (LCA)
         # Env3: resource depletion (LCA)
         self.init_weights['Env'] = [1/self.num_alt] * self.num_alt
+
+
+    def _set_init_Econ_weights(self):
+        '''Set initial weights for economic indicators.'''
+        self.init_weights['Econ'] = [1] # only one for the net cost
 
 
     def _set_init_S_weights(self):

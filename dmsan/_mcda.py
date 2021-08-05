@@ -117,7 +117,7 @@ class MCDA:
                              where=denominators!=0)
 
         # Step 2: Rank systems under criteria weighting scenarios
-        criteria = ['T', 'RR', 'Econ', 'Env', 'S']
+        criteria = ['T', 'RR', 'Env', 'Econ', 'S']
         num_ind_dct = dict.fromkeys(criteria)
         for k in criteria:
             num_ind_dct[k] = len([i for i in ind_wt.columns if i.startswith(k)])

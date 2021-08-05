@@ -123,8 +123,8 @@ baseline_tech_scores = get_baseline_tech_scores()
 
 # With uncertainties (only some certain parameters are affected)
 varied_inds = [*[f'RR{i}' for i in range(2, 6)],
-               'Econ1',
-               *[f'Env{i}' for i in range(1, 4)]]
+               *[f'Env{i}' for i in range(1, 4)],
+               'Econ1']
 # varied_idx = baseline_tech_scores.columns.get_indexer_for(varied_inds)
 
 def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
@@ -218,7 +218,7 @@ def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_t
     score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
     for n, w in criteria_weights.iterrows():
         scores, ranks, winners = [], [], []
-        # print(w.Ratio)
+
         for k, v in tech_score_dct.items():
             mcda.tech_scores = v
             mcda.run_MCDA(criteria_weights=w)
@@ -235,14 +235,106 @@ def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_t
 
     return score_df_dct, rank_df_dct, winner_df
 
-# # If want to use selected criteria weights
-# ratios = ['1:0:0:0:0', '0:1:0:0:0', '0:0:1:0:0', '0:0:0:1:0', '0:0:0:0:1', '1:1:1:1:1']
-# weights = bwaise_mcda.criteria_weights[bwaise_mcda.criteria_weights.Ratio.isin(ratios)]
+
+# Use randomly generated criteria weights
+weights = np.random.rand(1000, 5)
+weights = weights.transpose()/np.tile(weights.sum(axis=1), (weights.shape[1], 1))
+weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
+
+colon = np.full(weight_df.shape[0], fill_value=':', dtype='str')
+comma = np.full(weight_df.shape[0], fill_value=', ', dtype='U2')
+weight_df['Ratio'] = weight_df['Description'] = ''
+for i in ['T', 'RR', 'Env', 'Econ', 'S']:
+    ratio = weight_df[i].round(2).astype('str')
+    criteria = comma.astype('U4')
+    criteria.fill(i)
+
+    if i != 'S':
+        weight_df['Ratio'] += ratio + colon
+        weight_df['Description'] += ratio + criteria + comma
+    else:
+        weight_df['Ratio'] += ratio
+        weight_df['Description'] += ratio + criteria
+
 
 # Note that empty cells (with nan value) are failed simulations
 # (i.e., corresponding tech scores are empty)
 score_df_dct, rank_df_dct, winner_df = \
-    run_uncertainty_mcda(mcda=bwaise_mcda, tech_score_dct=tech_score_dct)
+    run_uncertainty_mcda(mcda=bwaise_mcda,
+                         criteria_weights=weight_df,
+                         tech_score_dct=tech_score_dct)
+
+
+# %%
+# =============================================================================
+# Make line plot
+# =============================================================================
+
+def group_weights(winner_df, alt, cutoff=0.5):
+    '''
+    Group the weight scenarions into ones that result in the select alternative
+    has a chance of winning over the given cutoff (e.g., 0.5).
+    '''
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+
+    # Separate into the over and under criterion groups
+    winning_weights = np.array([ration2float(i) for i in percent[percent>cutoff].index])
+
+    # Transpose the shape into that needed for plotting
+    # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
+    # when used in plotting the line graph, each row will be the y-axis value of the line
+    # (x-axis value is arbitrary, we can set that to 1-N representing the N weighing aspects)
+    winning_weights = winning_weights.transpose()
+
+    return winning_weights
+
+winning_weightsA = group_weights(winner_df, 'Alternative A', 0.5)
+winning_weightsB = group_weights(winner_df, 'Alternative B', 0.5)
+winning_weightsC = group_weights(winner_df, 'Alternative C', 0.5)
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ax.plot(winning_weightsA, color='r', linewidth=0.1)
+ax.plot(winning_weightsB, color='b', linewidth=0.1)
+ax.plot(winning_weightsC, color='k', linewidth=1)
+
+ax.set(xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights')
+
+ax.set(xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+       xticks=(0, 1, 2, 3, 4),
+       xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+
+
+# def get_line_graph(over_arr=None, under_arr=None,
+#                    over_plot_kwargs={}, under_plot_kwargs={}):
+#     if over_arr is None and under_arr is None:
+#         raise ValueError('Neither `over_arr` nor `over_arr` is provided, '
+#                          'at least one should be given.')
+
+#     get_kwargs = lambda kwargs: (
+#         kwargs.get('color') or kwargs.get('c') or 'k',
+#         kwargs.get('linewidth') or 0.1
+#         )
+
+#     if over_arr is not None:
+#         plt.plot(over_arr, *get_kwargs(over_plot_kwargs))
+#     if under_arr is not None:
+#         plt.plot(under_arr, *get_kwargs(under_plot_kwargs))
+
+#     return plt.gcf()
+
+# over_plot_kwargs = {'c': 'blue', 'linewidth': 1}
+# under_plot_kwargs = {'c': 'gray', 'linewidth': 0.1}
+
+# plotA = get_line_graph(*group_weights(alt='Alternative A', over_val=0.5),
+#                         over_plot_kwargs, under_plot_kwargs)
+# plotB = get_line_graph(*group_weights(alt='Alternative B', over_val=0.5, under_val=0.25),
+#                         over_plot_kwargs, under_plot_kwargs)
+# plotC = get_line_graph(*group_weights(alt='Alternative C', over_val=0.75, under_val=0.25),
+#                        over_plot_kwargs, under_plot_kwargs)
 
 
 # %%
@@ -434,67 +526,3 @@ def export_results(baseline=True, uncertainty=True, sensitivity='KS'):
             print(f'{kind} sensitivity results (scores) exported to {file_path}.')
 
 export_results(baseline=True, uncertainty=True, sensitivity='KS')
-
-
-# %%
-
-# =============================================================================
-# Make line plot
-# =============================================================================
-
-def group_weights(alt, over_val=0.75, under_val=0.25):
-    '''
-    Group the weight scenarions into ones that result in the select alternative
-    winning over the given criterion (e.g., 0.5) and below the given criterion.
-    '''
-    # % of times that the select alternative wins
-    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
-
-    # Extract the weighing information
-    ration2float = lambda ratio: np.array(list(ratio.replace(':', '')), dtype='float')
-
-    # Separate into the over and under criterion groups
-    over = np.array([ration2float(i) for i in percent[percent>=over_val].index])
-    under = np.array([ration2float(i) for i in percent[percent<=under_val].index])
-
-    # Normalize the weights
-    normalize = lambda array: \
-        array.transpose()/np.tile(array.sum(axis=1), (array.shape[1], 1))
-
-    # The shape is now in
-    # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
-    # when used in plotting the line graph, each row will be the y-axis value of the line
-    # (x-axis value is arbitrary, we can set that to 1-N representing the N weighing aspects)
-    over = normalize(over)
-    under = normalize(under)
-
-    return over, under
-
-
-def get_line_graph(over_arr=None, under_arr=None,
-                   over_plot_kwargs={}, under_plot_kwargs={}):
-    if over_arr is None and under_arr is None:
-        raise ValueError('Neither `over_arr` nor `over_arr` is provided, '
-                         'at least one should be given.')
-
-    get_kwargs = lambda kwargs: (
-        kwargs.get('color') or kwargs.get('c') or 'k',
-        kwargs.get('linewidth') or 0.1
-        )
-
-    if over_arr is not None:
-        plt.plot(over_arr, *get_kwargs(over_plot_kwargs))
-    if under_arr is not None:
-        plt.plot(under_arr, *get_kwargs(under_plot_kwargs))
-
-    return plt.gcf()
-
-over_plot_kwargs = {'c': 'blue', 'linewidth': 1}
-under_plot_kwargs = {'c': 'gray', 'linewidth': 0.1}
-
-plotA = get_line_graph(*group_weights(alt='Alternative A', over_val=0.75, under_val=0.25),
-                        over_plot_kwargs, under_plot_kwargs)
-plotB = get_line_graph(*group_weights(alt='Alternative B', over_val=0.75, under_val=0.25),
-                        over_plot_kwargs, under_plot_kwargs)
-plotC = get_line_graph(*group_weights(alt='Alternative C', over_val=0.75, under_val=0.25),
-                       over_plot_kwargs, under_plot_kwargs)
