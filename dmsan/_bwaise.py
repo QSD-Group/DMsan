@@ -308,35 +308,6 @@ ax.set(xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
        xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
 
 
-# def get_line_graph(over_arr=None, under_arr=None,
-#                    over_plot_kwargs={}, under_plot_kwargs={}):
-#     if over_arr is None and under_arr is None:
-#         raise ValueError('Neither `over_arr` nor `over_arr` is provided, '
-#                          'at least one should be given.')
-
-#     get_kwargs = lambda kwargs: (
-#         kwargs.get('color') or kwargs.get('c') or 'k',
-#         kwargs.get('linewidth') or 0.1
-#         )
-
-#     if over_arr is not None:
-#         plt.plot(over_arr, *get_kwargs(over_plot_kwargs))
-#     if under_arr is not None:
-#         plt.plot(under_arr, *get_kwargs(under_plot_kwargs))
-
-#     return plt.gcf()
-
-# over_plot_kwargs = {'c': 'blue', 'linewidth': 1}
-# under_plot_kwargs = {'c': 'gray', 'linewidth': 0.1}
-
-# plotA = get_line_graph(*group_weights(alt='Alternative A', over_val=0.5),
-#                         over_plot_kwargs, under_plot_kwargs)
-# plotB = get_line_graph(*group_weights(alt='Alternative B', over_val=0.5, under_val=0.25),
-#                         over_plot_kwargs, under_plot_kwargs)
-# plotC = get_line_graph(*group_weights(alt='Alternative C', over_val=0.75, under_val=0.25),
-#                        over_plot_kwargs, under_plot_kwargs)
-
-
 # %%
 
 # =============================================================================
