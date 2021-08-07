@@ -63,15 +63,15 @@ class MCDA:
 
         self.alt_names = alt_names
         self.criteria_weights = criteria_weights if criteria_weights else read_excel('weight_scenarios')
-        self.indicator_type = read_excel('indicator_type') #!!! The first row of this Excel is not needed anymores
+        self.indicator_type = read_excel('indicator_type')
         self.indicator_weights = indicator_weights
         self.tech_scores = tech_scores
         self.method = method
         self._perform_socres = self._ranks = self._winners = None
 
 
-    def run_MCDA(self, criteria_weights=None, save=False, file_path='',
-                 method=None):
+    def run_MCDA(self, criteria_weights=None, method=None,
+                 save=False, file_path=''):
         '''
         MCDA using the set method.
 
@@ -80,12 +80,12 @@ class MCDA:
         criteria_weights : :class:`pandas.DataFrame`
             Weights for the different criteria, will be defaulted to all of the
             associated criteria in the `criteria_weights` property if left as None.
+        method : str
+            MCDA method, will use value set in the `method` property if not provided.
         save : bool
             If True, the results will be save as an Excel file.
         file_path : str
             Path for the output Excel file, default path will be used if not provided.
-        method : str
-            MCDA method, will use value set in the `method` property if not provided.
         '''
         method = self.method if not method else method
         if method.upper() == 'TOPSIS':
@@ -99,7 +99,7 @@ class MCDA:
 
     def _run_TOPSIS(self, criteria_weights=None, save=False, file_path=''):
         cr_wt = self.criteria_weights if criteria_weights is None else criteria_weights
-        ind_type = self.indicator_type.iloc[1, :]
+        ind_type = self.indicator_type
         rev_ind_type = np.ones_like(ind_type) - ind_type
         ind_wt = self.indicator_weights
 
@@ -162,18 +162,15 @@ class MCDA:
             ranks.append(rank)
             winners.append(winner.values.item())
 
-
         score_df = pd.DataFrame(scores, columns=columns)
         rank_df = pd.DataFrame(ranks, columns=columns)
         winner_df = pd.DataFrame(winners, columns=['Winner'])
         pre_df = pd.DataFrame({'Ratio': cr_wt.Ratio, 'Description': cr_wt.Description},
                               index=score_df.index)
-        score_df = pd.concat([pre_df, score_df], axis=1)
-        rank_df = pd.concat([pre_df, rank_df], axis=1)
-        winner_df = pd.concat([pre_df, winner_df], axis=1)
-        # score_df = pd.concat([pre_df, score_df], axis=1).reset_index()
-        # rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index()
-        # winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index()
+
+        score_df = pd.concat([pre_df, score_df], axis=1).reset_index(drop=True)
+        rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index(drop=True)
+        winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index(drop=True)
 
         self._perform_socres = score_df
         self._ranks = rank_df

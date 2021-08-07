@@ -15,11 +15,11 @@ https://github.com/BioSTEAMDevelopmentGroup/biosteam
 https://github.com/QSD-group/QSDsan
 """
 
-import os
+import os, pickle
 import numpy as np
 import pandas as pd
 from scipy import stats
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, lines as mlines
 from qsdsan.utils import time_printer
 from dmsan import data_path, results_path, AHP, MCDA
 
@@ -29,6 +29,10 @@ data_path_tech_scores = os.path.join(data_path, 'technology_scores.xlsx')
 # Util function
 tech_file = pd.ExcelFile(data_path_tech_scores)
 read_excel = lambda name: pd.read_excel(tech_file, name).expected
+rng = np.random.default_rng(3221) # set random number generator for reproducible results
+criteria_num = 5 # number of criteria
+mcda_num = 100 # number of criteria weights considered
+
 
 
 # %%
@@ -121,10 +125,10 @@ def get_baseline_tech_scores(lca_perspective='H'):
 baseline_tech_scores = get_baseline_tech_scores()
 
 
-# With uncertainties (only some certain parameters are affected)
+# For uncertainties of those simulated (only some certain parameters are affected)
 varied_inds = [*[f'RR{i}' for i in range(2, 6)],
                *[f'Env{i}' for i in range(1, 4)],
-               'Econ1']
+               'Econ1'] # user net cost
 # varied_idx = baseline_tech_scores.columns.get_indexer_for(varied_inds)
 
 def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
@@ -165,9 +169,17 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
         simulated = pd.DataFrame([sysA_val.iloc[i],
                                   sysB_val.iloc[i],
                                   sysC_val.iloc[i]]).reset_index(drop=True)
-
         tech_scores = baseline_scores.copy()
         tech_scores[varied_inds] = simulated
+        # design_job_creation including unskilled and skilled (constant) jobs,
+        # only Alternative B with the alternative wastewater treatment plant
+        # has uncertainties
+        tech_scores['S1'] = 5 + paramB[('TEA', 'Unskilled staff num [-]')][i]
+        # end_user_disposal, how many times the toilet needed to be emptied each year
+        tech_scores['S3'] = [*[paramA[('Pit latrine-A2', 'Pit latrine emptying period [years]')][i]]*2,
+                             365/paramC[('UDDT-C2', 'UDDT collection period [days]')][i]]
+        # privacy, i.e., num of household per toilet
+        tech_scores['S5'] = paramA[('Excretion-A1', 'Toilet density [household/toilet]')][i]
         tech_score_dct[i] = tech_scores
 
     return param_dct, tech_score_dct
@@ -208,7 +220,31 @@ bwaise_mcda.run_MCDA()
 # TOPSIS uncertainties for selected weighing scenarios
 # =============================================================================
 
-# TODO: Consider making this a function within MCDA
+# Generate the same number of local weights as in system simulation,
+# three of the local weights in the social criterion hve uncertainties
+@time_printer
+def get_AHP_weights(N):
+    # Baseline for S4-S6 (cleaning preference, privacy, odor and flies)
+    b = np.array(bwaise_ahp.init_weights['S'][3:6])
+    b = np.tile(b, (N, 1))
+    lower = b * 0.75 # 75% of b as the lower bound
+    diff = b * 0.5 # 125% of b as the upper bound minus the lower bound
+    ahp_sampler = stats.qmc.LatinHypercube(d=3, seed=rng)
+    ahp_sample = ahp_sampler.random(n=N)
+
+    S_val_samples = lower + diff*ahp_sample
+
+    AHP_dct = {}
+    for i in range(N):
+        bwaise_ahp.init_weights['S'][3:6] = S_val_samples[i]
+        AHP_dct[i] = bwaise_ahp.get_AHP_weights(True)
+
+    return AHP_dct
+
+AHP_dct = get_AHP_weights(N=len(tech_score_dct))
+
+
+# TODO: This should be made into a function within `MCDA`
 # TODO: remove extra index column
 @time_printer
 def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_time=True):
@@ -220,6 +256,9 @@ def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_t
         scores, ranks, winners = [], [], []
 
         for k, v in tech_score_dct.items():
+            # Update local weights calculated from AHP
+            bwaise_ahp._norm_weights_df = AHP_dct[k]
+
             mcda.tech_scores = v
             mcda.run_MCDA(criteria_weights=w)
             scores.append(mcda.perform_scores)
@@ -227,8 +266,8 @@ def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_t
             winners.append(mcda.winners.Winner.values.item())
 
         name = w.Ratio
-        score_df_dct[name] = pd.concat(scores).reset_index()
-        rank_df_dct[name] = pd.concat(ranks).reset_index()
+        score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
+        rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
         winner_df_dct[name] = winners
 
     winner_df = pd.DataFrame.from_dict(winner_df_dct)
@@ -237,10 +276,48 @@ def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_t
 
 
 # Use randomly generated criteria weights
-weights = np.random.rand(1000, 5)
-weights = weights.transpose()/np.tile(weights.sum(axis=1), (weights.shape[1], 1))
-weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
+wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
+n = int(mcda_num/criteria_num)
+wt1 = wt_sampler1.random(n=n) # draw from 0 to 1 for one criterion
 
+wt_sampler4 = stats.qmc.LatinHypercube(d=(criteria_num-1), seed=rng)
+wt4 = wt_sampler4.random(n=n) # normalize the rest four based on the first criterion
+tot = wt4.sum(axis=1) / ((np.ones_like(wt1)-wt1).transpose())
+wt4 = wt4.transpose()/np.tile(tot, (wt4.shape[1], 1))
+
+combined = np.concatenate((wt1.transpose(), wt4)).transpose()
+
+wts = [combined]
+for num in range(criteria_num-1):
+    combined = np.roll(combined, 1, axis=1)
+    wts.append(combined)
+
+weights = np.concatenate(wts).transpose()
+
+# fig0, ax0 = plt.subplots(figsize=(8, 4.5))
+# ax0.plot(weights, linewidth=0.5)
+
+# # Using chaospy
+# wt_sampler = stats.qmc.LatinHypercube(d=criteria_num, seed=rng)
+# weights = wt_sampler.random(n=mcda_num)
+# fig1, ax1 = plt.subplots(figsize=(8, 4.5))
+# ax1.plot(weights.transpose(), linewidth=0.5)
+
+# weights = weights.transpose()/np.tile(weights.sum(axis=1), (weights.shape[1], 1))
+# fig2, ax2 = plt.subplots(figsize=(8, 4.5))
+# ax2.plot(weights, linewidth=0.5)
+
+# # Using chaospy
+# import chaospy
+# weights = chaospy.create_latin_hypercube_samples(order=1000, dim=criteria_num)
+# fig3, ax3 = plt.subplots(figsize=(8, 4.5))
+# ax3.plot(weights, linewidth=0.5)
+
+# weights = weights/np.tile(weights.transpose().sum(axis=1).transpose(), (weights.shape[0], 1))
+# fig4, ax4 = plt.subplots(figsize=(8, 4.5))
+# ax4.plot(weights, linewidth=0.5)
+
+weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
 colon = np.full(weight_df.shape[0], fill_value=':', dtype='str')
 comma = np.full(weight_df.shape[0], fill_value=', ', dtype='U2')
 weight_df['Ratio'] = weight_df['Description'] = ''
@@ -270,42 +347,75 @@ score_df_dct, rank_df_dct, winner_df = \
 # Make line plot
 # =============================================================================
 
-def group_weights(winner_df, alt, cutoff=0.5):
-    '''
-    Group the weight scenarions into ones that result in the select alternative
-    has a chance of winning over the given cutoff (e.g., 0.5).
-    '''
+# Make line graphse using different colors for different cutoffs
+def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
+                    colors=('gray', 'b', 'r', 'k')):
+    if len(cutoffs) != len(colors):
+        raise ValueError(f'The number of `cutoffs` ({len(cutoffs)}) '
+                          f'should equal the number of `colors` ({len(colors)}).')
+
     # % of times that the select alternative wins
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
 
     # Extract the weighing information
     ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
 
-    # Separate into the over and under criterion groups
-    winning_weights = np.array([ration2float(i) for i in percent[percent>cutoff].index])
+    fig, ax = plt.subplots(figsize=(8, 4.5))
 
-    # Transpose the shape into that needed for plotting
-    # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
-    # when used in plotting the line graph, each row will be the y-axis value of the line
-    # (x-axis value is arbitrary, we can set that to 1-N representing the N weighing aspects)
-    winning_weights = winning_weights.transpose()
+    # Separate into the over and under criterion groups and make the corresponding lines
+    handles = []
+    for idx in range(len(cutoffs)):
+        lower = 0. if idx == 0 else cutoffs[idx-1]
+        upper = cutoffs[idx]
+        wt = np.array([ration2float(i)
+                        for i in percent[(lower<=percent)&(percent<upper)].index])
 
-    return winning_weights
+        if wt.size == 0:
+            continue
 
-winning_weightsA = group_weights(winner_df, 'Alternative A', 0.5)
-winning_weightsB = group_weights(winner_df, 'Alternative B', 0.5)
-winning_weightsC = group_weights(winner_df, 'Alternative C', 0.5)
+        # Transpose the shape into that needed for plotting
+        # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
+        # when used in plotting the line graph, each row will be the y-axis value of the line
+        # (x-axis value represents the N criteria)
+        ax.plot(wt.transpose(), color=colors[idx], linewidth=0.5)
+        handles.append(mlines.Line2D([], [], color=colors[idx],
+                                      label=f'{lower:.0%}-{upper:.0%}'))
 
-fig, ax = plt.subplots(figsize=(8, 4.5))
-ax.plot(winning_weightsA, color='r', linewidth=0.1)
-ax.plot(winning_weightsB, color='b', linewidth=0.1)
-ax.plot(winning_weightsC, color='k', linewidth=1)
+    ax.legend(handles=handles)
+    ax.set(title=alt,
+            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+            xticks=(0, 1, 2, 3, 4),
+            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
 
-ax.set(xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights')
+    return fig, ax
 
-ax.set(xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
-       xticks=(0, 1, 2, 3, 4),
-       xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+figA1, axA1 = make_line_graph1(winner_df, 'Alternative A')
+figB1, axB1 = make_line_graph1(winner_df, 'Alternative B')
+figC1, axC1 = make_line_graph1(winner_df, 'Alternative C')
+
+
+# Make line graphse using the same color, but different transparency
+def make_line_graph2(winner_df, alt, color='b'):
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wt = np.array([ration2float(i) for i in percent.index])
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    for i in range(wt.shape[0]):
+        ax.plot(wt[i], color=color, linewidth=0.5, alpha=percent[i])
+
+    ax.set(title=alt,
+            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+            xticks=(0, 1, 2, 3, 4),
+            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+
+    return fig, ax
+
+figA2, axA2 = make_line_graph2(winner_df, 'Alternative A')
+figB2, axB2 = make_line_graph2(winner_df, 'Alternative B')
+figC2, axC2 = make_line_graph2(winner_df, 'Alternative C')
 
 
 # %%
@@ -314,7 +424,7 @@ ax.set(xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
 # Kolmogorov–Smirnov test for TOPSIS uncertainties
 # =============================================================================
 
-# TODO: Consider making this a function within MCDA
+# TODO: This should be made into a function within `MCDA`
 def run_correlation_test(input_x, input_y, kind,
                          nan_policy='omit', file_path='', **kwargs):
     '''
@@ -455,13 +565,15 @@ rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
 # Result exporting
 # =============================================================================
 
-def export_results(baseline=True, uncertainty=True, sensitivity='KS'):
+# The Excel files could be vary large, try not to use when have thousands of samples,
+# especially for saving the uncertainty analysis results
+def export_to_excel(baseline=True, uncertainty=True, sensitivity='KS'):
     if baseline:
         file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
             bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
-        print(f'Baseline MCDA results exported to {file_path}.')
+        print(f'\nBaseline MCDA results exported to "{file_path}".')
 
     if uncertainty:
         file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.xlsx')
@@ -478,22 +590,95 @@ def export_results(baseline=True, uncertainty=True, sensitivity='KS'):
                 v.to_excel(writer, sheet_name='Score', startcol=col_num)
                 rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
                 col_num += v.shape[1]+2
-        print(f'Uncertainty MCDA results exported to {file_path}.')
+        print(f'\nUncertainty MCDA results exported to "{file_path}".')
 
     if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_ranks.xlsx')
+        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             for k, v in rank_corr_dct.items():
                 v.to_excel(writer, sheet_name=k)
 
-        print(f'{kind} sensitivity results (ranks) exported to {file_path}.')
+        print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
 
         if sensitivity != 'KS':
-            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{kind}_scores.xlsx')
+            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
             with pd.ExcelWriter(file_path) as writer:
                 for k, v in score_corr_dct.items():
                     v.to_excel(writer, sheet_name=k)
 
-            print(f'{kind} sensitivity results (scores) exported to {file_path}.')
+            print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
-export_results(baseline=True, uncertainty=True, sensitivity='KS')
+export_to_excel(baseline=True, uncertainty=False, sensitivity='Spearman')
+export_to_excel(baseline=False, uncertainty=False, sensitivity='KS')
+
+
+# %%
+
+# =============================================================================
+# Saving and loading via pickle files
+# =============================================================================
+
+# Note that Python pickle files may be version-specific,
+# (e.g., if saved using Python 3.7, cannot open on Python 3.8)
+# and cannot be opened outside of Python,
+# but takes much less time to load/save than Excel files
+# https://stackoverflow.com/questions/9619199/best-way-to-preserve-numpy-arrays-on-disk
+def export_to_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
+    def save(obj, path):
+        f = open(path, 'wb')
+        pickle.dump(obj, f)
+        f.close()
+
+    if baseline:
+        file_path = os.path.join(results_path, 'bwaise_mcda.pckl')
+        save(bwaise_mcda, file_path)
+        print(f'\nBaseline MCDA results exported to "{file_path}".')
+
+    if uncertainty:
+        obj = (score_df_dct, rank_df_dct, winner_df)
+        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
+        save(obj, file_path)
+        print(f'\nUncertainty MCDA results exported to "{file_path}".')
+
+    if sensitivity:
+        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
+        save(rank_corr_dct, file_path)
+        print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
+
+        if sensitivity != 'KS':
+            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.pckl')
+            save(score_corr_dct, file_path)
+            print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
+
+export_to_pickle(baseline=True, uncertainty=True, sensitivity='Spearman')
+export_to_pickle(baseline=False, uncertainty=False, sensitivity='KS')
+
+
+def import_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
+    def load(path):
+        f = open(path, 'rb')
+        obj = pickle.load(f)
+        f.close()
+        return obj
+
+    loaded = dict.fromkeys(('baseline', 'uncertainty', 'sensitivity'))
+
+    if baseline:
+        file_path = os.path.join(results_path, 'bwaise_mcda.pckl')
+        loaded['baseline'] = load(file_path)
+
+    if uncertainty:
+        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
+        loaded['uncertainty'] = load(file_path)
+
+    if sensitivity:
+        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
+        loaded['sensitivity'] = [load(file_path)]
+
+        if sensitivity != 'KS':
+            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
+            loaded['sensitivity'].append(load(file_path))
+
+    return loaded
+
+# loaded = import_pickle(baseline=True, uncertainty=True, sensitivity='KS')
