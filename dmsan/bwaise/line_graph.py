@@ -8,7 +8,7 @@ Created on Sat Aug  7 08:28:41 2021
 
 import os, pickle
 import numpy as np
-from matplotlib import pyplot as plt, lines as mlines
+from matplotlib import pyplot as plt, lines as mlines, pylab as pl
 from dmsan.bwaise import results_path, figures_path
 
 
@@ -132,11 +132,12 @@ figA2.savefig(os.path.join(figures_path, 'A2.png'), dpi=300)
 figB2.savefig(os.path.join(figures_path, 'B2.png'), dpi=300)
 figC2.savefig(os.path.join(figures_path, 'C2.png'), dpi=300)
 
-breakpoint()
-# Make line graphse using gradient
-from matplotlib import cm
 
-def make_line_graph3(winner_df, alt, color='b'):
+# Make line graphse using gradient based on tutorials below
+# https://matplotlib.org/stable/tutorials/colors/colormaps.html
+# https://stackoverflow.com/questions/38208700/matplotlib-plot-lines-with-colors-through-colormap
+
+def make_line_graph3(winner_df, alt, cmap):
     # % of times that the select alternative wins
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
 
@@ -144,19 +145,22 @@ def make_line_graph3(winner_df, alt, color='b'):
     ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
     wt = np.array([ration2float(i) for i in percent.index])
     fig, ax = plt.subplots(figsize=(8, 4.5))
+
+    cm = getattr(pl.cm, cmap)
     for i in range(wt.shape[0]):
-        ax.plot(wt[i], color=color, linewidth=0.5, alpha=percent[i])
+        ax.plot(wt[i], color=cm(percent[::1])[i],
+                linewidth=0.5, alpha=percent[i])
 
     ax.set(title=alt,
-            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
-            xticks=(0, 1, 2, 3, 4),
-            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+           xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+           xticks=(0, 1, 2, 3, 4),
+           xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
 
     return fig, ax
 
-figA3, axA3 = make_line_graph3(winner_df, 'Alternative A')
-figB3, axB3 = make_line_graph3(winner_df, 'Alternative B')
-figC3, axC3 = make_line_graph3(winner_df, 'Alternative C')
+figA3, axA3 = make_line_graph3(winner_df, 'Alternative A', 'Reds')
+figB3, axB3 = make_line_graph3(winner_df, 'Alternative B', 'Greens')
+figC3, axC3 = make_line_graph3(winner_df, 'Alternative C', 'Blues')
 figA3.savefig(os.path.join(figures_path, 'A3.png'), dpi=300)
 figB3.savefig(os.path.join(figures_path, 'B3.png'), dpi=300)
 figC3.savefig(os.path.join(figures_path, 'C3.png'), dpi=300)

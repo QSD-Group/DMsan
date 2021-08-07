@@ -27,7 +27,7 @@ score_file = pd.ExcelFile(tech_scores_path)
 read_baseline = lambda name: pd.read_excel(score_file, name).expected
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 criteria_num = 5 # number of criteria
-mcda_num = 10 # number of criteria weights considered
+mcda_num = 1000 # number of criteria weights considered
 
 
 # %%
@@ -147,11 +147,11 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
         ('N recovery', 'Total N'),
         ('P recovery', 'Total P'),
         ('K recovery', 'Total K'),
-        ('COD recovery', 'Total COD'),
-        ('TEA results', 'Annual net cost [USD/cap/yr]'),
+        ('COD recovery', 'Gas COD'), # energy, only gas
         ('LCA results', f'Net emission {lca_perspective.upper()}_EcosystemQuality_Total [points/cap/yr]'),
         ('LCA results', f'Net emission {lca_perspective.upper()}_HumanHealth_Total [points/cap/yr]'),
-        ('LCA results', f'Net emission {lca_perspective.upper()}_Resources_Total [points/cap/yr]')
+        ('LCA results', f'Net emission {lca_perspective.upper()}_Resources_Total [points/cap/yr]'),
+        ('TEA results', 'Annual net cost [USD/cap/yr]'),
         ]
 
     sysA_val = sysA[col_names]
@@ -166,6 +166,7 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
                                   sysC_val.iloc[i]]).reset_index(drop=True)
         tech_scores = baseline_scores.copy()
         tech_scores[varied_inds] = simulated
+
         # design_job_creation including unskilled and skilled (constant) jobs,
         # only Alternative B with the alternative wastewater treatment plant
         # has uncertainties

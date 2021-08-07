@@ -56,8 +56,8 @@ def get_baseline():
     inds = lcas[0].indicators
     idxs = pd.MultiIndex.from_tuples([
         *zip(('Net recovery',)*4, ('N', 'P', 'K', 'energy')),
+        *zip(('LCA results',)*len(inds), inds),
         ('TEA results', 'Net cost'),
-        *zip(('LCA results',)*len(inds), inds)
         ])
     df = pd.DataFrame(index=idxs)
 
@@ -67,14 +67,14 @@ def get_baseline():
         func_dct = bw.systems.get_summarizing_functions(sys)
         for i in ('N', 'P', 'K'):
             data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
-        data.append(func_dct['get_gas_COD_recovery'](sys, 'COD')) # energy
+        data.append(func_dct['get_gas_COD_recovery'](sys, 'COD')) # energy, only gas
+
+        lca = sys_dct['LCA'][sys.ID]
+        data.extend((i for i in get_cap_yr_pts(lca).values()))
 
         tea = sys_dct['TEA'][sys.ID]
         ppl = sys_dct['ppl'][sys.ID]
         data.append(func_dct['get_annual_net_cost'](tea, ppl))
-
-        lca = sys_dct['LCA'][sys.ID]
-        data.extend((i for i in get_cap_yr_pts(lca).values()))
         df[sys.ID] = data
     return df
 
@@ -112,7 +112,7 @@ def copy_samples(original, new, exclude=()):
 
 
 @time_printer
-def get_uncertainties(N=1000, seed=None, rule='L', file_path='', ):
+def get_uncertainties(N, seed=None, rule='L', file_path=''):
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters
     models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
 
@@ -131,13 +131,16 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path='', ):
                                       'global warming' in i.name)])
 
         model = update_metrics(model, 'new')
-        m1 = [i for i in model.metrics if (
-            ('recovery' in i.element and 'Total' in i.name) or
-            i.name=='Annual net cost')]
-        m2 =[i for i in model.metrics if ('Net emission' in i.name and 'H_' in i.name)]
-        m2.sort(key=lambda i: i.name_with_units)
 
-        model.metrics = m1 + m2
+        get_metric = lambda name: [i for i in model.metrics if i.name==name]
+        mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
+        # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
+        mRR += get_metric('Gas COD') # energy, only gas
+        mEnv = [i for i in model.metrics if ('Net emission' in i.name and 'H_' in i.name)]
+        mEnv.sort(key=lambda i: i.name_with_units)
+        mEcon = get_metric('Annual net cost')
+        model.metrics = mRR + mEnv + mEcon
+
         samples = model.sample(N, rule)
         model.load_samples(samples)
 

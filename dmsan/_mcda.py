@@ -100,7 +100,7 @@ class MCDA:
         ind_wt = self.indicator_weights
 
         tech_scores = self.tech_scores
-        tech_scores_a = tech_scores.values
+        tech_scores_a = tech_scores.values # a for array
         num_ind = tech_scores.shape[1]
         num_alt = tech_scores.shape[0]
         num_cr = cr_wt.shape[0] if len(cr_wt.shape)==2 else 1 # cr_wt will be a Series if only criterion
