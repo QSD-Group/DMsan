@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from qsdsan.utils.decorators import time_printer
 from exposan import bwaise as bw
-from dmsan import data_path
+from dmsan.bwaise import scores_path
 
 __all__ = ('get_baseline', 'save_baseline', 'get_uncertainties')
 
@@ -81,10 +81,10 @@ def get_baseline():
 
 def save_baseline(file_path=''):
     if not file_path:
-        file_path = os.path.join(data_path, 'lca_baseline.tsv')
+        file_path = os.path.join(scores_path, 'sys_baseline.tsv')
     sep = '\t' if file_path.endswith('.tsv') else ''
     baseline_df = get_baseline()
-    baseline_df.to_csv(os.path.join(data_path, 'bwaise_baseline.tsv'), sep=sep)
+    baseline_df.to_csv(file_path, sep=sep)
     return baseline_df
 
 baseline_df = save_baseline()
@@ -168,6 +168,6 @@ def get_uncertainties(N=1000, seed=None, rule='L', file_path='', ):
 
     return uncertainty_dct
 
-file_path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
+file_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
 # file_path = '' # if don't want to save the file but want to see the results
 uncertainty_dct = get_uncertainties(N=1000, seed=3221, file_path=file_path)

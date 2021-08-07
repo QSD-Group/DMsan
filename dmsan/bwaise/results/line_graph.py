@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug  7 08:28:41 2021
+
+@author: Yalin Li
+"""
+
+import os, pickle
+from matplotlib import pyplot as plt, lines as mlines
+
+
+# %%
+# =============================================================================
+# Loading pickle files
+# =============================================================================
+
+def import_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
+    def load(path):
+        f = open(path, 'rb')
+        obj = pickle.load(f)
+        f.close()
+        return obj
+
+    loaded = dict.fromkeys(('baseline', 'uncertainty', 'sensitivity'))
+
+    if baseline:
+        file_path = os.path.join(results_path, 'bwaise_mcda.pckl')
+        loaded['baseline'] = load(file_path)
+
+    if uncertainty:
+        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
+        loaded['uncertainty'] = load(file_path)
+
+    if sensitivity:
+        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
+        loaded['sensitivity'] = [load(file_path)]
+
+        if sensitivity != 'KS':
+            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
+            loaded['sensitivity'].append(load(file_path))
+
+    return loaded
+
+loaded = import_pickle(baseline=True, uncertainty=True, sensitivity='KS')
+bwaise_mcda = loaded['baseline']
+score_df_dct, rank_df_dct, winner_df = loaded['uncertainty']
+rank_corr_dct = loaded['sensitivity']
+
+
+# %%
+# =============================================================================
+# Make line plot
+# =============================================================================
+
+# Make line graphse using different colors for different cutoffs
+def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
+                    colors=('gray', 'b', 'r', 'k')):
+    if len(cutoffs) != len(colors):
+        raise ValueError(f'The number of `cutoffs` ({len(cutoffs)}) '
+                          f'should equal the number of `colors` ({len(colors)}).')
+
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+
+    # Separate into the over and under criterion groups and make the corresponding lines
+    handles = []
+    for idx in range(len(cutoffs)):
+        lower = 0. if idx == 0 else cutoffs[idx-1]
+        upper = cutoffs[idx]
+        wt = np.array([ration2float(i)
+                        for i in percent[(lower<=percent)&(percent<upper)].index])
+
+        if wt.size == 0:
+            continue
+
+        # Transpose the shape into that needed for plotting
+        # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
+        # when used in plotting the line graph, each row will be the y-axis value of the line
+        # (x-axis value represents the N criteria)
+        ax.plot(wt.transpose(), color=colors[idx], linewidth=0.5)
+        handles.append(mlines.Line2D([], [], color=colors[idx],
+                                      label=f'{lower:.0%}-{upper:.0%}'))
+
+    ax.legend(handles=handles)
+    ax.set(title=alt,
+            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+            xticks=(0, 1, 2, 3, 4),
+            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+
+    return fig, ax
+
+figA1, axA1 = make_line_graph1(winner_df, 'Alternative A')
+figB1, axB1 = make_line_graph1(winner_df, 'Alternative B')
+figC1, axC1 = make_line_graph1(winner_df, 'Alternative C')
+
+figA1.savefig(os.path.join(fig_path, 'figA1.png'), dpi=300)
+figB1.savefig(os.path.join(fig_path, 'figB1.png'), dpi=300)
+figC1.savefig(os.path.join(fig_path, 'figC1.png'), dpi=300)
+
+
+# Make line graphse using the same color, but different transparency
+def make_line_graph2(winner_df, alt, color='b'):
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wt = np.array([ration2float(i) for i in percent.index])
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    for i in range(wt.shape[0]):
+        ax.plot(wt[i], color=color, linewidth=0.5, alpha=percent[i])
+
+    ax.set(title=alt,
+            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+            xticks=(0, 1, 2, 3, 4),
+            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+
+    return fig, ax
+
+figA2, axA2 = make_line_graph2(winner_df, 'Alternative A')
+figB2, axB2 = make_line_graph2(winner_df, 'Alternative B')
+figC2, axC2 = make_line_graph2(winner_df, 'Alternative C')
+figA2.savefig(os.path.join(fig_path, 'figA2.png'), dpi=300)
+figB2.savefig(os.path.join(fig_path, 'figB2.png'), dpi=300)
+figC2.savefig(os.path.join(fig_path, 'figC2.png'), dpi=300)
+
+
+
+
+# Make line graphse using the same color, but different transparency
+def make_line_graph3(winner_df, alt, color='b'):
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wt = np.array([ration2float(i) for i in percent.index])
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    for i in range(wt.shape[0]):
+        ax.plot(wt[i], color=color, linewidth=0.5, alpha=percent[i])
+
+    ax.set(title=alt,
+            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+            xticks=(0, 1, 2, 3, 4),
+            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+
+    return fig, ax
+
+figA3, axA3 = make_line_graph3(winner_df, 'Alternative A')
+figB3, axB3 = make_line_graph3(winner_df, 'Alternative B')
+figC3, axC3 = make_line_graph3(winner_df, 'Alternative C')
+figA3.savefig(os.path.join(fig_path, 'figA3.png'), dpi=300)
+figB3.savefig(os.path.join(fig_path, 'figB3.png'), dpi=300)
+figC3.savefig(os.path.join(fig_path, 'figC3.png'), dpi=300)

@@ -4,9 +4,6 @@
 Created on Sat Jul  3 17:22:03 2021
 
 @authors:
-    Tori Morgan <vlmorgan@illinois.edu>,
-    Hannah Lohman <hlohman94@gmail.com>,
-    Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
     Joy Cheung <joycheung1994@gmail.com>
 
@@ -19,19 +16,18 @@ import os, pickle
 import numpy as np
 import pandas as pd
 from scipy import stats
-from matplotlib import pyplot as plt, lines as mlines
 from qsdsan.utils import time_printer
-from dmsan import data_path, results_path, AHP, MCDA
+from dmsan import AHP, MCDA
+from dmsan.bwaise import scores_path, results_path
 
-__all__ = ('baseline_tech_scores', )
-data_path_tech_scores = os.path.join(data_path, 'technology_scores.xlsx')
 
 # Util function
-tech_file = pd.ExcelFile(data_path_tech_scores)
-read_excel = lambda name: pd.read_excel(tech_file, name).expected
+tech_scores_path = os.path.join(scores_path, 'other_tech_scores.xlsx')
+score_file = pd.ExcelFile(tech_scores_path)
+read_baseline = lambda name: pd.read_excel(score_file, name).expected
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 criteria_num = 5 # number of criteria
-mcda_num = 1000 # number of criteria weights considered
+mcda_num = 10 # number of criteria weights considered
 
 
 # %%
@@ -52,31 +48,31 @@ def get_baseline_tech_scores(lca_perspective='H'):
 
     # Technical
     tech_score_T_All = pd.DataFrame([
-        read_excel('user_interface'),
-        read_excel('treatment_type'),
-        read_excel('system_part_accessibility'),
-        read_excel('design_transport'),
-        read_excel('construction_skills'),
-        read_excel('OM_complexity'),
-        read_excel('pop_flexibility'),
-        read_excel('electricity_flexibility'),
-        read_excel('drought_flexibility')
+        read_baseline('user_interface'),
+        read_baseline('treatment_type'),
+        read_baseline('system_part_accessibility'),
+        read_baseline('design_transport'),
+        read_baseline('construction_skills'),
+        read_baseline('OM_complexity'),
+        read_baseline('pop_flexibility'),
+        read_baseline('electricity_flexibility'),
+        read_baseline('drought_flexibility')
         ]).transpose()
 
     tech_score_T_All.columns = [f'T{i+1}' for i in range(tech_score_T_All.shape[1])]
 
     # Resource Recovery
     # Import simulated results
-    baseline = pd.read_csv(os.path.join(data_path, 'bwaise_baseline.tsv'),
+    baseline = pd.read_csv(os.path.join(scores_path, 'sys_baseline.tsv'),
                            index_col=(0, 1), sep='\t')
 
     tech_score_RR_All = pd.DataFrame([
-        read_excel('water_reuse'),
+        read_baseline('water_reuse'),
         baseline.loc[('Net recovery', 'N')].values,
         baseline.loc[('Net recovery', 'P')].values,
         baseline.loc[('Net recovery', 'K')].values,
         baseline.loc[('Net recovery', 'energy')].values,
-        read_excel('supply_chain')
+        read_baseline('supply_chain')
         ]).transpose()
 
     tech_score_RR_All.columns = [f'RR{i+1}' for i in range(tech_score_RR_All.shape[1])]
@@ -101,15 +97,15 @@ def get_baseline_tech_scores(lca_perspective='H'):
 
     # Social
     tech_score_S_All = pd.DataFrame([
-        read_excel('design_job_creation'),
-        read_excel('design_high_pay_jobs'),
-        read_excel('end_user_disposal'),
-        read_excel('end_user_cleaning'),
-        read_excel('privacy'),
-        read_excel('odor'),
-        read_excel('security'),
-        read_excel('management_disposal'),
-        read_excel('management_cleaning')
+        read_baseline('design_job_creation'),
+        read_baseline('design_high_pay_jobs'),
+        read_baseline('end_user_disposal'),
+        read_baseline('end_user_cleaning'),
+        read_baseline('privacy'),
+        read_baseline('odor'),
+        read_baseline('security'),
+        read_baseline('management_disposal'),
+        read_baseline('management_cleaning')
         ]).transpose()
 
     tech_score_S_All.columns = [f'S{i+1}' for i in range(tech_score_S_All.shape[1])]
@@ -136,7 +132,7 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
     if not baseline_scores:
         baseline_scores = get_baseline_tech_scores()
 
-    file_path = os.path.join(data_path, 'bwaise_uncertainties.xlsx')
+    file_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
     file = pd.ExcelFile(file_path)
     paramA = pd.read_excel(file, 'sysA-param', index_col=0, header=(0, 1))
     paramB = pd.read_excel(file, 'sysB-param', index_col=0, header=(0, 1))
@@ -184,6 +180,7 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
     return param_dct, tech_score_dct
 
 param_dct, tech_score_dct = get_uncertainty_data()
+sim_num = len(tech_score_dct) # number of system simulations
 
 
 # %%
@@ -193,7 +190,7 @@ param_dct, tech_score_dct = get_uncertainty_data()
 # =============================================================================
 
 # Names of the alternative systems
-alt_names = pd.read_excel(data_path_tech_scores, sheet_name='user_interface').system
+alt_names = pd.read_excel(tech_scores_path, sheet_name='user_interface').system
 
 # Baseline
 # `bwaise_ahp.norm_weights_df` is `subcriteria_weights` in the original script,
@@ -240,7 +237,7 @@ def get_AHP_weights(N):
 
     return AHP_dct
 
-AHP_dct = get_AHP_weights(N=len(tech_score_dct))
+AHP_dct = get_AHP_weights(N=sim_num)
 
 
 # TODO: This should be made into a function within `MCDA`
@@ -342,91 +339,6 @@ score_df_dct, rank_df_dct, winner_df = \
 
 
 # %%
-# =============================================================================
-# Make line plot
-# =============================================================================
-
-# Make line graphse using different colors for different cutoffs
-def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
-                    colors=('gray', 'b', 'r', 'k')):
-    if len(cutoffs) != len(colors):
-        raise ValueError(f'The number of `cutoffs` ({len(cutoffs)}) '
-                          f'should equal the number of `colors` ({len(colors)}).')
-
-    # % of times that the select alternative wins
-    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
-
-    # Extract the weighing information
-    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
-
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-
-    # Separate into the over and under criterion groups and make the corresponding lines
-    handles = []
-    for idx in range(len(cutoffs)):
-        lower = 0. if idx == 0 else cutoffs[idx-1]
-        upper = cutoffs[idx]
-        wt = np.array([ration2float(i)
-                        for i in percent[(lower<=percent)&(percent<upper)].index])
-
-        if wt.size == 0:
-            continue
-
-        # Transpose the shape into that needed for plotting
-        # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
-        # when used in plotting the line graph, each row will be the y-axis value of the line
-        # (x-axis value represents the N criteria)
-        ax.plot(wt.transpose(), color=colors[idx], linewidth=0.5)
-        handles.append(mlines.Line2D([], [], color=colors[idx],
-                                      label=f'{lower:.0%}-{upper:.0%}'))
-
-    ax.legend(handles=handles)
-    ax.set(title=alt,
-            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
-            xticks=(0, 1, 2, 3, 4),
-            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
-
-    return fig, ax
-
-figA1, axA1 = make_line_graph1(winner_df, 'Alternative A')
-figB1, axB1 = make_line_graph1(winner_df, 'Alternative B')
-figC1, axC1 = make_line_graph1(winner_df, 'Alternative C')
-
-fig_path = os.path.join(results_path.strip('results'), 'figures')
-figA1.savefig(os.path.join(fig_path, 'figA1.png'), dpi=300)
-figB1.savefig(os.path.join(fig_path, 'figB1.png'), dpi=300)
-figC1.savefig(os.path.join(fig_path, 'figC1.png'), dpi=300)
-
-
-# Make line graphse using the same color, but different transparency
-def make_line_graph2(winner_df, alt, color='b'):
-    # % of times that the select alternative wins
-    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
-
-    # Extract the weighing information
-    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
-    wt = np.array([ration2float(i) for i in percent.index])
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    for i in range(wt.shape[0]):
-        ax.plot(wt[i], color=color, linewidth=0.5, alpha=percent[i])
-
-    ax.set(title=alt,
-            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
-            xticks=(0, 1, 2, 3, 4),
-            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
-
-    return fig, ax
-
-figA2, axA2 = make_line_graph2(winner_df, 'Alternative A')
-figB2, axB2 = make_line_graph2(winner_df, 'Alternative B')
-figC2, axC2 = make_line_graph2(winner_df, 'Alternative C')
-figA2.savefig(os.path.join(fig_path, 'figA2.png'), dpi=300)
-figB2.savefig(os.path.join(fig_path, 'figB2.png'), dpi=300)
-figC2.savefig(os.path.join(fig_path, 'figC2.png'), dpi=300)
-
-
-
-# %%
 
 # =============================================================================
 # Kolmogorov–Smirnov test for TOPSIS uncertainties
@@ -464,7 +376,7 @@ def run_correlation_test(input_x, input_y, kind,
             (not supported by `scipy`).
 
     file_path : str
-        If provided, the results will be saved as an Excel file to the given path.
+        If provided, the results will be saved as a csv file to the given path.
     kwargs : dict
         Other keyword arguments that will be passed to ``scipy``.
 
@@ -577,7 +489,7 @@ rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
 # especially for saving the uncertainty analysis results
 def export_to_excel(baseline=True, uncertainty=True, sensitivity='KS'):
     if baseline:
-        file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx')
+        file_path = os.path.join(results_path, 'AHP_TOPSIS_baseline.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
             bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
@@ -620,12 +532,6 @@ export_to_excel(baseline=True, uncertainty=False, sensitivity='Spearman')
 export_to_excel(baseline=False, uncertainty=False, sensitivity='KS')
 
 
-# %%
-
-# =============================================================================
-# Saving and loading via pickle files
-# =============================================================================
-
 # Note that Python pickle files may be version-specific,
 # (e.g., if saved using Python 3.7, cannot open on Python 3.8)
 # and cannot be opened outside of Python,
@@ -660,33 +566,3 @@ def export_to_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
 
 export_to_pickle(baseline=True, uncertainty=True, sensitivity='Spearman')
 export_to_pickle(baseline=False, uncertainty=False, sensitivity='KS')
-
-
-def import_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
-    def load(path):
-        f = open(path, 'rb')
-        obj = pickle.load(f)
-        f.close()
-        return obj
-
-    loaded = dict.fromkeys(('baseline', 'uncertainty', 'sensitivity'))
-
-    if baseline:
-        file_path = os.path.join(results_path, 'bwaise_mcda.pckl')
-        loaded['baseline'] = load(file_path)
-
-    if uncertainty:
-        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
-        loaded['uncertainty'] = load(file_path)
-
-    if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
-        loaded['sensitivity'] = [load(file_path)]
-
-        if sensitivity != 'KS':
-            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
-            loaded['sensitivity'].append(load(file_path))
-
-    return loaded
-
-# loaded = import_pickle(baseline=True, uncertainty=True, sensitivity='KS')

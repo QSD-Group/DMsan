@@ -7,8 +7,9 @@ Created on Thu Jun 10 15:19:24 2021
 """
 
 import os
-data_path = os.path.join(os.path.dirname(__file__), 'data')
-results_path = os.path.join(os.path.dirname(__file__), 'results')
+path = os.path.dirname(__file__)
+data_path = os.path.join(path, 'data')
+results_path = os.path.join(path, 'results')
 
 from ._location import *
 from ._ahp import *
@@ -21,6 +22,7 @@ from . import (
     )
 
 __all__ = (
+    'path',
     'data_path',
     'results_path',
     *_location.__all__,

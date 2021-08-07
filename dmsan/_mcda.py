@@ -21,10 +21,6 @@ import pandas as pd
 from scipy.stats import rankdata
 from . import data_path, results_path
 
-# Data files associated with the model
-data_path_tech_scores = os.path.join(data_path, 'technology_scores.xlsx')
-data_path_weight_scenarios = os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
-
 __all__ = ('MCDA',)
 
 
@@ -57,7 +53,7 @@ class MCDA:
     def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
                  criteria_weights=None, *,
                  indicator_weights, tech_scores):
-        path = file_path if file_path else data_path+'/criteria_weight_scenarios.xlsx'
+        path = file_path if file_path else os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
         file = pd.ExcelFile(path)
         read_excel = lambda name: pd.read_excel(file, name) # name is sheet name
 
@@ -177,7 +173,9 @@ class MCDA:
         self._winners = winner_df
 
         if save:
-            file_path = os.path.join(results_path, 'RESULTS_AHP_TOPSIS.xlsx') \
+            if not os.path.isdir(results_path):
+                os.mkdir(results_path)
+            file_path = os.path.join(results_path, 'AHP_TOPSIS.xlsx') \
                 if not file_path else file_path
             with pd.ExcelWriter(file_path) as writer:
                 winner_df.to_excel(writer, sheet_name='Winner')

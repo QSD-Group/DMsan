@@ -54,7 +54,7 @@ class AHP:
     def __init__(self, file_path='', location_name='Uganda', num_alt=3,
                  na_default=0.00001, random_index={}):
         # Convert location to match the database
-        self.set_location(file_path=file_path, location_name=location_name)
+        self.set_location(location_name=location_name, file_path=file_path)
         self.num_alt = int(num_alt)
         self.na_default = na_default
         if not random_index:
