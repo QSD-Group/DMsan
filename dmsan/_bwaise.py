@@ -31,8 +31,7 @@ tech_file = pd.ExcelFile(data_path_tech_scores)
 read_excel = lambda name: pd.read_excel(tech_file, name).expected
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 criteria_num = 5 # number of criteria
-mcda_num = 100 # number of criteria weights considered
-
+mcda_num = 1000 # number of criteria weights considered
 
 
 # %%
@@ -393,6 +392,11 @@ figA1, axA1 = make_line_graph1(winner_df, 'Alternative A')
 figB1, axB1 = make_line_graph1(winner_df, 'Alternative B')
 figC1, axC1 = make_line_graph1(winner_df, 'Alternative C')
 
+fig_path = os.path.join(results_path.strip('results'), 'figures')
+figA1.savefig(os.path.join(fig_path, 'figA1.png'), dpi=300)
+figB1.savefig(os.path.join(fig_path, 'figB1.png'), dpi=300)
+figC1.savefig(os.path.join(fig_path, 'figC1.png'), dpi=300)
+
 
 # Make line graphse using the same color, but different transparency
 def make_line_graph2(winner_df, alt, color='b'):
@@ -416,6 +420,10 @@ def make_line_graph2(winner_df, alt, color='b'):
 figA2, axA2 = make_line_graph2(winner_df, 'Alternative A')
 figB2, axB2 = make_line_graph2(winner_df, 'Alternative B')
 figC2, axC2 = make_line_graph2(winner_df, 'Alternative C')
+figA2.savefig(os.path.join(fig_path, 'figA2.png'), dpi=300)
+figB2.savefig(os.path.join(fig_path, 'figB2.png'), dpi=300)
+figC2.savefig(os.path.join(fig_path, 'figC2.png'), dpi=300)
+
 
 
 # %%
