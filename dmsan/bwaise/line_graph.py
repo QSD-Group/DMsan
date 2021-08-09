@@ -9,7 +9,11 @@ Created on Sat Aug  7 08:28:41 2021
 import os, pickle
 import numpy as np
 from matplotlib import pyplot as plt, lines as mlines, pylab as pl
+from matplotlib.colors import LinearSegmentedColormap as LSC
+from qsdsan.utils import palettes
 from dmsan.bwaise import results_path, figures_path
+
+Guest = palettes['Guest']
 
 
 # %%
@@ -57,9 +61,11 @@ rank_corr_dct = loaded['sensitivity']
 # Make line graphs
 # =============================================================================
 
+colors = [Guest.gray.RGBn, Guest.blue.RGBn, Guest.red.RGBn, Guest.green.RGBn]
+
 # Make line graphs using different colors for different cutoffs
 def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
-                    colors=('gray', 'b', 'r', 'k')):
+                    colors=colors):
     if len(cutoffs) != len(colors):
         raise ValueError(f'The number of `cutoffs` ({len(cutoffs)}) '
                           f'should equal the number of `colors` ({len(colors)}).')
@@ -77,8 +83,14 @@ def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
     for idx in range(len(cutoffs)):
         lower = 0. if idx == 0 else cutoffs[idx-1]
         upper = cutoffs[idx]
-        wt = np.array([ration2float(i)
-                        for i in percent[(lower<=percent)&(percent<upper)].index])
+        if upper == 1:
+            wt = np.array([ration2float(i)
+                            for i in percent[(lower<=percent)&(percent<=upper)].index])
+            right = ']'
+        else:
+            wt = np.array([ration2float(i)
+                            for i in percent[(lower<=percent)&(percent<upper)].index])
+            right = ')'
 
         if wt.size == 0:
             continue
@@ -89,7 +101,7 @@ def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
         # (x-axis value represents the N criteria)
         ax.plot(wt.transpose(), color=colors[idx], linewidth=0.5)
         handles.append(mlines.Line2D([], [], color=colors[idx],
-                                      label=f'{lower:.0%}-{upper:.0%}'))
+                                      label=f'[{lower:.0%}, {upper:.0%}{right}'))
 
     ax.legend(handles=handles)
     ax.set(title=alt,
@@ -103,9 +115,9 @@ figA1, axA1 = make_line_graph1(winner_df, 'Alternative A')
 figB1, axB1 = make_line_graph1(winner_df, 'Alternative B')
 figC1, axC1 = make_line_graph1(winner_df, 'Alternative C')
 
-figA1.savefig(os.path.join(figures_path, 'A1.png'), dpi=300)
-figB1.savefig(os.path.join(figures_path, 'B1.png'), dpi=300)
-figC1.savefig(os.path.join(figures_path, 'C1.png'), dpi=300)
+figA1.savefig(os.path.join(figures_path, 'A1.png'), dpi=100)
+figB1.savefig(os.path.join(figures_path, 'B1.png'), dpi=100)
+figC1.savefig(os.path.join(figures_path, 'C1.png'), dpi=100)
 
 
 # %%
@@ -132,9 +144,10 @@ def make_line_graph2(winner_df, alt, color='b'):
 figA2, axA2 = make_line_graph2(winner_df, 'Alternative A')
 figB2, axB2 = make_line_graph2(winner_df, 'Alternative B')
 figC2, axC2 = make_line_graph2(winner_df, 'Alternative C')
-figA2.savefig(os.path.join(figures_path, 'A2.png'), dpi=300)
-figB2.savefig(os.path.join(figures_path, 'B2.png'), dpi=300)
-figC2.savefig(os.path.join(figures_path, 'C2.png'), dpi=300)
+
+figA2.savefig(os.path.join(figures_path, 'A2.png'), dpi=100)
+figB2.savefig(os.path.join(figures_path, 'B2.png'), dpi=100)
+figC2.savefig(os.path.join(figures_path, 'C2.png'), dpi=100)
 
 
 # %%
@@ -166,9 +179,10 @@ def make_line_graph3(winner_df, alt, cmap):
 figA3, axA3 = make_line_graph3(winner_df, 'Alternative A', 'Reds')
 figB3, axB3 = make_line_graph3(winner_df, 'Alternative B', 'Greens')
 figC3, axC3 = make_line_graph3(winner_df, 'Alternative C', 'Blues')
-figA3.savefig(os.path.join(figures_path, 'A3.png'), dpi=300)
-figB3.savefig(os.path.join(figures_path, 'B3.png'), dpi=300)
-figC3.savefig(os.path.join(figures_path, 'C3.png'), dpi=300)
+
+figA3.savefig(os.path.join(figures_path, 'A3.png'), dpi=100)
+figB3.savefig(os.path.join(figures_path, 'B3.png'), dpi=100)
+figC3.savefig(os.path.join(figures_path, 'C3.png'), dpi=100)
 
 
 # %%
@@ -194,15 +208,14 @@ def make_line_graph4(winner_df, alt, cmap):
 
     return fig, ax
 
-from matplotlib.colors import LinearSegmentedColormap as LSC
-from qsdsan.utils import palettes
-Guest = palettes['Guest']
+
 colorlist = [Guest.red.RGBn, Guest.green.RGBn]
 cmap = LSC.from_list('temp', colorlist)
 
 figA4, axA4 = make_line_graph4(winner_df, 'Alternative A', cmap)
 figB4, axB4 = make_line_graph4(winner_df, 'Alternative B', cmap)
 figC4, axC4 = make_line_graph4(winner_df, 'Alternative C', cmap)
-figA4.savefig(os.path.join(figures_path, 'A4.png'), dpi=300)
-figB4.savefig(os.path.join(figures_path, 'B4.png'), dpi=300)
-figC4.savefig(os.path.join(figures_path, 'C4.png'), dpi=300)
+
+figA4.savefig(os.path.join(figures_path, 'A4.png'), dpi=100)
+figB4.savefig(os.path.join(figures_path, 'B4.png'), dpi=100)
+figC4.savefig(os.path.join(figures_path, 'C4.png'), dpi=100)

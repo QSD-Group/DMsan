@@ -291,8 +291,9 @@ for num in range(criteria_num-1):
 
 weights = np.concatenate(wts).transpose()
 
-# fig0, ax0 = plt.subplots(figsize=(8, 4.5))
-# ax0.plot(weights, linewidth=0.5)
+from matplotlib import pyplot as plt
+fig0, ax0 = plt.subplots(figsize=(8, 4.5))
+ax0.plot(weights, linewidth=0.5)
 
 # # Using chaospy
 # wt_sampler = stats.qmc.LatinHypercube(d=criteria_num, seed=rng)
