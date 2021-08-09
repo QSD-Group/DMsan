@@ -13,6 +13,7 @@ from dmsan.bwaise import results_path, figures_path
 
 
 # %%
+
 # =============================================================================
 # Loading pickle files
 # =============================================================================
@@ -51,11 +52,12 @@ rank_corr_dct = loaded['sensitivity']
 
 
 # %%
+
 # =============================================================================
-# Make line plot
+# Make line graphs
 # =============================================================================
 
-# Make line graphse using different colors for different cutoffs
+# Make line graphs using different colors for different cutoffs
 def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
                     colors=('gray', 'b', 'r', 'k')):
     if len(cutoffs) != len(colors):
@@ -106,7 +108,9 @@ figB1.savefig(os.path.join(figures_path, 'B1.png'), dpi=300)
 figC1.savefig(os.path.join(figures_path, 'C1.png'), dpi=300)
 
 
-# Make line graphse using the same color, but different transparency
+# %%
+
+# Make line graphs using the same color, but different transparency
 def make_line_graph2(winner_df, alt, color='b'):
     # % of times that the select alternative wins
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
@@ -133,10 +137,11 @@ figB2.savefig(os.path.join(figures_path, 'B2.png'), dpi=300)
 figC2.savefig(os.path.join(figures_path, 'C2.png'), dpi=300)
 
 
-# Make line graphse using gradient based on tutorials below
+# %%
+
+# Make line graphs using gradient based on tutorials below
 # https://matplotlib.org/stable/tutorials/colors/colormaps.html
 # https://stackoverflow.com/questions/38208700/matplotlib-plot-lines-with-colors-through-colormap
-
 def make_line_graph3(winner_df, alt, cmap):
     # % of times that the select alternative wins
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
@@ -164,3 +169,40 @@ figC3, axC3 = make_line_graph3(winner_df, 'Alternative C', 'Blues')
 figA3.savefig(os.path.join(figures_path, 'A3.png'), dpi=300)
 figB3.savefig(os.path.join(figures_path, 'B3.png'), dpi=300)
 figC3.savefig(os.path.join(figures_path, 'C3.png'), dpi=300)
+
+
+# %%
+
+# Make line graphs using gradient colors
+def make_line_graph4(winner_df, alt, cmap):
+    # % of times that the select alternative wins
+    percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
+
+    # Extract the weighing information
+    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wt = np.array([ration2float(i) for i in percent.index])
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+
+    for i in range(wt.shape[0]):
+        ax.plot(wt[i], color=cmap(percent[::1])[i],
+                linewidth=0.5, alpha=percent[i])
+
+    ax.set(title=alt,
+           xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+           xticks=(0, 1, 2, 3, 4),
+           xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+
+    return fig, ax
+
+from matplotlib.colors import LinearSegmentedColormap as LSC
+from qsdsan.utils import palettes
+Guest = palettes['Guest']
+colorlist = [Guest.red.RGBn, Guest.green.RGBn]
+cmap = LSC.from_list('temp', colorlist)
+
+figA4, axA4 = make_line_graph4(winner_df, 'Alternative A', cmap)
+figB4, axB4 = make_line_graph4(winner_df, 'Alternative B', cmap)
+figC4, axC4 = make_line_graph4(winner_df, 'Alternative C', cmap)
+figA4.savefig(os.path.join(figures_path, 'A4.png'), dpi=300)
+figB4.savefig(os.path.join(figures_path, 'B4.png'), dpi=300)
+figC4.savefig(os.path.join(figures_path, 'C4.png'), dpi=300)
