@@ -62,10 +62,10 @@ rank_corr_dct = loaded['sensitivity']
 # =============================================================================
 
 colors = [
-    Color('dark_green', '#4d7a53').RGBn,
-    Color('orange', '#fa8f61').RGBn,
-    Color('blue', '#60c1cf').RGBn,
     Color('gray', '#d0d1cd').RGBn,
+    Color('blue', '#60c1cf').RGBn,
+    Color('orange', '#fa8f61').RGBn,
+    Color('dark_green', '#4d7a53').RGBn,
     ]
 
 # Make line graphs using different colors for different cutoffs
