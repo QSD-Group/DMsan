@@ -10,10 +10,11 @@ import os, pickle
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt, lines as mlines, pylab as pl
-from qsdsan.utils import palettes, Color
+from colorpalette import Color
+# from qsdsan.utils import palettes, Color
 from dmsan.bwaise import results_path, figures_path
 
-Guest = palettes['Guest']
+# Guest = palettes['Guest']
 
 
 # %%
