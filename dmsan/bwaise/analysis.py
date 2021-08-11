@@ -291,29 +291,11 @@ for num in range(criteria_num-1):
 
 weights = np.concatenate(wts).transpose()
 
-from matplotlib import pyplot as plt
-fig0, ax0 = plt.subplots(figsize=(8, 4.5))
-ax0.plot(weights, linewidth=0.5)
+# # Get a quick plot of the weights
+# from matplotlib import pyplot as plt
+# fig0, ax0 = plt.subplots(figsize=(8, 4.5))
+# ax0.plot(weights, linewidth=0.5)
 
-# # Using chaospy
-# wt_sampler = stats.qmc.LatinHypercube(d=criteria_num, seed=rng)
-# weights = wt_sampler.random(n=mcda_num)
-# fig1, ax1 = plt.subplots(figsize=(8, 4.5))
-# ax1.plot(weights.transpose(), linewidth=0.5)
-
-# weights = weights.transpose()/np.tile(weights.sum(axis=1), (weights.shape[1], 1))
-# fig2, ax2 = plt.subplots(figsize=(8, 4.5))
-# ax2.plot(weights, linewidth=0.5)
-
-# # Using chaospy
-# import chaospy
-# weights = chaospy.create_latin_hypercube_samples(order=1000, dim=criteria_num)
-# fig3, ax3 = plt.subplots(figsize=(8, 4.5))
-# ax3.plot(weights, linewidth=0.5)
-
-# weights = weights/np.tile(weights.transpose().sum(axis=1).transpose(), (weights.shape[0], 1))
-# fig4, ax4 = plt.subplots(figsize=(8, 4.5))
-# ax4.plot(weights, linewidth=0.5)
 
 weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
 colon = np.full(weight_df.shape[0], fill_value=':', dtype='str')
