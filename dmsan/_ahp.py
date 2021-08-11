@@ -158,7 +158,7 @@ class AHP:
 
         # Local Weight Indicator RR5:
         # related to renewable energy consumption (Energy Recovery)
-        weights.append((1-(get_val(location.renewable_energy)/100))*100)
+        weights.append(get_val(location.renewable_energy))
 
         # Local Weight Indicator RR6:
         # related to infrastructure quality (Supply Chain Infrastructure)
