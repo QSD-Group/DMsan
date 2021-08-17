@@ -26,6 +26,21 @@ __all__ = ('rebuild_models', 'get_baseline', 'get_uncertainties')
 # Util functions for reloading saved models
 # =============================================================================
 
+def copy_samples(original, new, exclude=()):
+    '''
+    Copy samples of the shared parameters in the original model to the new model.
+    Parameters in `exclude` will be excluded (i.e., not copied).
+    '''
+    col0 = original.table.columns.get_level_values(1)[:len(original.parameters)]
+    col1 = new.table.columns.get_level_values(1)[:len(new.parameters)]
+    shared = col0.intersection(col1)
+    shared = shared.difference([i.name_with_units for i in exclude])
+    idx0 = original.table.columns.get_locs([slice(None), shared])
+    idx1 = new.table.columns.get_locs([slice(None), shared])
+    new.table[new.table.columns[idx1]] = new._samples[:, idx1] \
+        = original._samples[:, idx0]
+
+
 def get_model(N, seed=None, rule='L', lca_perspective='H'):
     from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters
     models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
@@ -155,61 +170,9 @@ baseline_df = get_baseline(file_path=baseline_path)
 # Add uncertainties
 # =============================================================================
 
-def copy_samples(original, new, exclude=()):
-    '''
-    Copy samples of the shared parameters in the original model to the new model.
-    Parameters in `exclude` will be excluded (i.e., not copied).
-    '''
-    col0 = original.table.columns.get_level_values(1)[:len(original.parameters)]
-    col1 = new.table.columns.get_level_values(1)[:len(new.parameters)]
-    shared = col0.intersection(col1)
-    shared = shared.difference([i.name_with_units for i in exclude])
-    idx0 = original.table.columns.get_locs([slice(None), shared])
-    idx1 = new.table.columns.get_locs([slice(None), shared])
-    new.table[new.table.columns[idx1]] = new._samples[:, idx1] \
-        = original._samples[:, idx0]
-
-
 @time_printer
 def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
                       pickle_path='', param_path='', result_path=''):
-    # from exposan.bwaise.models import update_metrics, update_LCA_CF_parameters
-    # models = modelA, modelB, modelC = bw.modelA, bw.modelB, bw.modelC
-
-    # bw.update_lca_data('new')
-    # if seed:
-    #     np.random.seed(seed)
-
-    # pers = ['I', 'H', 'E']
-    # pers.remove(lca_perspective)
-    # uncertainty_dct = {}
-    # for model in models:
-    #     model = update_LCA_CF_parameters(model, 'new')
-
-    #     # Only do ReCiPe, hierarchist (H) perspective
-    #     model.set_parameters([i for i in model.parameters
-    #                           if not (f' {pers[0]} ' in i.name or
-    #                                   f' {pers[1]} ' in i.name or
-    #                                   'global warming' in i.name)])
-
-    #     model = update_metrics(model, 'new')
-
-    #     get_metric = lambda name: [i for i in model.metrics if i.name==name]
-    #     mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
-    #     # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
-    #     mRR += get_metric('Gas COD') # energy, only gas
-    #     mEnv = [i for i in model.metrics
-    #             if ('Net emission' in i.name and f'{lca_perspective}_' in i.name)]
-    #     mEnv.sort(key=lambda i: i.name_with_units)
-    #     mEcon = get_metric('Annual net cost')
-    #     model.metrics = mRR + mEnv + mEcon
-
-    #     samples = model.sample(N, rule)
-    #     model.load_samples(samples)
-
-    # copy_samples(modelA, modelB)
-    # copy_samples(modelA, modelC)
-    # copy_samples(modelB, modelC, exclude=modelA.parameters)
     models = get_model(N, seed, rule, lca_perspective)
     uncertainty_dct = {}
 
@@ -217,12 +180,6 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
         df = model.table
         param_col = [col for col in df.columns[0: len(model.parameters)]]
         uncertainty_dct[f'{model.system.ID}-param'] = model.table[param_col]
-
-        # # Legacy code to select results
-        # result_col = [col for col in df.columns
-        #            if 'recovery' in col[0].lower() and 'total' in col[1].lower()]
-        # result_col += [col for col in df.columns if 'net cost' in col[1].lower()]
-        # result_col += [col for col in df.columns if 'net emission' in col[1].lower()]
 
         model.evaluate()
         uncertainty_dct[f'{model.system.ID}-results'] = \
@@ -265,7 +222,7 @@ param_path = os.path.join(scores_path, 'parameters.xlsx')
 pickle_path = os.path.join(scores_path, 'model_data.pckl')
 uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
 
-# pickle_path = excel_path = '' # if don't want to save the results
+# param_path = pickle_path = excel_path = '' # if don't want to save the results
 uncertainty_dct = get_uncertainties(N=1000, seed=3221,
                                     param_path=param_path,
                                     pickle_path=pickle_path,
