@@ -3,18 +3,21 @@
 """
 Created on Sat Aug  7 08:28:41 2021
 
-@author: Yalin Li
+@author: Yalin Li <zoe.yalin.li@gmail.com>
+
+Run this module to make line graphs with X-axis being the different criteria,
+Y-axis being criterion weight, and line color representing the probability of
+an alternative having the highest score among all.
 """
 
 import os, pickle
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt, lines as mlines, pylab as pl
-from colorpalette import Color
-# from qsdsan.utils import palettes, Color
+from qsdsan.utils.colors import palettes, Color
 from dmsan.bwaise import results_path, figures_path
 
-# Guest = palettes['Guest']
+Guest = palettes['Guest']
 
 
 # %%
@@ -119,14 +122,6 @@ def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
 
     return fig, ax
 
-fig1A, ax1A = make_line_graph1(winner_df, 'Alternative A', include_legend=False)
-fig1B, ax1B = make_line_graph1(winner_df, 'Alternative B', include_legend=False)
-fig1C, ax1C = make_line_graph1(winner_df, 'Alternative C', include_legend=False)
-
-fig1A.savefig(os.path.join(figures_path, '1A.png'), dpi=100)
-fig1B.savefig(os.path.join(figures_path, '1B.png'), dpi=100)
-fig1C.savefig(os.path.join(figures_path, '1C.png'), dpi=100)
-
 
 # %%
 
@@ -153,14 +148,6 @@ def make_line_graph2A(winner_df, alt, cmap):
            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
 
     return fig, ax
-
-fig2A, ax2A = make_line_graph2A(winner_df, 'Alternative A', 'Reds')
-fig2B, ax2B = make_line_graph2A(winner_df, 'Alternative B', 'Greens')
-fig2C, ax2C = make_line_graph2A(winner_df, 'Alternative C', 'Blues')
-
-fig2A.savefig(os.path.join(figures_path, '2A.png'), dpi=100)
-fig2B.savefig(os.path.join(figures_path, '2B.png'), dpi=100)
-fig2C.savefig(os.path.join(figures_path, '2C.png'), dpi=100)
 
 
 # Only plot the winner
@@ -192,6 +179,31 @@ def make_line_graph2B(winner_df):
 
     return fig, ax
 
-fig2D, ax2D = make_line_graph2B(winner_df)
 
-fig2D.savefig(os.path.join(figures_path, '2D.png'), dpi=100)
+# %%
+
+# =============================================================================
+# Lazy codes to make figures
+# =============================================================================
+
+def make_line_graphs(save=True):
+    fig1A, ax1A = make_line_graph1(winner_df, 'Alternative A', include_legend=False)
+    fig1B, ax1B = make_line_graph1(winner_df, 'Alternative B', include_legend=False)
+    fig1C, ax1C = make_line_graph1(winner_df, 'Alternative C', include_legend=False)
+    fig2A, ax2A = make_line_graph2A(winner_df, 'Alternative A', 'Reds')
+    fig2B, ax2B = make_line_graph2A(winner_df, 'Alternative B', 'Greens')
+    fig2C, ax2C = make_line_graph2A(winner_df, 'Alternative C', 'Blues')
+    fig2D, ax2D = make_line_graph2B(winner_df)
+
+    if save:
+        fig1A.savefig(os.path.join(figures_path, '1A.png'), dpi=100)
+        fig1B.savefig(os.path.join(figures_path, '1B.png'), dpi=100)
+        fig1C.savefig(os.path.join(figures_path, '1C.png'), dpi=100)
+        fig2A.savefig(os.path.join(figures_path, '2A.png'), dpi=100)
+        fig2B.savefig(os.path.join(figures_path, '2B.png'), dpi=100)
+        fig2C.savefig(os.path.join(figures_path, '2C.png'), dpi=100)
+        fig2D.savefig(os.path.join(figures_path, '2D.png'), dpi=100)
+
+
+if __name__ == '__main__':
+    make_line_graphs()

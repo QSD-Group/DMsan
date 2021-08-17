@@ -94,8 +94,6 @@ def rebuild_models(path=''):
 
     return modelA, modelB, modelC
 
-# modelA, modelB, modelC = rebuild_models()
-
 
 # %%
 
@@ -161,7 +159,6 @@ def get_baseline(file_path=''):
     return df
 
 baseline_path = os.path.join(scores_path, 'sys_baseline.tsv')
-baseline_df = get_baseline(file_path=baseline_path)
 
 
 # %%
@@ -222,8 +219,20 @@ param_path = os.path.join(scores_path, 'parameters.xlsx')
 pickle_path = os.path.join(scores_path, 'model_data.pckl')
 uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
 
-# param_path = pickle_path = excel_path = '' # if don't want to save the results
-uncertainty_dct = get_uncertainties(N=1000, seed=3221,
-                                    param_path=param_path,
-                                    pickle_path=pickle_path,
-                                    result_path=uncertainty_path)
+
+# %%
+
+# =============================================================================
+# Lazye code to run all simulations
+# =============================================================================
+
+def run_simulations():
+    baseline_df = get_baseline(file_path=baseline_path)
+    uncertainty_dct = get_uncertainties(N=1000, seed=3221,
+                                        param_path=param_path,
+                                        pickle_path=pickle_path,
+                                        result_path=uncertainty_path)
+    return baseline_df, uncertainty_dct
+
+if __name__ == '__main__':
+    baseline_df, uncertainty_dct = run_simulations()

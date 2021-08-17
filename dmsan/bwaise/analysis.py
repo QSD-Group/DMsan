@@ -20,8 +20,7 @@ from qsdsan.utils import time_printer
 from dmsan import AHP, MCDA
 from dmsan.bwaise import scores_path, results_path
 
-
-# Util function
+# Utils
 tech_scores_path = os.path.join(scores_path, 'other_tech_scores.xlsx')
 score_file = pd.ExcelFile(tech_scores_path)
 read_baseline = lambda name: pd.read_excel(score_file, name).expected
@@ -117,7 +116,7 @@ def get_baseline_tech_scores(lca_perspective='H'):
 
     return tech_scores
 
-baseline_tech_scores = get_baseline_tech_scores()
+
 
 
 # For uncertainties of those simulated (only some certain parameters are affected)
@@ -199,17 +198,6 @@ alt_names = pd.read_excel(tech_scores_path, sheet_name='user_interface').system
 bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
                  na_default=0.00001, random_index={})
 
-# `bwaise_mcda.score` is `performance_score_FINAL` in the original script,
-# `bwaise_mcda.rank` is `ranking_FINAL` in the original script,
-# values checked to be the same as the original script
-# Note that the small discrepancies in scores are due to the rounding error
-# in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
-bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
-                   indicator_weights=bwaise_ahp.norm_weights_df,
-                   tech_scores=baseline_tech_scores)
-
-bwaise_mcda.run_MCDA()
-
 
 # %%
 
@@ -238,7 +226,7 @@ def get_AHP_weights(N):
 
     return AHP_dct
 
-AHP_dct = get_AHP_weights(N=sim_num)
+# AHP_dct = get_AHP_weights(N=sim_num)
 
 
 # TODO: This should be made into a function within `MCDA`
@@ -312,14 +300,6 @@ for i in ['T', 'RR', 'Env', 'Econ', 'S']:
     else:
         weight_df['Ratio'] += ratio
         weight_df['Description'] += ratio + criteria
-
-
-# Note that empty cells (with nan value) are failed simulations
-# (i.e., corresponding tech scores are empty)
-score_df_dct, rank_df_dct, winner_df = \
-    run_uncertainty_mcda(mcda=bwaise_mcda,
-                         criteria_weights=weight_df,
-                         tech_score_dct=tech_score_dct)
 
 
 # %%
@@ -455,14 +435,6 @@ def run_uncertainty_corr(df_dct, kind, print_time=True):
     return corr_dct
 
 
-kind = 'Spearman'
-score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
-rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-
-kind = 'KS'
-rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-
-
 # %%
 
 # =============================================================================
@@ -512,9 +484,6 @@ def export_to_excel(baseline=True, uncertainty=True, sensitivity='KS'):
 
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
-export_to_excel(baseline=True, uncertainty=False, sensitivity='Spearman')
-export_to_excel(baseline=False, uncertainty=False, sensitivity='KS')
-
 
 # Note that Python pickle files may be version-specific,
 # (e.g., if saved using Python 3.7, cannot open on Python 3.8)
@@ -548,5 +517,47 @@ def export_to_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
             save(score_corr_dct, file_path)
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
-export_to_pickle(baseline=True, uncertainty=True, sensitivity='Spearman')
-export_to_pickle(baseline=False, uncertainty=False, sensitivity='KS')
+
+# %%
+
+# =============================================================================
+# Lazye code to run all analyses
+# =============================================================================
+
+def run_analyses():
+    # `bwaise_mcda.score` is `performance_score_FINAL` in the original script,
+    # `bwaise_mcda.rank` is `ranking_FINAL` in the original script,
+    # values checked to be the same as the original script
+    # Note that the small discrepancies in scores are due to the rounding error
+    # in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
+    baseline_tech_scores = get_baseline_tech_scores()
+    bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
+                       indicator_weights=bwaise_ahp.norm_weights_df,
+                       tech_scores=baseline_tech_scores)
+
+    bwaise_mcda.run_MCDA()
+    AHP_dct = get_AHP_weights(N=sim_num)
+
+    # Note that empty cells (with nan value) are failed simulations
+    # (i.e., corresponding tech scores are empty)
+    score_df_dct, rank_df_dct, winner_df = \
+        run_uncertainty_mcda(mcda=bwaise_mcda,
+                             criteria_weights=weight_df,
+                             tech_score_dct=tech_score_dct)
+
+    kind = 'Spearman'
+    score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
+    rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+    export_to_excel(baseline=True, uncertainty=False, sensitivity='Spearman')
+    export_to_pickle(baseline=True, uncertainty=True, sensitivity='Spearman')
+
+    kind = 'KS'
+    rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+    export_to_excel(baseline=False, uncertainty=False, sensitivity='KS')
+    export_to_pickle(baseline=False, uncertainty=False, sensitivity='KS')
+    return baseline_tech_scores, bwaise_mcda, AHP_dct, score_df_dct, rank_df_dct, \
+        winner_df, score_corr_dct, rank_corr_dct
+
+if __name__ == '__main__':
+    baseline_tech_scores, bwaise_mcda, AHP_dct, score_df_dct, rank_df_dct, \
+        winner_df, score_corr_dct, rank_corr_dct = run_analyses()
