@@ -50,7 +50,7 @@ def test_param(save=True):
 
             idx = df[df.Parameters==str((p.element_name, p.name_with_units))].index
             df.loc[idx, ['RR', 'Env', 'Econ']] = \
-                ['Y' if abs(i)>=1e-6 else 'N' for i in diffs] # 'N' for np.nan
+                [True if abs(i)>=1e-6 else False for i in diffs] # 'N' for np.nan
 
     if save:
         names = [f'Alternative {i}' for i in ('A', 'B', 'C')]
