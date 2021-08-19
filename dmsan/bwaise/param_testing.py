@@ -9,6 +9,7 @@ Run this module to test whether an uncertainty parameter affects RR, Env, and Ec
 score.
 """
 
+import re
 import numpy as np
 import pandas as pd
 from qsdsan.utils.decorators import time_printer
@@ -17,6 +18,9 @@ from dmsan.bwaise.sys_simulation import param_path, rebuild_models
 models = modelA, modelB, modelC = rebuild_models()
 dfs = dfA, dfB, dfC = [pd.read_excel(param_path, sheet_name=f'Alternative {i}', index_col=0)
                        for i in ('A', 'B', 'C')]
+
+
+# %%
 
 # Note that this will overwrite the "parameters.xlsx" file,
 # so it's recommended to copy the RR, Env, and Econ columns to the
@@ -27,9 +31,26 @@ def test_param(save=True):
         for p in model.parameters:
             p.setter(p.baseline)
 
+    def format_dist(p):
+        splitted = re.split(r'\(|\)|,|=', str(p.distribution))
+        if splitted[0] in ('Uniform', 'Normal'):
+            return 'uniform', float(splitted[2]), '', float(splitted[4])
+        elif splitted[0] == 'Triangle':
+            return 'triangular', float(splitted[1]), float(splitted[2]), float(splitted[3])
+        else:
+            raise ValueError('Distribution not uniform, triangular, or normal.')
+
+    namesA = [p.name_with_units for p in modelA.parameters]
+    namesB = [p.name_with_units for p in modelB.parameters]
+    namesC = [p.name_with_units for p in modelC.parameters]
+
     for m, df in zip(models, dfs):
         m_baseline = m.metrics_at_baseline()
-        for p in m.parameters:
+        for n, p in enumerate(m.parameters):
+            alts = []
+            for names in (namesA, namesB, namesC):
+                alts.append(True if p.name_with_units in names else False)
+
             p_baseline = p.baseline
 
             # Min
@@ -50,7 +71,12 @@ def test_param(save=True):
 
             idx = df[df.Parameters==str((p.element_name, p.name_with_units))].index
             df.loc[idx, ['RR', 'Env', 'Econ']] = \
-                [True if abs(i)>=1e-6 else False for i in diffs] # 'N' for np.nan
+                [True if abs(i)>=1e-6 else False for i in diffs] # False for np.nan
+
+            df.loc[idx, ['Baseline']] = p_baseline
+            df.loc[idx, ['Distribution', 'Lower', 'Midpoint', 'Upper']] = \
+                format_dist(p)
+            df.loc[idx, ['Alternative A', 'Alternative B', 'Alternative C']] = alts
 
     if save:
         names = [f'Alternative {i}' for i in ('A', 'B', 'C')]

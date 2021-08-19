@@ -186,7 +186,10 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
         dfs = dict.fromkeys(('Alternative A', 'Alternative B', 'Alternative C'))
         for model in models:
             df = dfs[f'Alternative {model.system.ID[-1]}'] = pd.DataFrame()
-            df['Parameters'] = [i for i in model.table.columns[:len(model.parameters)].sort_values()]
+            parameters = [i for i in model.table.columns[:len(model.parameters)]]
+            parameters.sort(key=lambda i: i[0][-2:])
+            df['Parameters'] = parameters
+            # df['Parameters'] = [i for i in model.table.columns[:len(model.parameters)].sort_values()]
             df['DV'] = df['T'] = df['RR'] = df['Env'] = df['Econ'] = df['S'] = ''
 
         writer = pd.ExcelWriter(param_path)
