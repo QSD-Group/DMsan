@@ -34,9 +34,9 @@ def test_param(save=True):
     def format_dist(p):
         splitted = re.split(r'\(|\)|,|=', str(p.distribution))
         if splitted[0] in ('Uniform', 'Normal'):
-            return 'uniform', float(splitted[2]), '', float(splitted[4])
+            return splitted[0][0], float(splitted[2]), '', float(splitted[4])
         elif splitted[0] == 'Triangle':
-            return 'triangular', float(splitted[1]), float(splitted[2]), float(splitted[3])
+            return 'T', float(splitted[1]), float(splitted[2]), float(splitted[3])
         else:
             raise ValueError('Distribution not uniform, triangular, or normal.')
 

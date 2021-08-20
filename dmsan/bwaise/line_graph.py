@@ -187,6 +187,9 @@ def make_line_graph2B(winner_df):
 # =============================================================================
 
 def make_line_graphs(save=True):
+    global fig1A, ax1A, fig1B, ax1B, fig1C, ax1C, \
+        fig2A, ax2A, fig2B, ax2B, fig2C, ax2C, fig2D, ax2D
+
     fig1A, ax1A = make_line_graph1(winner_df, 'Alternative A', include_legend=False)
     fig1B, ax1B = make_line_graph1(winner_df, 'Alternative B', include_legend=False)
     fig1C, ax1C = make_line_graph1(winner_df, 'Alternative C', include_legend=False)

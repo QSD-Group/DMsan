@@ -189,7 +189,6 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
             parameters = [i for i in model.table.columns[:len(model.parameters)]]
             parameters.sort(key=lambda i: i[0][-2:])
             df['Parameters'] = parameters
-            # df['Parameters'] = [i for i in model.table.columns[:len(model.parameters)].sort_values()]
             df['DV'] = df['T'] = df['RR'] = df['Env'] = df['Econ'] = df['S'] = ''
 
         writer = pd.ExcelWriter(param_path)
@@ -230,12 +229,12 @@ uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
 # =============================================================================
 
 def run_simulations():
+    global baseline_df, uncertainty_dct
     baseline_df = get_baseline(file_path=baseline_path)
     uncertainty_dct = get_uncertainties(N=1000, seed=3221,
                                         param_path=param_path,
                                         pickle_path=pickle_path,
                                         result_path=uncertainty_path)
-    return baseline_df, uncertainty_dct
 
 if __name__ == '__main__':
-    baseline_df, uncertainty_dct = run_simulations()
+    run_simulations()

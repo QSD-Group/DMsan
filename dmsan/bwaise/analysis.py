@@ -171,10 +171,10 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
         # has uncertainties
         tech_scores['S1'] = 5 + paramB[('TEA', 'Unskilled staff num [-]')][i]
         # end_user_disposal, how many times the toilet needed to be emptied each year
-        tech_scores['S3'] = [*[paramA[('Pit latrine-A2', 'Pit latrine emptying period [years]')][i]]*2,
-                             365/paramC[('UDDT-C2', 'UDDT collection period [days]')][i]]
+        tech_scores['S3'] = [*[paramA[('Pit latrine-A2', 'Pit latrine emptying period [yr]')][i]]*2,
+                             365/paramC[('UDDT-C2', 'UDDT collection period [d]')][i]]
         # privacy, i.e., num of household per toilet
-        tech_scores['S5'] = paramA[('Excretion-A1', 'Toilet density [household/toilet]')][i]
+        tech_scores['S5'] = paramA[('Pit latrine-A2', 'Toilet density [household/toilet]')][i]
         tech_score_dct[i] = tech_scores
 
     return param_dct, tech_score_dct
@@ -232,7 +232,7 @@ def get_AHP_weights(N):
 # TODO: This should be made into a function within `MCDA`
 # TODO: remove extra index column
 @time_printer
-def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}, print_time=True):
+def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}):
     if criteria_weights is None:
         criteria_weights = mcda.criteria_weights
 
@@ -413,7 +413,7 @@ def run_correlation_test(input_x, input_y, kind,
 
 
 @time_printer
-def run_uncertainty_corr(df_dct, kind, print_time=True):
+def run_uncertainty_corr(df_dct, kind):
     corr_dct = {}
     # Alternatives cannot be consolidated as they have different parameters
     for i in ('A', 'B', 'C'):
@@ -421,14 +421,25 @@ def run_uncertainty_corr(df_dct, kind, print_time=True):
                           columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
                                                             names=('Weights', 'Stats')))
 
+        stats, p = None, None # name of the statistical test, 'p-value'
+        result_dfs = []
         for k, v in df_dct.items(): # each key is a weighing scenario
             temp_df = run_correlation_test(
                 input_x=param_dct[f'sys{i}'],
                 input_y=v[f'Alternative {i}'].to_frame(),
                 kind=kind)
-            stats, p = temp_df.columns[-2:]
-            corr_df[(k, stats[1])] = temp_df[stats]
-            corr_df[(k, p[1])] = temp_df[p]
+            if not stats:
+                stats, p = temp_df.columns[-2:]
+            result_dfs.append(temp_df.iloc[:, -2:])
+
+        df0 = pd.DataFrame(param_dct[f'sys{i}'].columns,
+                          columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
+                                                            names=('Weights', 'Stats')))
+        col1 = pd.MultiIndex.from_product([df_dct.keys(), [stats[1], p[1]]],
+                                          names=['Weights', 'Stats'])
+        df1 = pd.concat(result_dfs, axis=1)
+        df1.columns = col1
+        corr_df = pd.concat([df0, df1], axis=1)
 
         corr_dct[i] = corr_df
 
@@ -524,40 +535,45 @@ def export_to_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
 # Lazye code to run all analyses
 # =============================================================================
 
-def run_analyses():
+def run_analyses(export_to_excel=False):
     # `bwaise_mcda.score` is `performance_score_FINAL` in the original script,
     # `bwaise_mcda.rank` is `ranking_FINAL` in the original script,
     # values checked to be the same as the original script
     # Note that the small discrepancies in scores are due to the rounding error
     # in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
     baseline_tech_scores = get_baseline_tech_scores()
+
+    global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
                        indicator_weights=bwaise_ahp.norm_weights_df,
                        tech_scores=baseline_tech_scores)
-
     bwaise_mcda.run_MCDA()
+
+    global AHP_dct
     AHP_dct = get_AHP_weights(N=sim_num)
 
     # Note that empty cells (with nan value) are failed simulations
     # (i.e., corresponding tech scores are empty)
+    global score_df_dct, rank_df_dct, winner_df
     score_df_dct, rank_df_dct, winner_df = \
         run_uncertainty_mcda(mcda=bwaise_mcda,
                              criteria_weights=weight_df,
                              tech_score_dct=tech_score_dct)
 
     kind = 'Spearman'
+    global score_corr_dct, rank_corr_dct
     score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    export_to_excel(baseline=True, uncertainty=False, sensitivity='Spearman')
+    if export_to_excel: # too large, prefer not to do it
+        export_to_excel(baseline=True, uncertainty=False, sensitivity='Spearman')
     export_to_pickle(baseline=True, uncertainty=True, sensitivity='Spearman')
 
     kind = 'KS'
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    export_to_excel(baseline=False, uncertainty=False, sensitivity='KS')
+    if export_to_excel: # too large, prefer not to do it
+        export_to_excel(baseline=False, uncertainty=False, sensitivity='KS')
     export_to_pickle(baseline=False, uncertainty=False, sensitivity='KS')
-    return baseline_tech_scores, bwaise_mcda, AHP_dct, score_df_dct, rank_df_dct, \
-        winner_df, score_corr_dct, rank_corr_dct
+
 
 if __name__ == '__main__':
-    baseline_tech_scores, bwaise_mcda, AHP_dct, score_df_dct, rank_df_dct, \
-        winner_df, score_corr_dct, rank_corr_dct = run_analyses()
+    run_analyses(False)
