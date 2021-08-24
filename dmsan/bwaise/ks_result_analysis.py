@@ -9,11 +9,17 @@ import numpy as np
 import os
 from qsdsan.utils import time_printer
 from dmsan.bwaise import results_path
-# os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan/dmsan/bwaise/")
+os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan/dmsan/bwaise/")
 folder = os.path.join(results_path, 'sensitivity')
 path = "AHP_TOPSIS_KS_ranks.pckl"
 
 idx = pd.IndexSlice
+pars = pd.read_excel('scores/parameters_annotated_vlm.xlsx', sheet_name=None)
+def parse_tuple(st):
+    return tuple([i.strip('\(\'\)') for i in st.split(r', ')])
+
+for alt, df in pars.items():
+    df['Parameters'] = df.Parameters.apply(parse_tuple)
 
 def descriptive(ks_dct):
     out_1 = {}
@@ -25,12 +31,13 @@ def descriptive(ks_dct):
         _D_sig = (_D * (_p <= 0.05).astype('int')).replace(0, np.nan)
 
         out = pd.DataFrame()
-        out['parameter'] = df.loc[:, ('', 'Parameter')]
+        out['Parameters'] = df.loc[:, ('', 'Parameter')]
         out['percent_significant'] = _p.apply(lambda x: sum(x <= 0.05)/len(x)*100, axis=1)
         out['mean_signf_D'] = _D_sig.mean(axis=1, skipna=True)
         out['median_signf_D'] = _D_sig.median(axis=1, skipna=True)
         out['5th_pct'] = _D_sig.quantile(q=0.05, axis=1)
         out['95th_pct'] = _D_sig.quantile(q=0.95, axis=1)
+        out = pd.merge(out, pars[alt].loc[:, 'Parameters':'S'], on='Parameters')
         out_1[alt] = out
 
         _D_sig.index = df.loc[:, ('', 'Parameter')]
@@ -50,7 +57,7 @@ def export_to_excel(file_path, dct):
         for k, v in dct.items():
             v.to_excel(writer, sheet_name=k)
 
-@time_printer # Ha! This takes no take
+@time_printer # Ha! This takes no time
 def analyze(folder, path):
     ks = pd.read_pickle(os.path.join(folder, path))
     dct1, dct2 = descriptive(ks)
