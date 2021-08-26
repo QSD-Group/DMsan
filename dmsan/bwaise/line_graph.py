@@ -152,17 +152,19 @@ def make_line_graph2A(winner_df, alt, cmap):
 
 # Only plot the winner
 def make_line_graph2B(winner_df):
-    # % of times that the select alternative wins
-    tot = winner_df.shape[0]
+    # % of scenarios that the select alternative wins
+    tot = winner_df.shape[1]
     alts = ['A', 'B', 'C']
-    # alts = [f'Alternative {alt}' for alt in ('A', 'B', 'C')]
     percents = pd.concat([winner_df[winner_df==f'Alternative {i}'].count()/tot
                           for i in alts],
                          axis=1)
     percents.columns = alts
     separated = [getattr(percents[percents.max(axis=1)==getattr(percents, i)], i)
                  for i in alts]
-
+    counts = [i.size for i in separated]
+    for n, alt in enumerate(alts):
+        print(f'Alternative {alt} wins {counts[n]} of {tot} times.')
+    # print(f'Alternative {alts[i]} wins {}')
     # Extract the weighing information
     ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
     wts = [np.array([ration2float(i) for i in wt.index]) for wt in separated]
@@ -209,4 +211,4 @@ def make_line_graphs(save=True):
 
 
 if __name__ == '__main__':
-    make_line_graphs()
+    make_line_graphs(False)

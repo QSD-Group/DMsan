@@ -189,6 +189,10 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
             parameters = [i for i in model.table.columns[:len(model.parameters)]]
             parameters.sort(key=lambda i: i[0][-2:])
             df['Parameters'] = parameters
+<<<<<<< Updated upstream
+=======
+            # df['Parameters'] = [i for i in model.table.columns[:len(model.parameters)].sort_values()]
+>>>>>>> Stashed changes
             df['DV'] = df['T'] = df['RR'] = df['Env'] = df['Econ'] = df['S'] = ''
 
         writer = pd.ExcelWriter(param_path)
