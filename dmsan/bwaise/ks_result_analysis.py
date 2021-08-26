@@ -6,10 +6,11 @@
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import os
 from qsdsan.utils import time_printer
-from dmsan.bwaise import results_path
-os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan/dmsan/bwaise/")
+from dmsan.bwaise import results_path, figures_path
+# os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan/dmsan/bwaise/")
 folder = os.path.join(results_path, 'sensitivity')
 path = "AHP_TOPSIS_KS_ranks.pckl"
 
@@ -37,7 +38,10 @@ def descriptive(ks_dct):
         out['median_signf_D'] = _D_sig.median(axis=1, skipna=True)
         out['5th_pct'] = _D_sig.quantile(q=0.05, axis=1)
         out['95th_pct'] = _D_sig.quantile(q=0.95, axis=1)
+        out['left_err'] = out.mean_signf_D - out['5th_pct']
+        out['right_err'] = out['95th_pct'] - out.mean_signf_D
         out = pd.merge(out, pars[alt].loc[:, 'Parameters':'S'], on='Parameters')
+        out['No._of_criteria'] = out.loc[:, 'T':'S'].sum(axis=1)
         out_1[alt] = out
 
         _D_sig.index = df.loc[:, ('', 'Parameter')]
@@ -57,6 +61,42 @@ def export_to_excel(file_path, dct):
         for k, v in dct.items():
             v.to_excel(writer, sheet_name=k)
 
+def make_scatter(dct, path):
+    for alt, df in dct.items():        
+        fig, ax = plt.subplots(figsize=(8,6))
+        size1 = np.ma.masked_where(df.DV, df['No._of_criteria']*20+20)
+        size2 = np.ma.masked_where(1-df.DV, df['No._of_criteria']*20+20)
+        color = ['#90918E' if i == 0 else '#79BF82' if i == 1 else '#60c1cf' if i == 2 else '#A280B9' if i == 3 else '#ED586F' for i in df['No._of_criteria']]
+        ax.errorbar(x=df.percent_significant, 
+                    y=df.mean_signf_D, 
+                    yerr=[df.left_err, df.right_err],
+                    fmt='none', 
+                    elinewidth=0.5,
+                    capsize=1,
+                    ecolor='grey',
+                    alpha=0.8)
+        ax.scatter(x=df.percent_significant, 
+                   y=df.mean_signf_D, 
+                   s=size1, 
+                   # c=np.sqrt(df['No._of_criteria']),
+                   c=color,
+                   marker='x',
+                   alpha=1)
+        ax.scatter(x=df.percent_significant, 
+                   y=df.mean_signf_D, 
+                   s=size2, 
+                   # c=np.sqrt(df['No._of_criteria']),
+                   c=color,
+                   marker='^',
+                   alpha=1)    
+        ax.set(xlim=(0, 100), ylim=(0,1),
+               xlabel='Percent significant',
+               ylabel='mean D value of significant samples')
+        
+        name = f'scatter_{alt}.png'
+        fig.savefig(os.path.join(path, name), dpi=300)
+
+
 @time_printer # Ha! This takes no time
 def analyze(folder, path):
     ks = pd.read_pickle(os.path.join(folder, path))
@@ -65,6 +105,11 @@ def analyze(folder, path):
     path2 = os.path.join(folder, 'KS_weights_vs_topX.xlsx')
     export_to_excel(path1, dct1)
     export_to_excel(path2, dct2)
+    make_scatter(dct1, figures_path)
 
 if __name__ == '__main__':
     analyze(folder, path)
+
+
+
+
