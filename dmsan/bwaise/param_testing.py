@@ -32,17 +32,18 @@ def test_param(save=True):
             p.setter(p.baseline)
 
     def format_dist(p):
+        # regex = re.compile(r'(\w+)\(.*(\d*\.?\d*).*(\d*\.?\d*).*(\d*\.?\d*)\)')
+        # mo = regex.search(str(p.distribution))
+        # splitted = mo.groups()
+        # splitted = re.split(r'\(|\)|,|=', str(p.distribution))
+        # dist = list(splitted.pop(0))
+        # dist.extend([i for i in splitted if i.isnumeric()])
+
         splitted = re.split(r'\(|\)|,|=', str(p.distribution))
         if splitted[0] in ('Uniform', 'Normal'):
-<<<<<<< Updated upstream
             return splitted[0][0], float(splitted[2]), '', float(splitted[4])
         elif splitted[0] == 'Triangle':
-            return 'T', float(splitted[1]), float(splitted[2]), float(splitted[3])
-=======
-            return 'uniform', float(splitted[2]), '', float(splitted[4])
-        elif splitted[0] == 'Triangle':
-            return 'triangular', float(splitted[1]), float(splitted[2]), float(splitted[3])
->>>>>>> Stashed changes
+            return 'T', float(splitted[2]), float(splitted[4]), float(splitted[6])
         else:
             raise ValueError('Distribution not uniform, triangular, or normal.')
 
