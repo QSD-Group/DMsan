@@ -244,7 +244,7 @@ class AHP:
 
 
     def __repr__(self):
-        return f'<AHP for {self.location.location_name}>'
+        return f'<AHP: {self.location.location_name}>'
 
 
     def get_AHP_weights(self, return_results=False):

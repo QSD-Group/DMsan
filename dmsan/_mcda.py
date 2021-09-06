@@ -182,8 +182,7 @@ class MCDA:
         if save:
             if not os.path.isdir(results_path):
                 os.mkdir(results_path)
-            file_path = os.path.join(results_path, 'AHP_TOPSIS.xlsx') \
-                if not file_path else file_path
+            file_path = file_path if file_path else os.path.join(results_path, 'AHP_TOPSIS.xlsx')
             with pd.ExcelWriter(file_path) as writer:
                 winner_df.to_excel(writer, sheet_name='Winner')
                 score_df.to_excel(writer, sheet_name='Score')
@@ -193,6 +192,11 @@ class MCDA:
     def _run_ELECTRE(self, criteria_weights=None):
         '''NOT READY YET.'''
         raise ValueError('Method not ready yet.')
+
+
+    def __repr__(self):
+        alts = ', '.join(self.alt_names)
+        return f'<MCDA: {alts}>'
 
 
     def correlation_test(self, input_x, input_y, kind,
@@ -299,9 +303,9 @@ class MCDA:
 
 
     @time_printer
-    def run_MCDA_multi_weights(self, criteria_weights=None, tech_score_dct={}):
+    def run_MCDA_multi_scores(self, criteria_weights=None, tech_score_dct={}):
         '''
-        Run MCDA with multiple global weights.
+        Run MCDA with multiple sets of technology scores.
 
         Parameters
         ----------
