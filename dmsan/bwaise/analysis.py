@@ -206,7 +206,7 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
 # =============================================================================
 
 # Generate the same number of local weights as in system simulation,
-# three of the local weights in the social criterion hve uncertainties
+# three of the local weights in the social criterion have uncertainties
 @time_printer
 def get_AHP_weights(N):
     # Baseline for S4-S6 (cleaning preference, privacy, odor and flies)

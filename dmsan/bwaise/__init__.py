@@ -11,6 +11,7 @@ bwaise_path = os.path.dirname(__file__)
 scores_path = os.path.join(bwaise_path, 'scores')
 results_path = os.path.join(bwaise_path, 'results')
 figures_path = os.path.join(bwaise_path, 'figures')
+del os
 
 # from .sys_simulation import *
 # # from .analysis import *

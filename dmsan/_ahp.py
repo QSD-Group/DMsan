@@ -100,7 +100,7 @@ class AHP:
         # related to how much training is available to train users and personnel
         weights.append(100 - (get_val(location.training)/7*100))
 
-        # Local Weight Indicator T2: Population with access to imporved sanitation
+        # Local Weight Indicator T2: Population with access to improved sanitation
         # related to how available improved sanitation is in the region in case a system fails
         weights.append(100 - get_val(location.sanitation_availability, 'Value - Improved Sanitation'))
 
