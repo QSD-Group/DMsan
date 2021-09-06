@@ -50,3 +50,6 @@ class Location:
         # Social
         self.unemployment_rate = read_excel('UnemploymentTotal') # S1
         self.high_pay_jobs = read_excel('HighPayJobRate') # S2
+
+    def __repr__(self):
+        return f'<Location: {self.location_name}>'

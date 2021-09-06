@@ -23,8 +23,6 @@ from . import Location
 __all__ = ('AHP',)
 
 
-# %%
-
 class AHP:
     '''
     Determine the local weights of indicators in technical, resource recovery,
@@ -245,6 +243,10 @@ class AHP:
         weights.append(X)
 
 
+    def __repr__(self):
+        return f'<AHP for {self.location.location_name}>'
+
+
     def get_AHP_weights(self, return_results=False):
         '''Analytic hierarchy process (AHP) to determine indicators weights.'''
         RI = self.random_index
@@ -300,7 +302,7 @@ class AHP:
 
     @property
     def location(self):
-        '''[:class:`~.Location`].'''
+        '''[:class:`~.Location`] Selected location of interest.'''
         return self._location
 
     @property

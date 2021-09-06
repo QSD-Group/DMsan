@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Aug  7 08:28:41 2021
-
 @author: Yalin Li <zoe.yalin.li@gmail.com>
 
 Run this module to make line graphs with X-axis being the different criteria,
@@ -10,51 +8,17 @@ Y-axis being criterion weight, and line color representing the probability of
 an alternative having the highest score among all.
 """
 
-import os, pickle
+import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt, lines as mlines, pylab as pl
 from qsdsan.utils.colors import palettes, Color
-from dmsan.bwaise import results_path, figures_path
+from dmsan.bwaise import figures_path
+from dmsan.bwaise.uncertainty_sensitivity import import_from_pickle
 
 Guest = palettes['Guest']
 
-
-# %%
-
-# =============================================================================
-# Loading pickle files
-# =============================================================================
-
-def import_pickle(baseline=True, uncertainty=True, sensitivity='KS'):
-    def load(path):
-        f = open(path, 'rb')
-        obj = pickle.load(f)
-        f.close()
-        return obj
-
-    loaded = dict.fromkeys(('baseline', 'uncertainty', 'sensitivity'))
-
-    if baseline:
-        file_path = os.path.join(results_path, 'bwaise_mcda.pckl')
-        loaded['baseline'] = load(file_path)
-
-    if uncertainty:
-        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
-        loaded['uncertainty'] = load(file_path)
-
-    if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
-        loaded['sensitivity'] = [load(file_path)]
-
-        if sensitivity != 'KS':
-            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
-            loaded['sensitivity'].append(load(file_path))
-
-    return loaded
-
-loaded = import_pickle(baseline=True, uncertainty=True, sensitivity='KS')
-bwaise_mcda = loaded['baseline']
+loaded = import_from_pickle(uncertainty=True, sensitivity='KS')
 score_df_dct, rank_df_dct, winner_df = loaded['uncertainty']
 rank_corr_dct = loaded['sensitivity']
 
@@ -185,7 +149,7 @@ def make_line_graph2B(winner_df):
 # %%
 
 # =============================================================================
-# Lazy codes to make figures
+# Make figures
 # =============================================================================
 
 def make_line_graphs(save=True):

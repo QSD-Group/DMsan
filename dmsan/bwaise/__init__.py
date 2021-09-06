@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun 10 15:19:24 2021
-
-@author: Yalin Li
+@author: Yalin Li <zoe.yalin.li@gmail.com>
 """
 
 import os
@@ -13,20 +11,8 @@ results_path = os.path.join(bwaise_path, 'results')
 figures_path = os.path.join(bwaise_path, 'figures')
 del os
 
-# from .sys_simulation import *
-# # from .analysis import *
-# # from .line_graph import *
-
-# from . import (
-#     sys_simulation,
-#     analysis,
-#     line_graph,
-#     )
-
-# __all__ = (
-#     'bwaise_path',
-#     'scores_path',
-#     'results_path',
-#     'figures_path',
-#     *sys_simulation.__all__,
-#     )
+from . import (
+    sys_simulation,
+    uncertainty_sensitivity,
+    # scenario #!!! add this in once it's done
+    )

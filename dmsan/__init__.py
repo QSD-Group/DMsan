@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun 10 15:19:24 2021
-
-@author: Yalin Li
+@author: Yalin Li <zoe.yalin.li@gmail.com>
 """
 
 import os

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jun  6 13:31:44 2021
-
 @author: Yalin Li <zoe.yalin.li@gmail.com>
 
 Run this module to save the results to the /data folder to avoid repeating
@@ -16,6 +14,10 @@ import pandas as pd
 from qsdsan.utils.decorators import time_printer
 from exposan import bwaise as bw
 from dmsan.bwaise import scores_path
+
+# Comment these out if want to see all warnings
+import warnings
+warnings.filterwarnings(action='ignore')
 
 __all__ = ('rebuild_models', 'get_baseline', 'get_uncertainties')
 
@@ -225,7 +227,7 @@ uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
 # %%
 
 # =============================================================================
-# Lazye code to run all simulations
+# Run all simulations
 # =============================================================================
 
 def run_simulations():

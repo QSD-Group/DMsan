@@ -6,11 +6,6 @@
     Hannah Lohman <hlohman94@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
-
-This model is developed to assist sanitation system research, development, and
-deployment. Users of the model need to manually input where exclamation points
-(!) are located in the comments (i.e. location, number of alternatives, etc.,
-end-user and/or management preference socres, etc.).
 """
 
 # %%
@@ -18,7 +13,8 @@ end-user and/or management preference socres, etc.).
 import os
 import numpy as np
 import pandas as pd
-from scipy.stats import rankdata
+from scipy import stats
+from qsdsan.utils import time_printer
 from . import data_path, results_path
 
 __all__ = ('MCDA',)
@@ -42,8 +38,16 @@ class MCDA:
         to ideal solution) or ELECTRE (ELimination Et Choice Translating REality).
     indicator_weights : :class:`pandas.DataFrame`
         Calculated weights for indicators in the considered criteria.
+    indicator_type : :class:`pandas.DataFrame`
+        Columns should be the code of the indicators as used in :class:`DMsan.,
+        values should by either "1" (beneficial) or "0" (non-beneficial).
+        For beneficial indicators, the higher the technology score is, the better;
+        and vice versa for non-beneficial factors.
     tech_scores : :class:`pandas.DataFrame`
         Calculated scores for the alternative systems with regard to each indicator.
+    criteria_weights : :class:`pandas.DataFrame`
+        Weight scenarios for the different criteria,
+        will use default scenarios if not provided.
 
     Examples
     --------
@@ -51,17 +55,20 @@ class MCDA:
 
     '''
     def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
-                 criteria_weights=None, *,
-                 indicator_weights, tech_scores):
+                 *, indicator_weights, tech_scores, indicator_type=None,
+                 criteria_weights=None):
         path = file_path if file_path else os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
         file = pd.ExcelFile(path)
         read_excel = lambda name: pd.read_excel(file, name) # name is sheet name
 
         self.alt_names = alt_names
-        self.criteria_weights = criteria_weights if criteria_weights else read_excel('weight_scenarios')
-        self.indicator_type = read_excel('indicator_type')
         self.indicator_weights = indicator_weights
+        self._default_definitions = defs = read_excel('definitions')
+        self.indicator_type = pd.DataFrame({
+                defs.variable[i]: defs.category_binary[i] for i in defs.index
+                }, index=[0])
         self.tech_scores = tech_scores
+        self.criteria_weights = criteria_weights if criteria_weights else read_excel('weight_scenarios')
         self.method = method
         self._perform_socres = self._ranks = self._winners = None
 
@@ -152,7 +159,7 @@ class MCDA:
 
             # Calculate performance score
             score = d_worst / (d_best+d_worst)
-            rank = (num_alt+1) - rankdata(score).astype(int)
+            rank = (num_alt+1) - stats.rankdata(score).astype(int)
             winner = columns.loc[np.where(rank==1)]
             scores.append(score)
             ranks.append(rank)
@@ -186,6 +193,158 @@ class MCDA:
     def _run_ELECTRE(self, criteria_weights=None):
         '''NOT READY YET.'''
         raise ValueError('Method not ready yet.')
+
+
+    def correlation_test(self, input_x, input_y, kind,
+                         nan_policy='omit', file_path='', **kwargs):
+        '''
+        Get correlation coefficients between two inputs using `scipy`.
+
+        Parameters
+        ----------
+        input_x : :class:`pandas.DataFrame`
+            The first set of input (typically uncertainty parameters).
+        input_y : :class:`pandas.DataFrame`
+            The second set of input (typicall scores or ranks).
+        kind : str
+            The type of test to run, can be "Spearman" for Spearman's rho,
+            "Pearson" for Pearson's r, "Kendall" for Kendall's tau,
+            or "KS" for Kolmogorov–Smirnov's D.
+
+            .. note::
+                If running KS test, then input_y should be the ranks (i.e., not scores),
+                the x inputs will be divided into two groups - ones that results in
+                a given alternative to be ranked first vs. the rest.
+
+        nan_policy : str
+            - "propagate": returns nan.
+            - "raise": raise an error.
+            - "omit": drop the pair from analysis.
+
+            .. note::
+                This will be ignored for when `kind` is "Pearson" or "Kendall"
+                (not supported by `scipy`).
+
+        file_path : str
+            If provided, the results will be saved as a csv file to the given path.
+        kwargs : dict
+            Other keyword arguments that will be passed to ``scipy``.
+
+        Returns
+        -------
+        Two :class:`pandas.DataFrame` containing the test statistics and p-values.
+
+        See Also
+        --------
+        :func:`scipy.stats.spearmanr`
+
+        :func:`scipy.stats.pearsonr`
+
+        :func:`scipy.stats.kendalltau`
+
+        :func:`scipy.stats.kstest`
+        '''
+        df = pd.DataFrame(input_x.columns,
+                          columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
+                                                            names=('Y', 'Stats')))
+
+        name = kind.lower()
+        if name == 'spearman':
+            func = stats.spearmanr
+            stats_name = 'rho'
+            kwargs['nan_policy'] = nan_policy
+        elif name == 'pearson':
+            func = stats.pearsonr
+            stats_name = 'r'
+        elif name == 'kendall':
+            func = stats.kendalltau
+            stats_name = 'tau'
+            kwargs['nan_policy'] = nan_policy
+        elif name == 'ks':
+            if not int(input_y.iloc[0, 0])==input_y.iloc[0, 0]:
+                raise ValueError('For KS test, `input_y` should be the ranks, not scores.')
+
+            func = stats.kstest
+            stats_name = 'D'
+
+            alternative = kwargs.get('alternative') or 'two_sided'
+            mode = kwargs.get('mode') or 'auto'
+        else:
+            raise ValueError('kind can only be "Spearman", "Pearson", '
+                            f'or "Kendall", not "{kind}".')
+
+        for col_y in input_y.columns:
+            if name == 'ks':
+                y = input_y[col_y]
+                i_win, i_lose = input_x.loc[y==1], input_x.loc[y!=1]
+
+                if len(i_win) == 0 or len(i_lose) == 0:
+                    df[(col_y, stats_name)] = df[(col_y, 'p-value')] = None
+                    continue
+
+                else:
+                    data = np.array([func(i_win.loc[:, col_x], i_lose.loc[:, col_x],
+                                      alternative=alternative, mode=mode, **kwargs) \
+                                     for col_x in input_x.columns])
+            else:
+                data = np.array([func(input_x[col_x], input_y[col_y], **kwargs)
+                                 for col_x in input_x.columns])
+
+            df[(col_y, stats_name)] = data[:, 0]
+            df[(col_y, 'p-value')] = data[:, 1]
+
+        if file_path:
+            df.to_csv(file_path, sep='\t')
+        return df
+
+
+    @time_printer
+    def run_MCDA_multi_weights(self, criteria_weights=None, tech_score_dct={}):
+        '''
+        Run MCDA with multiple global weights.
+
+        Parameters
+        ----------
+        criteria_weights : :class:`pandas.DataFrame`
+            Weight scenarios for the different criteria,
+            will use default scenarios if not provided.
+        tech_score_dct : dict
+            Dict containing the technology scores for all criteria.
+
+        Returns
+        -------
+        score_df_dct : dict
+            Dict containing the performance scores, keys are the
+            normalized global weights.
+        rank_df_dct : dict
+            Dict containing the rank of performance scores, keys are the
+            normalized global weights.
+        winner_df : :class:`pandas.DataFrame`
+            MCDA winners. Columns are the global weights, rows are indices for
+            the different simulations.
+        '''
+        if criteria_weights is None:
+            criteria_weights = self.criteria_weights
+
+        score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
+        for n, w in criteria_weights.iterrows():
+            scores, ranks, winners = [], [], []
+
+            for k, v in tech_score_dct.items():
+                self.tech_scores = v
+                self.run_MCDA(criteria_weights=w)
+                scores.append(self.perform_scores)
+                ranks.append(self.ranks)
+                winners.append(self.winners.Winner.values.item())
+
+            name = w.Ratio
+            score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
+            rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
+            winner_df_dct[name] = winners
+
+        winner_df = pd.DataFrame.from_dict(winner_df_dct)
+
+        return score_df_dct, rank_df_dct, winner_df
 
 
     @property

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 17 07:46:08 2021
-
 @author: Yalin Li <zoe.yalin.li@gmail.com>
 
 Run this module to test whether an uncertainty parameter affects RR, Env, and Econ
