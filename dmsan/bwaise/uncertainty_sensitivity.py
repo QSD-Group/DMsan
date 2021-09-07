@@ -134,7 +134,7 @@ varied_inds = [*[f'RR{i}' for i in range(2, 6)],
                'Econ1'] # user net cost
 
 
-def get_uncertainty_data(lca_perspective='H', baseline_scores=None):
+def get_uncertainty_data(lca_perspective='H', baseline_scores=None,):
     check_lca(lca_perspective)
 
     if not baseline_scores:
@@ -366,11 +366,22 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
 # and cannot be opened outside of Python,
 # but takes much less time to load/save than Excel files
 # https://stackoverflow.com/questions/9619199/best-way-to-preserve-numpy-arrays-on-disk
-def export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='KS'):
+def export_to_pickle(param=True, tech_score=True, ahp=True, mcda=True,
+                     uncertainty=True, sensitivity='KS'):
     def save(obj, path):
         f = open(path, 'wb')
         pickle.dump(obj, f)
         f.close()
+
+    if param:
+        file_path = os.path.join(results_path, 'param.pckl')
+        save(param_dct, file_path)
+        print(f'\nDict of parameter values exported to "{file_path}".')
+
+    if tech_score:
+        file_path = os.path.join(results_path, 'tech_score.pckl')
+        save(tech_score_dct, file_path)
+        print(f'\nDict of technology scores exported to "{file_path}".')
 
     if ahp:
         file_path = os.path.join(results_path, 'ahp.pckl')

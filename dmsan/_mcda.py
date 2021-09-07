@@ -199,6 +199,56 @@ class MCDA:
         return f'<MCDA: {alts}>'
 
 
+    @time_printer
+    def run_MCDA_multi_scores(self, criteria_weights=None, tech_score_dct={}):
+        '''
+        Run MCDA with multiple sets of technology scores.
+
+        Parameters
+        ----------
+        criteria_weights : :class:`pandas.DataFrame`
+            Weight scenarios for the different criteria,
+            will use default scenarios if not provided.
+        tech_score_dct : dict
+            Dict containing the technology scores for all criteria.
+
+        Returns
+        -------
+        score_df_dct : dict
+            Dict containing the performance scores, keys are the
+            normalized global weights.
+        rank_df_dct : dict
+            Dict containing the rank of performance scores, keys are the
+            normalized global weights.
+        winner_df : :class:`pandas.DataFrame`
+            MCDA winners. Columns are the global weights, rows are indices for
+            the different simulations.
+        '''
+        if criteria_weights is None:
+            criteria_weights = self.criteria_weights
+
+        score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
+        for n, w in criteria_weights.iterrows():
+            print(n)
+            scores, ranks, winners = [], [], []
+
+            for k, v in tech_score_dct.items():
+                self.tech_scores = v
+                self.run_MCDA(criteria_weights=w)
+                scores.append(self.perform_scores)
+                ranks.append(self.ranks)
+                winners.append(self.winners.Winner.values.item())
+
+            name = w.Ratio
+            score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
+            rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
+            winner_df_dct[name] = winners
+
+        winner_df = pd.DataFrame.from_dict(winner_df_dct)
+
+        return score_df_dct, rank_df_dct, winner_df
+
+
     def correlation_test(self, input_x, input_y, kind,
                          nan_policy='omit', file_path='', **kwargs):
         '''
@@ -300,55 +350,6 @@ class MCDA:
         if file_path:
             df.to_csv(file_path, sep='\t')
         return df
-
-
-    @time_printer
-    def run_MCDA_multi_scores(self, criteria_weights=None, tech_score_dct={}):
-        '''
-        Run MCDA with multiple sets of technology scores.
-
-        Parameters
-        ----------
-        criteria_weights : :class:`pandas.DataFrame`
-            Weight scenarios for the different criteria,
-            will use default scenarios if not provided.
-        tech_score_dct : dict
-            Dict containing the technology scores for all criteria.
-
-        Returns
-        -------
-        score_df_dct : dict
-            Dict containing the performance scores, keys are the
-            normalized global weights.
-        rank_df_dct : dict
-            Dict containing the rank of performance scores, keys are the
-            normalized global weights.
-        winner_df : :class:`pandas.DataFrame`
-            MCDA winners. Columns are the global weights, rows are indices for
-            the different simulations.
-        '''
-        if criteria_weights is None:
-            criteria_weights = self.criteria_weights
-
-        score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
-        for n, w in criteria_weights.iterrows():
-            scores, ranks, winners = [], [], []
-
-            for k, v in tech_score_dct.items():
-                self.tech_scores = v
-                self.run_MCDA(criteria_weights=w)
-                scores.append(self.perform_scores)
-                ranks.append(self.ranks)
-                winners.append(self.winners.Winner.values.item())
-
-            name = w.Ratio
-            score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
-            rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
-            winner_df_dct[name] = winners
-
-        winner_df = pd.DataFrame.from_dict(winner_df_dct)
-
-        return score_df_dct, rank_df_dct, winner_df
 
 
     @property
