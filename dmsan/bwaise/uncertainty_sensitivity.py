@@ -382,6 +382,7 @@ def export_to_pickle(param=True, tech_score=True, ahp=True, mcda=True,
         print(f'\nAHP object exported to "{file_path}".')
 
     if mcda:
+        bwaise_mcda.tech_scores = baseline_tech_scores
         file_path = os.path.join(results_path, 'mcda.pckl')
         save_pickle(bwaise_mcda, file_path)
         print(f'\nMCDA object exported to "{file_path}".')
@@ -415,6 +416,7 @@ def run_analyses(save_excel=False):
     # values checked to be the same as the original script
     # Note that the small discrepancies in scores are due to the rounding error
     # in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
+    global baseline_tech_scores
     baseline_tech_scores = get_baseline_tech_scores()
 
     # Set the local weight of indicators that all three systems score the same
@@ -464,6 +466,7 @@ def run_analyses(save_excel=False):
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
     if save_excel: # too large, prefer not to do it
         export_to_excel(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
+
     export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 
 
