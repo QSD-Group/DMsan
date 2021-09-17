@@ -23,11 +23,11 @@ Part of this module is based on the BioSTEAM and QSD packages:
     - https://github.com/QSD-group/QSDsan
 """
 
-import os, pickle
+import os
 import numpy as np
 import pandas as pd
 from scipy import stats
-from qsdsan.utils import time_printer
+from qsdsan.utils import time_printer, save_pickle
 from dmsan import AHP, MCDA
 from dmsan.bwaise import scores_path, results_path
 
@@ -180,7 +180,7 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None,):
         # has uncertainties
         tech_scores['S1'] = 5 + paramB[('TEA', 'Unskilled staff num [-]')][i]
         # end_user_disposal, how many times the toilet needed to be emptied each year
-        tech_scores['S3'] = [*[paramA[('Pit latrine-A2', 'Pit latrine emptying period [yr]')][i]]*2,
+        tech_scores['S3'] = [*[1/paramA[('Pit latrine-A2', 'Pit latrine emptying period [yr]')][i]]*2,
                              365/paramC[('UDDT-C2', 'UDDT collection period [d]')][i]]
         # privacy, i.e., num of household per toilet
         tech_scores['S5'] = paramA[('Pit latrine-A2', 'Toilet density [household/toilet]')][i]
@@ -359,8 +359,6 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
 
-#!!! Update the functions here using the util functions in qsdsan
-# when the new version is released
 # Note that Python pickle files may be version-specific,
 # (e.g., if saved using Python 3.7, cannot open on Python 3.8)
 # and cannot be opened outside of Python,
@@ -368,45 +366,40 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
 # https://stackoverflow.com/questions/9619199/best-way-to-preserve-numpy-arrays-on-disk
 def export_to_pickle(param=True, tech_score=True, ahp=True, mcda=True,
                      uncertainty=True, sensitivity='KS'):
-    def save(obj, path):
-        f = open(path, 'wb')
-        pickle.dump(obj, f)
-        f.close()
-
     if param:
         file_path = os.path.join(results_path, 'param.pckl')
-        save(param_dct, file_path)
+        save_pickle(param_dct, file_path)
         print(f'\nDict of parameter values exported to "{file_path}".')
 
     if tech_score:
         file_path = os.path.join(results_path, 'tech_score.pckl')
-        save(tech_score_dct, file_path)
+        save_pickle(tech_score_dct, file_path)
         print(f'\nDict of technology scores exported to "{file_path}".')
 
     if ahp:
         file_path = os.path.join(results_path, 'ahp.pckl')
-        save(bwaise_ahp, file_path)
+        save_pickle(bwaise_ahp, file_path)
         print(f'\nAHP object exported to "{file_path}".')
 
     if mcda:
         file_path = os.path.join(results_path, 'mcda.pckl')
-        save(bwaise_mcda, file_path)
+        save_pickle(bwaise_mcda, file_path)
         print(f'\nMCDA object exported to "{file_path}".')
 
     if uncertainty:
         obj = (score_df_dct, rank_df_dct, winner_df)
         file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
-        save(obj, file_path)
+        save_pickle(obj, file_path)
         print(f'\nUncertainty MCDA results exported to "{file_path}".')
 
     if sensitivity:
         file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
-        save(rank_corr_dct, file_path)
+        save_pickle(rank_corr_dct, file_path)
         print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
 
         if sensitivity != 'KS':
             file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.pckl')
-            save(score_corr_dct, file_path)
+            save_pickle(score_corr_dct, file_path)
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
 

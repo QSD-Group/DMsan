@@ -8,10 +8,10 @@ simulating the system.
 """
 
 
-import os, pickle
+import os
 import numpy as np
 import pandas as pd
-from qsdsan.utils.decorators import time_printer
+from qsdsan.utils import time_printer, load_pickle, save_pickle
 from exposan import bwaise as bw
 from dmsan.bwaise import scores_path
 
@@ -86,9 +86,7 @@ def get_model(N, seed=None, rule='L', lca_perspective='H'):
 
 def rebuild_models(path=''):
     path = path if path else os.path.join(scores_path, 'model_data.pckl')
-    f = open(path, 'rb')
-    data = pickle.load(f)
-    f.close()
+    data = load_pickle(path)
 
     modelA, modelB, modelC = get_model(*data['inputs'])
     modelA._samples, modelB._samples, modelC._samples = data['samples']
@@ -206,9 +204,7 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
             'samples': [i._samples for i in models],
             'tables': [i.table for i in models]
             }
-        f = open(pickle_path, 'wb')
-        pickle.dump(data, f)
-        f.close()
+        save_pickle(data, pickle_path)
 
     if result_path:
         writer = pd.ExcelWriter(result_path)

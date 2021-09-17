@@ -224,9 +224,9 @@ class AHP:
         # !!! Input community preference
         # Local Weight Indicator S7: Security preference
         # related to the preference of security with
-        # 0 being low preference for secutiy to 100 being high preference for odor
+        # 0 being low preference for secutiy to 100 being high preference for secutiy
         # ## Specific to Bwaise example: community did not mention disposal as affecting their acceptability ##
-        weights.append(X)
+        weights.append(24)
 
         # Sub-criteria: Management Acceptability, S8 & S9
         # !!! Input management (i.e., landlord) preference

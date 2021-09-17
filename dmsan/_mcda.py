@@ -229,7 +229,6 @@ class MCDA:
 
         score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
         for n, w in criteria_weights.iterrows():
-            print(n)
             scores, ranks, winners = [], [], []
 
             for k, v in tech_score_dct.items():

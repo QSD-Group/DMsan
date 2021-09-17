@@ -31,8 +31,9 @@ def test_param(save=True):
 
     def format_dist(p):
         splitted = re.split(r'\(|\)|,|=', str(p.distribution))
+        splitted = [i.lstrip() for i in splitted]
         dist = [splitted[0]]
-        dist.extend([i for i in splitted if i.isnumeric()])
+        dist.extend([i for i in splitted if (i.isnumeric() or '.' in i)])
         if dist[0] in ('Uniform', 'Normal'):
             return dist[0][0], float(dist[1]), '', float(dist[2])
         elif dist[0] == 'Triangle':

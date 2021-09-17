@@ -13,8 +13,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt, lines as mlines, pylab as pl
 from qsdsan.utils.colors import palettes, Color
-from dmsan.bwaise import figures_path
-from dmsan.bwaise.uncertainty_sensitivity import import_from_pickle
+from dmsan.bwaise import figures_path, import_from_pickle
 
 Guest = palettes['Guest']
 
@@ -68,7 +67,7 @@ def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
         if wt.size == 0:
             continue
 
-        # Transpose the shape into that needed for plotting
+        # Transpose the shape into that needed for plotting, the shape is
         # (# of the weighing aspects (e.g., technical vs. economic), # of over/under the criterion),
         # when used in plotting the line graph, each row will be the y-axis value of the line
         # (x-axis value represents the N criteria)

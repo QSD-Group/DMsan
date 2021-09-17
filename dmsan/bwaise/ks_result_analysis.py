@@ -16,7 +16,8 @@ folder = os.path.join(results_path, 'sensitivity')
 path = "AHP_TOPSIS_KS_ranks.pckl"
 
 idx = pd.IndexSlice
-param_path = os.path.join(scores_path, 'parameters_annotated_vlm.xlsx')
+# the '_vlm' version is now the main one
+param_path = os.path.join(scores_path, 'parameters_annotated.xlsx')
 pars = pd.read_excel(param_path, sheet_name=None)
 def parse_tuple(st):
     return tuple([i.strip('\(\'\)') for i in st.split(r', ')])
