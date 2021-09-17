@@ -314,6 +314,7 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
         print(f'\nAHP local weights exported to "{file_path}".')
 
     if mcda:
+        bwaise_mcda.tech_scores = baseline_tech_scores
         file_path = os.path.join(results_path, 'MCDA_baseline.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
