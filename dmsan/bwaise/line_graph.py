@@ -174,4 +174,4 @@ def make_line_graphs(save=True):
 
 
 if __name__ == '__main__':
-    make_line_graphs(False)
+    make_line_graphs(True)
