@@ -13,6 +13,7 @@ import os
 import numpy as np, pandas as pd, seaborn as sns
 from matplotlib import pyplot as plt
 from qsdsan.utils import time_printer
+from dmsan import AHP
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 
 loaded = import_from_pickle(param=False, tech_score=True, ahp=True, mcda=True,
@@ -28,23 +29,61 @@ bwaise_mcda.criteria_weights = pd.read_excel(file_path)
 # Save a copy
 baseline_tech_scores =  bwaise_mcda.tech_scores.copy()
 
+def update_local_weights(tech_scores):
+    ahp = AHP(location_name='Uganda', num_alt=bwaise_ahp.num_alt,
+              na_default=0.00001, random_index={})
+
+    # Set the local weight of indicators that all three systems score the same
+    # to zero (to prevent diluting the scores)
+    eq_ind = tech_scores.min()==tech_scores.max()
+    eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind==True].index]
+
+    for i in eq_inds:
+        # Need subtract in `int(i[1])-1` because of 0-indexing
+        ahp.init_weights[i[0]][int(i[1])-1] = ahp.na_default
+
+    ahp.get_AHP_weights(True)
+
+    return ahp.norm_weights_df
 
 # %%
 
 # =============================================================================
 # Different scenairos
 # =============================================================================
+max_score_dct = {
+    'T1': 5,
+    'T2': 3,
+    'T3': 5,
+    'T4': 7,
+    'T6': 5,
+    'T7': 2,
+    'T8': 3,
+    'T9': 3, 
+    'RR1': 1,
+    'RR2': 1,
+    'RR3': 1, 
+    'RR4': 1,
+    'RR5': 1,
+    'RR6': 4,
+    'Env1': None,
+    'Env2': None,
+    'Env3': None,
+    'Econ1': 0,
+    'S1': 20,
+    'S2': 12,
+    'S3': 0,
+    'S4': 5,
+    'S5': 5,
+    'S6': 0
+    }
 
-def test_oat(mcda, alt, indicators=None, method='best'):
+def test_oat(mcda, alt, indicators=None, max_score={}):
     '''
     One-at-a-time test on if changing the tech score of one indicator would
     affect the overall winner.
     No uncertainties from system simulation are considered.
-
-    If `method`=='best', then update the indicator score to be the best score;
-    if `method` is a number, then the score will be changed to (1-method)
-    for non-beneficial indicators or (1+method) for beneficial indicators.
-    '''
+     '''
 
     weight_num = mcda.criteria_weights.shape[0]
     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
@@ -69,20 +108,23 @@ def test_oat(mcda, alt, indicators=None, method='best'):
             print(f'{alt} already winning indicator {ind}.')
 
         if ind_type == 0: # non-beneficial
-            if method == 'best':
-                updated = series.min()
+            if max_score.get(ind) is not None:
+                updated = max_score[ind]
             else:
-                updated = baseline * (1-method)
+                updated = series.min()
 
         else: # beneficial
-            if method == 'best':
-                updated = series.max()
+            if max_score.get(ind) is not None:
+                updated = max_score[ind]
             else:
-                updated = baseline * (1+method)
+                updated = series.max()
 
         mcda.tech_scores.loc[idx, ind] = updated
         updated_rank = series.rank(ascending=bool(not ind_type)).loc[idx]
 
+        # Update local weights
+        mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+        
         # Run MCDA with multiple global weights
         mcda.run_MCDA()
         win_chance = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
@@ -200,10 +242,10 @@ if __name__ == '__main__':
     # ax1 = plot_across_axis(Cwin_across_cost_uncertainty, include_simulation_uncertainties=True)
     # ax1.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost_with_band.png'), dpi=100)
 
-    test_dct_best = test_oat(bwaise_mcda, alt='Alternative C', method='best')
+    test_dct_best = test_oat(bwaise_mcda, alt='Alternative C', max_score=max_score_dct)
     ax = plot_oat(test_dct_best)
     ax.figure.savefig(os.path.join(figures_path, 'test_best.png'), dpi=100)
 
-    test_dct_100 = test_oat(bwaise_mcda, alt='Alternative C', method=1)
-    ax = plot_oat(test_dct_100)
-    ax.figure.savefig(os.path.join(figures_path, 'test_100.png'), dpi=100)
+    # test_dct_100 = test_oat(bwaise_mcda, alt='Alternative C', method=1)
+    # ax = plot_oat(test_dct_100)
+    # ax.figure.savefig(os.path.join(figures_path, 'test_100.png'), dpi=100)
