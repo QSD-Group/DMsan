@@ -28,6 +28,7 @@ bwaise_mcda.criteria_weights = pd.read_excel(file_path)
 
 # Save a copy
 baseline_tech_scores =  bwaise_mcda.tech_scores.copy()
+baseline_local_weights = bwaise_ahp.norm_weights_df.copy()
 
 def update_local_weights(tech_scores):
     ahp = AHP(location_name='Uganda', num_alt=bwaise_ahp.num_alt,
@@ -51,7 +52,11 @@ def update_local_weights(tech_scores):
 # =============================================================================
 # Different scenairos
 # =============================================================================
-max_score_dct = {
+
+# Best scores, if None, will be chosen between the best
+# (min for non-beneficial indicators and max for beneficial ones)
+# among the three systems
+best_score_dct = {
     'T1': 5,
     'T2': 3,
     'T3': 5,
@@ -59,10 +64,10 @@ max_score_dct = {
     'T6': 5,
     'T7': 2,
     'T8': 3,
-    'T9': 3, 
+    'T9': 3,
     'RR1': 1,
     'RR2': 1,
-    'RR3': 1, 
+    'RR3': 1,
     'RR4': 1,
     'RR5': 1,
     'RR6': 4,
@@ -78,12 +83,14 @@ max_score_dct = {
     'S6': 0
     }
 
-def test_oat(mcda, alt, indicators=None, max_score={}):
+def test_oat(mcda, alt, indicators=None, best_score={}):
     '''
     One-at-a-time test on if changing the tech score of one indicator would
     affect the overall winner.
     No uncertainties from system simulation are considered.
-     '''
+
+    If `all_at_once` is True, will change all the indicators at one time
+    '''
 
     weight_num = mcda.criteria_weights.shape[0]
     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
@@ -108,14 +115,14 @@ def test_oat(mcda, alt, indicators=None, max_score={}):
             print(f'{alt} already winning indicator {ind}.')
 
         if ind_type == 0: # non-beneficial
-            if max_score.get(ind) is not None:
-                updated = max_score[ind]
+            if best_score.get(ind) is not None:
+                updated = best_score[ind]
             else:
                 updated = series.min()
 
         else: # beneficial
-            if max_score.get(ind) is not None:
-                updated = max_score[ind]
+            if best_score.get(ind) is not None:
+                updated = best_score[ind]
             else:
                 updated = series.max()
 
@@ -124,7 +131,7 @@ def test_oat(mcda, alt, indicators=None, max_score={}):
 
         # Update local weights
         mcda.indicator_weights = update_local_weights(mcda.tech_scores)
-        
+
         # Run MCDA with multiple global weights
         mcda.run_MCDA()
         win_chance = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
@@ -136,8 +143,19 @@ def test_oat(mcda, alt, indicators=None, max_score={}):
         data['rank after updating'] = updated_rank
         data['winning chance'] = win_chance
 
+    # Get the winning chance for all best scores at the same time
+    for ind, data in test_dct.items():
+        updated = data['updated']
+        mcda.tech_scores.loc[idx, ind] = updated
+
+    mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+    mcda.run_MCDA()
+    test_dct['all at once'] = {'winning chance':
+                               mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num}
+
     # Get the winning chance at baseline values
     mcda.tech_scores = baseline_tech_scores.copy()
+    mcda.indicator_weights = baseline_local_weights.copy()
     mcda.run_MCDA()
     test_dct['baseline'] = {'winning chance':
                             mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num}
@@ -150,9 +168,12 @@ def plot_oat(test_dct):
     get_rounded = lambda val: round(val, 2) if len(str(val).split('.')[-1]) >= 2 else val
 
     for ind, data in test_dct.items():
-        if not ind == 'baseline':
+        if not ind in ('baseline', 'all at once'):
             labels.append(f'{ind}: {get_rounded(data["baseline"])}->{get_rounded(data["updated"])}')
             winning.append(data['winning chance'])
+
+    labels.append('all at once')
+    winning.append(test_dct['all at once']['winning chance'])
 
     fig, ax = plt.subplots(figsize=(6, 8))
     y = np.arange(len(labels))
@@ -242,10 +263,6 @@ if __name__ == '__main__':
     # ax1 = plot_across_axis(Cwin_across_cost_uncertainty, include_simulation_uncertainties=True)
     # ax1.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost_with_band.png'), dpi=100)
 
-    test_dct_best = test_oat(bwaise_mcda, alt='Alternative C', max_score=max_score_dct)
+    test_dct_best = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
     ax = plot_oat(test_dct_best)
     ax.figure.savefig(os.path.join(figures_path, 'test_best.png'), dpi=100)
-
-    # test_dct_100 = test_oat(bwaise_mcda, alt='Alternative C', method=1)
-    # ax = plot_oat(test_dct_100)
-    # ax.figure.savefig(os.path.join(figures_path, 'test_100.png'), dpi=100)
