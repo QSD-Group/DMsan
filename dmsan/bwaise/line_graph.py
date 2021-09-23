@@ -46,7 +46,7 @@ def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
 
     # Extract the weighing information
-    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
 
@@ -56,11 +56,11 @@ def make_line_graph1(winner_df, alt, cutoffs=[0.25, 0.5, 0.75, 1],
         lower = 0. if idx == 0 else cutoffs[idx-1]
         upper = cutoffs[idx]
         if upper == 1:
-            wt = np.array([ration2float(i)
+            wt = np.array([ratio2float(i)
                             for i in percent[(lower<=percent)&(percent<=upper)].index])
             right = ']'
         else:
-            wt = np.array([ration2float(i)
+            wt = np.array([ratio2float(i)
                             for i in percent[(lower<=percent)&(percent<upper)].index])
             right = ')'
 
@@ -96,8 +96,8 @@ def make_line_graph2A(winner_df, alt, cmap):
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
 
     # Extract the weighing information
-    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
-    wt = np.array([ration2float(i) for i in percent.index])
+    ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wt = np.array([ratio2float(i) for i in percent.index])
     fig, ax = plt.subplots(figsize=(8, 4.5))
 
     cm = getattr(pl.cm, cmap)
@@ -129,8 +129,8 @@ def make_line_graph2B(winner_df):
         print(f'Alternative {alt} wins {counts[n]} of {tot} times.')
     # print(f'Alternative {alts[i]} wins {}')
     # Extract the weighing information
-    ration2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
-    wts = [np.array([ration2float(i) for i in wt.index]) for wt in separated]
+    ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wts = [np.array([ratio2float(i) for i in wt.index]) for wt in separated]
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
     for wt, cmap in zip(wts, ('Reds', 'Greens', 'Blues')):

@@ -12,6 +12,7 @@ the performance score of each system and thus the final winner.
 import os
 import numpy as np, pandas as pd
 from matplotlib import pyplot as plt
+from qsdsan.utils import time_printer
 from dmsan import AHP
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 
@@ -53,7 +54,8 @@ def update_local_weights(tech_scores):
 # Different scenairos
 # =============================================================================
 
-# Best scores, if None, will be chosen between the best
+# Best scores that the alternative can achieve,
+# if None (meaning no absolute scale), will be chosen between the best
 # (min for non-beneficial indicators and max for beneficial ones)
 # among the three systems
 best_score_dct = {
@@ -83,7 +85,8 @@ best_score_dct = {
     'S6': 0
     }
 
-def test_oat(mcda, alt, indicators=None, best_score={}):
+
+def test_oat(mcda, alt, best_score={}):
     '''
     One-at-a-time test on if changing the tech score of one indicator would
     affect the overall winner.
@@ -91,28 +94,19 @@ def test_oat(mcda, alt, indicators=None, best_score={}):
 
     If `all_at_once` is True, will change all the indicators at one time
     '''
-
     weight_num = mcda.criteria_weights.shape[0]
     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
-    if indicators is None:
-        indicators = mcda.indicator_type.columns
-    else:
-        try:
-            iter(indicators)
-        except TypeError:
-            indicators = (indicators,)
-
-    oat_dct = {ind: {} for ind in indicators}
+    oat_dct = {ind: {} for ind in best_score.keys()}
     for ind, data in oat_dct.items():
         # Reset technology scores and refresh results
         mcda.tech_scores = baseline_tech_scores.copy()
         series = mcda.tech_scores.loc[:, ind]
         baseline = series.loc[idx]
         ind_type = int(mcda.indicator_type[ind])
-        baseline_rank = series.rank(ascending=bool(not ind_type)).loc[idx]
-        if baseline_rank < 2:
-            print(f'{alt} already winning indicator {ind}.')
+        baseline_rank = series.rank(ascending=bool(not ind_type), method='min').loc[idx]
+        # if baseline_rank == 1:
+        #     print(ind, baseline_rank)
 
         if ind_type == 0: # non-beneficial
             if best_score.get(ind) is not None:
@@ -127,21 +121,25 @@ def test_oat(mcda, alt, indicators=None, best_score={}):
                 updated = series.max()
 
         mcda.tech_scores.loc[idx, ind] = updated
-        updated_rank = series.rank(ascending=bool(not ind_type)).loc[idx]
+        updated_rank = mcda.tech_scores.loc[:, ind].rank(ascending=bool(not ind_type),
+                                                         method='min').loc[idx]
+        if updated_rank != 1:
+            # breakpoint()
+            print(ind, '\n', mcda.tech_scores.loc[:, ind])
 
         # Update local weights
         mcda.indicator_weights = update_local_weights(mcda.tech_scores)
 
         # Run MCDA with multiple global weights
         mcda.run_MCDA()
-        win_chance = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
+        winning_chance = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
         data['indicator type']: ind_type
         data['baseline'] = baseline
         data['rank at baseline'] = baseline_rank
         data['updated'] = updated
         data['rank after updating'] = updated_rank
-        data['winning chance'] = win_chance
+        data['winning chance'] = winning_chance
 
     # # Get the winning chance for all best scores at the same time
     # for ind, data in test_dct.items():
@@ -192,6 +190,7 @@ def plot_oat(oat_dct, save=True):
 
 
 def test_acc(mcda, alt, oat_dct):
+    '''Test the accumulative effects of the one-at-a-time best (at baseline).'''
     acc_dct = {}
     baseline_winning = oat_dct['baseline']['winning chance']
     for ind, data_dct in oat_dct.items():
@@ -226,19 +225,78 @@ def test_acc(mcda, alt, oat_dct):
 def plot_acc(acc_dct, save=True):
     fig, ax = plt.subplots(figsize=(6, 8))
     labels = [f'+{i}' for i in acc_dct.keys()]
+    values = list(acc_dct.values())
+    if '+baseline' in labels:
+        idx = labels.index('+baseline')
+        labels.insert(0, labels.pop(idx))
+        values.insert(0, values.pop(idx))
+
     labels[0] = labels[0].lstrip('+')
 
     x = np.arange(len(labels))
-    ax.plot(x, acc_dct.values(), '-o')
+    ax.plot(x, values, '-o')
 
     ax.set(xticks=x, xticklabels=labels, xlabel='Changed indicator (accumulated)',
            ylabel='Winning chance')
 
     for label in ax.get_xticklabels():
         label.set_rotation(30)
+
     if save:
         fig.savefig(os.path.join(figures_path, 'test_acc.png'), dpi=100)
 
+    return ax
+
+
+# %%
+
+@time_printer
+def find_frontier(mcda, alt, oat_dct):
+    '''Find the optimal frontier for improving the indicator scores.'''
+    weight_num = mcda.criteria_weights.shape[0]
+    idx = mcda.alt_names[mcda.alt_names==alt].index[0]
+
+    winning_chances = [data['winning chance'] for data in oat_dct.values()]
+    frontier_dct = {ind: data['winning chance']
+                   for ind, data in oat_dct.items()
+                   if data['winning chance']==max(winning_chances)}
+    ind, winning_chance = list(frontier_dct.keys())[0], list(frontier_dct.values())[0]
+    updated_scores = baseline_tech_scores.copy()
+    updated_scores.loc[idx, ind] = winning_chance
+
+    copied = oat_dct.copy()
+    copied.pop(ind)['winning chance']
+    frontier_dct['baseline'] = copied.pop('baseline')['winning chance']
+
+    # End looping if already has reached 100% winning
+    # or tried all indicators
+    while (winning_chance<1 and len(copied)!=0):
+        winning_dct = {}
+        for ind, data in copied.items():
+            mcda.tech_scores = updated_scores.copy()
+            mcda.tech_scores.loc[idx, ind] = data['updated']
+
+            # Update local weights
+            mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+
+            # Run MCDA with multiple global weights
+            mcda.run_MCDA()
+            winning_dct[ind] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
+
+        # Find the indicator change with the highest winning chance
+        best_chance = max(winning_dct.values())
+        best_ind = list(winning_dct.keys())[list(winning_dct.values()).index(best_chance)]
+        updated_scores.loc[idx, best_ind] = oat_dct[best_ind]['updated']
+        winning_chance = frontier_dct[best_ind] = best_chance
+        copied.pop(best_ind)
+
+    return frontier_dct
+
+
+def plot_frontier(frontier_dct, save=True):
+    ax = plot_acc(frontier_dct, save=False)
+    if save:
+        ax.figure.savefig(os.path.join(figures_path, 'optimal_frontier.png'), dpi=100)
     return ax
 
 
@@ -251,6 +309,9 @@ if __name__ == '__main__':
     acc_dct = test_acc(bwaise_mcda, alt='Alternative C', oat_dct=oat_dct)
     ax = plot_acc(acc_dct, save=True)
 
+    frontier_dct = find_frontier(bwaise_mcda, alt='Alternative C', oat_dct=oat_dct)
+    ax = plot_frontier(frontier_dct, save=True)
+
 
 
 # %%
@@ -260,7 +321,6 @@ if __name__ == '__main__':
 # =============================================================================
 
 # import seaborn as sns
-# from qsdsan.utils import time_printer
 
 # @time_printer
 # def test_across_axis(mcda, alt, indicator, include_simulation_uncertainties=False,
