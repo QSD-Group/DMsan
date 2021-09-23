@@ -11,6 +11,7 @@ the performance score of each system and thus the final winner.
 
 import os
 import numpy as np, pandas as pd
+from warnings import warn
 from matplotlib import pyplot as plt
 from qsdsan.utils import time_printer
 from dmsan import AHP
@@ -72,7 +73,7 @@ best_score_dct = {
     'RR3': 1,
     'RR4': 1,
     'RR5': 1,
-    'RR6': 4,
+    'RR6': 1,
     'Env1': None,
     'Env2': None,
     'Env3': None,
@@ -81,8 +82,9 @@ best_score_dct = {
     'S2': 12,
     'S3': 0,
     'S4': 5,
-    'S5': 5,
-    'S6': 0
+    'S5': 1,
+    'S6': 5,
+    'S7': 0.1,
     }
 
 
@@ -105,8 +107,6 @@ def test_oat(mcda, alt, best_score={}):
         baseline = series.loc[idx]
         ind_type = int(mcda.indicator_type[ind])
         baseline_rank = series.rank(ascending=bool(not ind_type), method='min').loc[idx]
-        # if baseline_rank == 1:
-        #     print(ind, baseline_rank)
 
         if ind_type == 0: # non-beneficial
             if best_score.get(ind) is not None:
@@ -124,8 +124,10 @@ def test_oat(mcda, alt, best_score={}):
         updated_rank = mcda.tech_scores.loc[:, ind].rank(ascending=bool(not ind_type),
                                                          method='min').loc[idx]
         if updated_rank != 1:
-            # breakpoint()
-            print(ind, '\n', mcda.tech_scores.loc[:, ind])
+            warn(f'The rank of indicator {ind} is {updated_rank} '
+                 'with the provided best score.\n'
+                 f'Scores for {ind} are:')
+            print(mcda.tech_scores.loc[:, ind])
 
         # Update local weights
         mcda.indicator_weights = update_local_weights(mcda.tech_scores)
@@ -141,16 +143,6 @@ def test_oat(mcda, alt, best_score={}):
         data['rank after updating'] = updated_rank
         data['winning chance'] = winning_chance
 
-    # # Get the winning chance for all best scores at the same time
-    # for ind, data in test_dct.items():
-    #     updated = data['updated']
-    #     mcda.tech_scores.loc[idx, ind] = updated
-
-    # mcda.indicator_weights = update_local_weights(mcda.tech_scores)
-    # mcda.run_MCDA()
-    # test_dct['all at once'] = {'winning chance':
-    #                            mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num}
-
     # Get the winning chance at baseline values
     mcda.tech_scores = baseline_tech_scores.copy()
     mcda.indicator_weights = baseline_local_weights.copy()
@@ -161,7 +153,7 @@ def test_oat(mcda, alt, best_score={}):
     return oat_dct
 
 
-def plot_oat(oat_dct, save=True):
+def plot_oat(oat_dct, file_path=''):
     labels, winning = ['baseline'], [oat_dct['baseline']['winning chance']]
     get_rounded = lambda val: round(val, 2) if len(str(val).split('.')[-1]) >= 2 else val
 
@@ -170,9 +162,6 @@ def plot_oat(oat_dct, save=True):
         # if not ind in ('baseline', 'all at once'):
             labels.append(f'{ind}: {get_rounded(data["baseline"])}->{get_rounded(data["updated"])}')
             winning.append(data['winning chance'])
-
-    # labels.append('all at once')
-    # winning.append(test_dct['all at once']['winning chance'])
 
     fig, ax = plt.subplots(figsize=(6, 8))
     y = np.arange(len(labels))
@@ -183,8 +172,9 @@ def plot_oat(oat_dct, save=True):
 
     fig.subplots_adjust(left=0.5)
 
-    if save:
-        fig.savefig(os.path.join(figures_path, 'test_oat.png'), dpi=100)
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(figures_path, 'baseline_oat.png')
 
     return ax
 
@@ -222,7 +212,7 @@ def test_acc(mcda, alt, oat_dct):
     return acc_dct
 
 
-def plot_acc(acc_dct, save=True):
+def plot_acc(acc_dct, file_path=None):
     fig, ax = plt.subplots(figsize=(6, 8))
     labels = [f'+{i}' for i in acc_dct.keys()]
     values = list(acc_dct.values())
@@ -242,8 +232,10 @@ def plot_acc(acc_dct, save=True):
     for label in ax.get_xticklabels():
         label.set_rotation(30)
 
-    if save:
-        fig.savefig(os.path.join(figures_path, 'test_acc.png'), dpi=100)
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(figures_path, 'baseline_acc.png')
+        fig.savefig(file_path, dpi=100)
 
     return ax
 
@@ -251,7 +243,7 @@ def plot_acc(acc_dct, save=True):
 # %%
 
 @time_printer
-def find_frontier(mcda, alt, oat_dct):
+def find_frontier(mcda, alt, oat_dct, file_path=''):
     '''Find the optimal frontier for improving the indicator scores.'''
     weight_num = mcda.criteria_weights.shape[0]
     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
@@ -270,6 +262,9 @@ def find_frontier(mcda, alt, oat_dct):
 
     # End looping if already has reached 100% winning
     # or tried all indicators
+    n = 2
+    oat_df = pd.DataFrame(index=[i for i in oat_dct.keys() if i!='baseline'])
+    oat_df[1] = winning_chances[:-1]
     while (winning_chance<1 and len(copied)!=0):
         winning_dct = {}
         for ind, data in copied.items():
@@ -283,6 +278,10 @@ def find_frontier(mcda, alt, oat_dct):
             mcda.run_MCDA()
             winning_dct[ind] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
+        series = pd.Series(data=winning_dct.values(), index=winning_dct.keys())
+        oat_df[n] = series
+        n += 1
+
         # Find the indicator change with the highest winning chance
         best_chance = max(winning_dct.values())
         best_ind = list(winning_dct.keys())[list(winning_dct.values()).index(best_chance)]
@@ -290,13 +289,20 @@ def find_frontier(mcda, alt, oat_dct):
         winning_chance = frontier_dct[best_ind] = best_chance
         copied.pop(best_ind)
 
-    return frontier_dct
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(results_path, 'scenario/optimal_frontier.xlsx')
+        oat_df.to_excel(file_path)
+
+    return frontier_dct, oat_df
 
 
-def plot_frontier(frontier_dct, save=True):
-    ax = plot_acc(frontier_dct, save=False)
-    if save:
-        ax.figure.savefig(os.path.join(figures_path, 'optimal_frontier.png'), dpi=100)
+def plot_frontier(frontier_dct, file_path=''):
+    ax = plot_acc(frontier_dct, file_path=None)
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(figures_path, 'optimal_frontier.png')
+        ax.figure.savefig(file_path, dpi=100)
     return ax
 
 
@@ -304,13 +310,14 @@ def plot_frontier(frontier_dct, save=True):
 
 if __name__ == '__main__':
     oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
-    ax = plot_oat(oat_dct, save=True)
+    ax = plot_oat(oat_dct, file_path='')
 
     acc_dct = test_acc(bwaise_mcda, alt='Alternative C', oat_dct=oat_dct)
-    ax = plot_acc(acc_dct, save=True)
+    ax = plot_acc(acc_dct, file_path='')
 
-    frontier_dct = find_frontier(bwaise_mcda, alt='Alternative C', oat_dct=oat_dct)
-    ax = plot_frontier(frontier_dct, save=True)
+    frontier_dct, oat_df = find_frontier(bwaise_mcda, alt='Alternative C',
+                                         oat_dct=oat_dct, file_path='')
+    ax = plot_frontier(frontier_dct, file_path='')
 
 
 
