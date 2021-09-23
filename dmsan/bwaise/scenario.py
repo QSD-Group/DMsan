@@ -184,7 +184,7 @@ def plot_oat(oat_dct, save=True):
     fig.subplots_adjust(left=0.5)
 
     if save:
-        fig.savefig(os.path.join(figures_path, 'test_best.png'), dpi=100)
+        fig.savefig(os.path.join(figures_path, 'test_oat.png'), dpi=100)
 
     return ax
 
