@@ -164,13 +164,13 @@ def make_line_graphs(save=True):
     fig2D, ax2D = make_line_graph2B(winner_df)
 
     if save:
-        fig1A.savefig(os.path.join(figures_path, '1A.png'), dpi=100)
-        fig1B.savefig(os.path.join(figures_path, '1B.png'), dpi=100)
-        fig1C.savefig(os.path.join(figures_path, '1C.png'), dpi=100)
-        fig2A.savefig(os.path.join(figures_path, '2A.png'), dpi=100)
-        fig2B.savefig(os.path.join(figures_path, '2B.png'), dpi=100)
-        fig2C.savefig(os.path.join(figures_path, '2C.png'), dpi=100)
-        fig2D.savefig(os.path.join(figures_path, '2D.png'), dpi=100)
+        fig1A.savefig(os.path.join(figures_path, '1A.png'), dpi=300)
+        fig1B.savefig(os.path.join(figures_path, '1B.png'), dpi=300)
+        fig1C.savefig(os.path.join(figures_path, '1C.png'), dpi=300)
+        fig2A.savefig(os.path.join(figures_path, '2A.png'), dpi=300)
+        fig2B.savefig(os.path.join(figures_path, '2B.png'), dpi=300)
+        fig2C.savefig(os.path.join(figures_path, '2C.png'), dpi=300)
+        fig2D.savefig(os.path.join(figures_path, '2D.png'), dpi=300)
 
 
 if __name__ == '__main__':
