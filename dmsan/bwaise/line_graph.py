@@ -120,10 +120,10 @@ def make_line_graph2B(winner_df):
     alts = ['A', 'B', 'C']
     percents = pd.concat([winner_df[winner_df==f'Alternative {i}'].count()/tot
                           for i in alts],
-                         axis=1)
+                          axis=1)
     percents.columns = alts
     separated = [getattr(percents[percents.max(axis=1)==getattr(percents, i)], i)
-                 for i in alts]
+                  for i in alts]
     counts = [i.size for i in separated]
     for n, alt in enumerate(alts):
         print(f'Alternative {alt} wins {counts[n]} of {tot} times.')
@@ -138,11 +138,45 @@ def make_line_graph2B(winner_df):
                 linewidth=0.5)
 
     ax.set(title='Overall winner',
-           xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
-           xticks=(0, 1, 2, 3, 4),
-           xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+            xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+            xticks=(0, 1, 2, 3, 4),
+            xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
 
     return fig, ax
+
+
+def make_line_graph3(winner_df):
+    # % of scenarios that the select alternative wins
+    tot = winner_df.shape[1]
+    alts = ['A', 'B', 'C']
+    percents = pd.concat([winner_df[winner_df==f'Alternative {i}'].count()/tot
+                          for i in alts],
+                         axis=1)
+    percents.columns = alts
+    separated = [getattr(percents[percents.max(axis=1)==getattr(percents, i)], i)
+                 for i in alts]
+    counts = [i.size for i in separated]
+    for n, alt in enumerate(alts):
+        print(f'Alternative {alt} wins {counts[n]} of {tot} times.')
+    # print(f'Alternative {alts[i]} wins {}')
+    # Extract the weighing information
+    ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
+    wts = [np.array([ratio2float(i) for i in wt.index]) for wt in separated]
+
+    figs = []
+    axes = []
+    for wt, cmap in zip(wts, ('Reds', 'Greens', 'Blues')):
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
+                linewidth=0.5)
+        ax.set(title='Overall winner',
+               xlim=(0, 4), ylim=(0, 1), ylabel='Criteria Weights',
+               xticks=(0, 1, 2, 3, 4),
+               xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+        figs.append(fig)
+        axes.append(ax)
+        
+    return figs, axes
 
 
 # %%
@@ -153,25 +187,29 @@ def make_line_graph2B(winner_df):
 
 def make_line_graphs(save=True):
     global fig1A, ax1A, fig1B, ax1B, fig1C, ax1C, \
-        fig2A, ax2A, fig2B, ax2B, fig2C, ax2C, fig2D, ax2D
+        fig2A, ax2A, fig2B, ax2B, fig2C, ax2C, fig2D, ax2D, figs, axes
 
-    fig1A, ax1A = make_line_graph1(winner_df, 'Alternative A', include_legend=False)
-    fig1B, ax1B = make_line_graph1(winner_df, 'Alternative B', include_legend=False)
-    fig1C, ax1C = make_line_graph1(winner_df, 'Alternative C', include_legend=False)
-    fig2A, ax2A = make_line_graph2A(winner_df, 'Alternative A', 'Reds')
-    fig2B, ax2B = make_line_graph2A(winner_df, 'Alternative B', 'Greens')
-    fig2C, ax2C = make_line_graph2A(winner_df, 'Alternative C', 'Blues')
-    fig2D, ax2D = make_line_graph2B(winner_df)
+    # fig1A, ax1A = make_line_graph1(winner_df, 'Alternative A', include_legend=False)
+    # fig1B, ax1B = make_line_graph1(winner_df, 'Alternative B', include_legend=False)
+    # fig1C, ax1C = make_line_graph1(winner_df, 'Alternative C', include_legend=False)
+    # fig2A, ax2A = make_line_graph2A(winner_df, 'Alternative A', 'Reds')
+    # fig2B, ax2B = make_line_graph2A(winner_df, 'Alternative B', 'Greens')
+    # fig2C, ax2C = make_line_graph2A(winner_df, 'Alternative C', 'Blues')
+    # fig2D, ax2D = make_line_graph2B(winner_df)
+    figs, axes = make_line_graph3(winner_df)
+    fig3A, fig3B, fig3C = figs
 
     if save:
-        fig1A.savefig(os.path.join(figures_path, '1A.png'), dpi=300)
-        fig1B.savefig(os.path.join(figures_path, '1B.png'), dpi=300)
-        fig1C.savefig(os.path.join(figures_path, '1C.png'), dpi=300)
-        fig2A.savefig(os.path.join(figures_path, '2A.png'), dpi=300)
-        fig2B.savefig(os.path.join(figures_path, '2B.png'), dpi=300)
-        fig2C.savefig(os.path.join(figures_path, '2C.png'), dpi=300)
-        fig2D.savefig(os.path.join(figures_path, '2D.png'), dpi=300)
-
+        # fig1A.savefig(os.path.join(figures_path, '1A.png'), dpi=300)
+        # fig1B.savefig(os.path.join(figures_path, '1B.png'), dpi=300)
+        # fig1C.savefig(os.path.join(figures_path, '1C.png'), dpi=300)
+        # fig2A.savefig(os.path.join(figures_path, '2A.png'), dpi=300)
+        # fig2B.savefig(os.path.join(figures_path, '2B.png'), dpi=300)
+        # fig2C.savefig(os.path.join(figures_path, '2C.png'), dpi=300)
+        # fig2D.savefig(os.path.join(figures_path, '2D.png'), dpi=300)
+        fig3A.savefig(os.path.join(figures_path, '3A.png'), dpi=300)
+        fig3B.savefig(os.path.join(figures_path, '3B.png'), dpi=300)
+        fig3C.savefig(os.path.join(figures_path, '3C.png'), dpi=300)
 
 if __name__ == '__main__':
     make_line_graphs(True)
