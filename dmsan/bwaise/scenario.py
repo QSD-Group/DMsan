@@ -175,6 +175,7 @@ def plot_oat(oat_dct, file_path=''):
     if file_path is not None:
         file_path = file_path if file_path != '' \
             else os.path.join(figures_path, 'baseline_oat.png')
+        fig.savefig(file_path, dpi=100)
 
     return ax
 
