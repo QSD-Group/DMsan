@@ -30,16 +30,20 @@ def test_param(save=True):
             p.setter(p.baseline)
 
     def format_dist(p):
-        splitted = re.split(r'\(|\)|,|=', str(p.distribution))
+        p_string = str(p.distribution)
+        splitted = re.split(r'\(|\)|,|=', p_string)
         splitted = [i.lstrip() for i in splitted]
         dist = [splitted[0]]
         dist.extend([i for i in splitted if (i.isnumeric() or '.' in i)])
-        if dist[0] in ('Uniform', 'Normal'):
+        if dist[0] == 'Uniform':
             return dist[0][0], float(dist[1]), '', float(dist[2])
         elif dist[0] == 'Triangle':
             return 'T', float(dist[1]), float(dist[2]), float(dist[3])
+        elif dist[0] in ('Trunc', 'Normal'):
+            return 'N', float(p.distribution.lower), \
+                float(splitted[splitted.index('mu')+1]), float(p.distribution.upper)
         else:
-            raise ValueError('Distribution not uniform, triangular, or normal.')
+            raise ValueError(f'Distribution is {p_string}, not recognized.')
 
     namesA = [p.name_with_units for p in modelA.parameters]
     namesB = [p.name_with_units for p in modelB.parameters]
