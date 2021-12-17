@@ -23,4 +23,4 @@ To reproduce/regenerate the results, follow these steps:
 #. Run `uncertainty_sensitivity.py`, this will generate the uncertainty and sensitivity results by MCDA via AHP weighing and the TOPSIS method (saved in ``results``).
 #. Run `ks_results_analysis.py`, this will analyze and illustrate results from the KS sensitivity analysis (saved in ``figures``).
 #. Run `line_graph.py`, this will generate the line graphs (saved in ``figures``).
-#. Run `scenario.py`, this will generate the graphs showing the increased winning chance with certian improvements (saved in ``figures``).
+#. Run `improvements.py`, this will generate the graphs showing the increased winning chance with certain improvements (saved in ``results`` and ``figures``).

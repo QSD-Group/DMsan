@@ -127,7 +127,6 @@ def make_line_graph2B(winner_df):
     counts = [i.size for i in separated]
     for n, alt in enumerate(alts):
         print(f'Alternative {alt} wins {counts[n]} of {tot} times.')
-    # print(f'Alternative {alts[i]} wins {}')
     # Extract the weighing information
     ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
     wts = [np.array([ratio2float(i) for i in wt.index]) for wt in separated]
@@ -158,7 +157,6 @@ def make_line_graph3(winner_df):
     counts = [i.size for i in separated]
     for n, alt in enumerate(alts):
         print(f'Alternative {alt} wins {counts[n]} of {tot} times.')
-    # print(f'Alternative {alts[i]} wins {}')
     # Extract the weighing information
     ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
     wts = [np.array([ratio2float(i) for i in wt.index]) for wt in separated]
