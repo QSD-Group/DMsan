@@ -3,14 +3,13 @@
 """
 @authors:
     Yalin Li <zoe.yalin.li@gmail.com>
-    Joy Cheung <joycheung1994@gmail.com>
+    Joy Zhang <joycheung1994@gmail.com>
 
 Run this module for uncertainty and sensitivity analyses.
 
 Two layers of uncertainties are considered in the final performance score:
     1. Ones due to the input parameters in system simulation, which will change
-    the technology scores of some indicators
-
+    the technology scores of some indicators.
     2. Ones due to the global weights of different criteria.
 
 Note that uncertainties in the local weights can also be included if desired,
@@ -18,9 +17,9 @@ some of the legacy codes herein added uncertainties to the social criterion,
 but doing so with all other uncertainties will add too much complexity and
 create difficulties in identifying the drivers of the results, thus not included.
 
-Part of this module is based on the BioSTEAM and QSD packages:
-    - https://github.com/BioSTEAMDevelopmentGroup/biosteam
+Part of this module is based on the QSDsan and BioSTEAM packages:
     - https://github.com/QSD-group/QSDsan
+    - https://github.com/BioSTEAMDevelopmentGroup/biosteam
 """
 
 import os
@@ -473,164 +472,3 @@ def run_analyses(save_excel=False):
 
 if __name__ == '__main__':
     run_analyses(False)
-
-
-# %%
-
-# =============================================================================
-# Below are legacy codes, might be removed in the future
-# =============================================================================
-
-# # Legacy codes used to include uncertainties in three local weights
-# # of the social criterion.
-# # The same number of local weight samples are generated as ones for system simulation.
-# @time_printer
-# def get_AHP_weights(N):
-#     # Baseline for S4-S6 (cleaning preference, privacy, odor and flies)
-#     b = np.array(bwaise_ahp.init_weights['S'][3:6])
-#     b = np.tile(b, (N, 1))
-#     lower = b * 0.75 # 75% of b as the lower bound
-#     diff = b * 0.5 # 125% of b as the upper bound minus the lower bound
-#     ahp_sampler = stats.qmc.LatinHypercube(d=3, seed=rng)
-#     ahp_sample = ahp_sampler.random(n=N)
-
-#     S_val_samples = lower + diff*ahp_sample
-
-#     AHP_dct = {}
-#     for i in range(N):
-#         bwaise_ahp.init_weights['S'][3:6] = S_val_samples[i]
-#         AHP_dct[i] = bwaise_ahp.get_AHP_weights(True)
-
-#     return AHP_dct
-
-
-# def run_correlation_test(input_x, input_y, kind,
-#                          nan_policy='omit', file_path='', **kwargs):
-#     '''
-#     Get correlation coefficients between two inputs using `scipy`.
-
-#     Parameters
-#     ----------
-#     input_x : :class:`pandas.DataFrame`
-#         The first set of input (typically uncertainty parameters).
-#     input_y : :class:`pandas.DataFrame`
-#         The second set of input (typicall scores or ranks).
-#     kind : str
-#         The type of test to run, can be "Spearman" for Spearman's rho,
-#         "Pearson" for Pearson's r, "Kendall" for Kendall's tau,
-#         or "KS" for Kolmogorov–Smirnov's D.
-
-#         .. note::
-#             If running KS test, then input_y should be the ranks (i.e., not scores),
-#             the x inputs will be divided into two groups - ones that results in
-#             a given alternative to be ranked first vs. the rest.
-
-#     nan_policy : str
-#         - "propagate": returns nan.
-#         - "raise": raise an error.
-#         - "omit": drop the pair from analysis.
-
-#         .. note::
-#             This will be ignored for when `kind` is "Pearson" or "Kendall"
-#             (not supported by `scipy`).
-
-#     file_path : str
-#         If provided, the results will be saved as a csv file to the given path.
-#     kwargs : dict
-#         Other keyword arguments that will be passed to ``scipy``.
-
-#     Returns
-#     -------
-#     Two :class:`pandas.DataFrame` containing the test statistics and p-values.
-
-#     See Also
-#     --------
-#     :func:`scipy.stats.spearmanr`
-
-#     :func:`scipy.stats.pearsonr`
-
-#     :func:`scipy.stats.kendalltau`
-
-#     :func:`scipy.stats.kstest`
-#     '''
-#     df = pd.DataFrame(input_x.columns,
-#                       columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
-#                                                         names=('Y', 'Stats')))
-
-#     name = kind.lower()
-#     if name == 'spearman':
-#         func = stats.spearmanr
-#         stats_name = 'rho'
-#         kwargs['nan_policy'] = nan_policy
-#     elif name == 'pearson':
-#         func = stats.pearsonr
-#         stats_name = 'r'
-#     elif name == 'kendall':
-#         func = stats.kendalltau
-#         stats_name = 'tau'
-#         kwargs['nan_policy'] = nan_policy
-#     elif name == 'ks':
-#         if not int(input_y.iloc[0, 0])==input_y.iloc[0, 0]:
-#             raise ValueError('For KS test, `input_y` should be the ranks, not scores.')
-
-#         func = stats.kstest
-#         stats_name = 'D'
-
-#         alternative = kwargs.get('alternative') or 'two_sided'
-#         mode = kwargs.get('mode') or 'auto'
-#     else:
-#         raise ValueError('kind can only be "Spearman", "Pearson", '
-#                         f'or "Kendall", not "{kind}".')
-
-#     for col_y in input_y.columns:
-#         if name == 'ks':
-#             y = input_y[col_y]
-#             i_win, i_lose = input_x.loc[y==1], input_x.loc[y!=1]
-
-#             if len(i_win) == 0 or len(i_lose) == 0:
-#                 df[(col_y, stats_name)] = df[(col_y, 'p-value')] = None
-#                 continue
-
-#             else:
-#                 data = np.array([func(i_win.loc[:, col_x], i_lose.loc[:, col_x],
-#                                   alternative=alternative, mode=mode, **kwargs) \
-#                                  for col_x in input_x.columns])
-#         else:
-#             data = np.array([func(input_x[col_x], input_y[col_y], **kwargs)
-#                              for col_x in input_x.columns])
-
-#         df[(col_y, stats_name)] = data[:, 0]
-#         df[(col_y, 'p-value')] = data[:, 1]
-
-#     if file_path:
-#         df.to_csv(file_path, sep='\t')
-#     return df
-
-
-# @time_printer
-# def run_uncertainty_mcda(mcda, criteria_weights=None, tech_score_dct={}):
-#     if criteria_weights is None:
-#         criteria_weights = mcda.criteria_weights
-
-#     score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
-#     for n, w in criteria_weights.iterrows():
-#         scores, ranks, winners = [], [], []
-
-#         for k, v in tech_score_dct.items():
-#             # # Legacy code to update local weights calculated from AHP
-#             # bwaise_ahp._norm_weights_df = AHP_dct[k]
-
-#             mcda.tech_scores = v
-#             mcda.run_MCDA(criteria_weights=w)
-#             scores.append(mcda.perform_scores)
-#             ranks.append(mcda.ranks)
-#             winners.append(mcda.winners.Winner.values.item())
-
-#         name = w.Ratio
-#         score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
-#         rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
-#         winner_df_dct[name] = winners
-
-#     winner_df = pd.DataFrame.from_dict(winner_df_dct)
-
-#     return score_df_dct, rank_df_dct, winner_df

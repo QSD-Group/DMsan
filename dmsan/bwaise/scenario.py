@@ -325,7 +325,7 @@ if __name__ == '__main__':
 # %%
 
 # =============================================================================
-# Legacy codes not in use
+# If want to consider uncertainties with different criteria weight scenarios
 # =============================================================================
 
 # import seaborn as sns
@@ -392,7 +392,7 @@ if __name__ == '__main__':
 #     ax0 = plot_across_axis(Cwin_across_cost, include_simulation_uncertainties=False)
 #     ax0.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost.png'), dpi=100)
 
-#     # **Each** step takes ~1 hour (at each step, we are runnin 1000 simulation*1000 global weights)
+#     # **Each** step takes ~1 hour (at each step, we are running 1000 simulation*1000 global weights)
 #     Cwin_across_cost_uncertainty = test_across_axis(bwaise_mcda, alt='Alternative C',
 #                                                     indicator='Econ1',
 #                                                     include_simulation_uncertainties=True,

@@ -6,6 +6,8 @@
     Hannah Lohman <hlohman94@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
+
+This module is used to import data from the country-specific database.
 """
 
 

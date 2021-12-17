@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-EXPOsan: Exposition of sanitation and resource recovery systems
+DMsan: Decision-making for sanitation and resource recovery systems
 
 This module is developed by:
     Yalin Li <zoe.yalin.li@gmail.com>
@@ -22,7 +22,7 @@ setup(
     author='Quantitative Sustainable Design Group',
     author_email='quantitative.sustainable.design@gmail.com',
     description='Leverages MCDA to compare technologies within a context and explore opportunity spaces for RD&D',
-    long_description=open('README.rst').read(),
+    long_description=open('README.rst', encoding='utf-8').read(),
     url="https://github.com/QSD-Group/DMsan",
     install_requires=['exposan', 'country-converter'],
     package_data=

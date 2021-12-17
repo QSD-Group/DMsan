@@ -3,7 +3,7 @@
 """
 @author: Yalin Li <zoe.yalin.li@gmail.com>
 
-Run this module to save the results to the /data folder to avoid repeating
+Run this module to save the results to the /results folder to avoid repeating
 simulating the system.
 """
 

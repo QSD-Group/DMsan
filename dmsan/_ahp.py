@@ -10,7 +10,7 @@
 This model is developed to assist sanitation system research, development, and
 deployment. Users of the model need to manually input where exclamation points
 (!) are located in the comments (i.e. location, number of alternatives, etc.,
-end-user and/or management preference socres, etc.).
+end-user and/or management preference scores, etc.).
 """
 
 
@@ -251,7 +251,7 @@ class AHP:
         '''Analytic hierarchy process (AHP) to determine indicators weights.'''
         RI = self.random_index
         norm_weights = self.norm_weights = {} # sub-criteria weights
-        CRs = self.CRs = {} # consistency ration
+        CRs = self.CRs = {} # consistency ratio
 
         for indicator, weights in self.init_weights.items():
             num = len(weights)

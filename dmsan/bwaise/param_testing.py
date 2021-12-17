@@ -25,7 +25,7 @@ dfs = dfA, dfB, dfC = [pd.read_excel(param_path, sheet_name=f'Alternative {i}', 
 # "parameters_annotated.xlsx" file and do manual processing there
 @time_printer
 def test_param(save=True):
-    def refresh_param(model): # some parameters will afect other parameters
+    def refresh_param(model): # some parameters will affect other parameters
         for p in model.parameters:
             p.setter(p.baseline)
 

@@ -6,6 +6,8 @@
     Hannah Lohman <hlohman94@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <zoe.yalin.li@gmail.com>
+
+This module is used to perform calculate performance score and global sensitivity analysis.
 """
 
 # %%
@@ -30,7 +32,7 @@ class MCDA:
     ----------
     file_path : str
         Path for the Excel data file containing information related to
-        criteria weighing, default path (and file) will be used if not provdided.
+        criteria weighing, default path (and file) will be used if not provided.
     alt_names : Iterable
         Names of the alternative systems under consideration.
     method : str

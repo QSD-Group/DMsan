@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 @author:
-    Joy Cheung <joycheung1994@gmail.com>
+    Joy Zhang <joycheung1994@gmail.com>
 
 Run this script to analyze the results from Kolmogorov–Smirnov test.
 """
@@ -11,7 +11,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from dmsan.bwaise import scores_path, results_path, figures_path
-# os.chdir("C:/Users/joy_c/Dropbox/PhD/Research/QSD/codes_developing/DMsan/dmsan/bwaise/")
 folder = os.path.join(results_path, 'sensitivity')
 path = "AHP_TOPSIS_KS_ranks.pckl"
 
