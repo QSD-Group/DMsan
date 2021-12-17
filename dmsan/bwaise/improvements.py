@@ -187,12 +187,12 @@ def plot_oat(oat_dct, file_path=''):
 # %%
 
 # =============================================================================
-# Find the local optimal
+# Find the local optimum
 # =============================================================================
 
 @time_printer
-def local_optimal_approach(mcda, alt, oat_dct, file_path=''):
-    '''Find the local optimal trajectory for improving the indicator scores.'''
+def local_optimum_approach(mcda, alt, oat_dct, file_path=''):
+    '''Find the local optimum trajectory for improving the indicator scores.'''
     weight_num = mcda.criteria_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
@@ -240,7 +240,7 @@ def local_optimal_approach(mcda, alt, oat_dct, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(results_path, 'improvements/local_optimal.xlsx')
+            else os.path.join(results_path, 'improvements/local_optimum.xlsx')
         loc_df.to_excel(file_path)
 
     return loc_dct, loc_df
@@ -274,7 +274,7 @@ def plot_acc(acc_dct, file_path=None):
     return ax
 
 
-def plot_local_optimal(loc_dct, file_path=''):
+def plot_local_optimum(loc_dct, file_path=''):
     fig, ax = plt.subplots(figsize=(6, 8))
     labels = [f'+{i}' for i in loc_dct.keys()]
     values = list(loc_dct.values())
@@ -296,7 +296,7 @@ def plot_local_optimal(loc_dct, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, 'local_optimal.png')
+            else os.path.join(figures_path, 'local_optimum.png')
         ax.figure.savefig(file_path, dpi=100)
     return ax
 
@@ -304,15 +304,15 @@ def plot_local_optimal(loc_dct, file_path=''):
 # %%
 
 # =============================================================================
-# Test all possible improvements to find the global optimal
+# Test all possible improvements to find the global optimum
 # =============================================================================
 
 @time_printer
-def global_optimal_approach(mcda, alt, oat_dct,
+def global_optimum_approach(mcda, alt, oat_dct,
                             consider_order=False, select_top=None,
                             target_chance=1, cutoff_step=None, file_path=''):
     '''
-    Test all possible routes to the tageted winning chance.
+    Test all possible routes to the targeted winning chance.
 
     If `select_top` is provided (int), will only look at the X-best indicators
     at baseline.
@@ -337,7 +337,7 @@ def global_optimal_approach(mcda, alt, oat_dct,
                     if copied[i]['baseline']==copied[i]['updated']]
     if already_best:
         print(f'Indicators {", ".join(already_best)} have already achieved the best score, '
-              'will be excluded from the global optimal test.')
+              'will be excluded from the global optimum test.')
         for ind in already_best: # exclude from the test
             copied.pop(ind)
 
@@ -379,7 +379,7 @@ def global_optimal_approach(mcda, alt, oat_dct,
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(results_path, 'improvements/global_optimal.xlsx')
+            else os.path.join(results_path, 'improvements/global_optimum.xlsx')
         glob_df.to_excel(file_path)
 
     return glob_dct, glob_df
@@ -396,7 +396,7 @@ color_dct = {
     }
 get_colors = lambda inds: [color_dct[ind[:-1]] for ind in inds]
 
-def plot_global_optimal(glob_dct, file_path=''):
+def plot_global_optimum(glob_dct, file_path=''):
     fig, ax = plt.subplots(figsize=(6, 8))
     for idx, chance_dct in glob_dct.items():
         x = list(chance_dct.keys())
@@ -422,7 +422,7 @@ def plot_global_optimal(glob_dct, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, 'global_optimal.png')
+            else os.path.join(figures_path, 'global_optimum.png')
         ax.figure.savefig(file_path, dpi=300)
     return ax
 
@@ -433,13 +433,13 @@ if __name__ == '__main__':
     oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
     ax = plot_oat(oat_dct, file_path='')
 
-    loc_dct, loc_df = local_optimal_approach(
+    loc_dct, loc_df = local_optimum_approach(
         bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, file_path='')
-    ax = plot_local_optimal(loc_dct, file_path='')
-    glob_dct, glob_df = global_optimal_approach(
+    ax = plot_local_optimum(loc_dct, file_path='')
+    glob_dct, glob_df = global_optimum_approach(
         bwaise_mcda, 'Alternative C', oat_dct, consider_order=False,
         select_top=10, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
-    ax = plot_global_optimal(glob_dct)
+    ax = plot_global_optimum(glob_dct)
 
 
 # %%
