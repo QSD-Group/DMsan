@@ -19,10 +19,10 @@ from qsdsan.utils import time_printer, colors, save_pickle
 from dmsan import AHP
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 
-loaded = import_from_pickle(param=False, tech_score=True, ahp=True, mcda=True,
+loaded = import_from_pickle(param=False, tech_scores=True, ahp=True, mcda=True,
                             uncertainty=False, sensitivity=None)
 
-tech_score_dct = loaded['tech_score']
+tech_score_dct = loaded['tech_scores']
 bwaise_ahp = loaded['ahp']
 bwaise_mcda = loaded['mcda']
 
@@ -66,6 +66,7 @@ best_score_dct = {
     'T2': 3,
     'T3': 5,
     'T4': 7,
+    'T5': 7, #!!! Yalin added this one, need to double-check with Tori
     'T6': 5,
     'T7': 2,
     'T8': 3,

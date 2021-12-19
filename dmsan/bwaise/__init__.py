@@ -12,7 +12,7 @@ scores_path = os.path.join(bwaise_path, 'scores')
 results_path = os.path.join(bwaise_path, 'results')
 figures_path = os.path.join(bwaise_path, 'figures')
 
-def import_from_pickle(param=False, tech_score=False, ahp=False, mcda=False,
+def import_from_pickle(param=False, tech_scores=False, ahp=False, mcda=False,
                        uncertainty=False, sensitivity=None):
     loaded = dict.fromkeys(('param', 'tech_score', 'ahp', 'mcda',
                             'uncertainty', 'sensitivity'))
@@ -21,9 +21,9 @@ def import_from_pickle(param=False, tech_score=False, ahp=False, mcda=False,
         file_path = os.path.join(results_path, 'param.pckl')
         loaded['param'] = load_pickle(file_path)
 
-    if tech_score:
-        file_path = os.path.join(results_path, 'tech_score.pckl')
-        loaded['tech_score'] = load_pickle(file_path)
+    if tech_scores:
+        file_path = os.path.join(results_path, 'tech_scores.pckl')
+        loaded['tech_scores'] = load_pickle(file_path)
 
     if ahp:
         file_path = os.path.join(results_path, 'ahp.pckl')

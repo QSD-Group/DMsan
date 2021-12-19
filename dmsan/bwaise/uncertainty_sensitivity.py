@@ -86,13 +86,6 @@ def get_baseline_tech_scores(lca_perspective='H'):
 
     tech_score_RR_All.columns = [f'RR{i+1}' for i in range(tech_score_RR_All.shape[1])]
 
-    # Economic
-    tech_score_Econ_All = pd.DataFrame([
-        baseline.loc[('TEA results', 'Net cost')].values
-        ]).transpose()
-
-    tech_score_Econ_All.columns = ['Econ1']
-
     # Environmental, lca_perspective can be "I", "H", or "E" for
     # individualist, hierarchist, or egalitarian
     lca_ind = [ind for ind in baseline.index if ind[1].startswith(f'{lca_perspective.upper()}_')]
@@ -103,6 +96,13 @@ def get_baseline_tech_scores(lca_perspective='H'):
         ]).transpose()
 
     tech_score_Env_All.columns = [f'Env{i+1}' for i in range(tech_score_Env_All.shape[1])]
+
+    # Economic
+    tech_score_Econ_All = pd.DataFrame([
+        baseline.loc[('TEA results', 'Net cost')].values
+        ]).transpose()
+
+    tech_score_Econ_All.columns = ['Econ1']
 
     # Social
     tech_score_S_All = pd.DataFrame([
@@ -121,8 +121,9 @@ def get_baseline_tech_scores(lca_perspective='H'):
 
     # `tech_scores` is `Tech_Scores_compiled` in the original script,
     # values checked to be the same as the original script
-    tech_scores = pd.concat([tech_score_T_All, tech_score_RR_All, tech_score_Econ_All,
-                             tech_score_Env_All, tech_score_S_All], axis=1)
+    tech_scores = pd.concat([tech_score_T_All, tech_score_RR_All,
+                             tech_score_Env_All, tech_score_Econ_All,
+                             tech_score_S_All], axis=1)
 
     return tech_scores
 
@@ -364,15 +365,15 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
 # and cannot be opened outside of Python,
 # but takes much less time to load/save than Excel files
 # https://stackoverflow.com/questions/9619199/best-way-to-preserve-numpy-arrays-on-disk
-def export_to_pickle(param=True, tech_score=True, ahp=True, mcda=True,
+def export_to_pickle(param=True, tech_scores=True, ahp=True, mcda=True,
                      uncertainty=True, sensitivity='KS'):
     if param:
         file_path = os.path.join(results_path, 'param.pckl')
         save_pickle(param_dct, file_path)
         print(f'\nDict of parameter values exported to "{file_path}".')
 
-    if tech_score:
-        file_path = os.path.join(results_path, 'tech_score.pckl')
+    if tech_scores:
+        file_path = os.path.join(results_path, 'tech_scores.pckl')
         save_pickle(tech_score_dct, file_path)
         print(f'\nDict of technology scores exported to "{file_path}".')
 

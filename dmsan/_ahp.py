@@ -33,7 +33,7 @@ class AHP:
     ----------
     file_path : str
         Path for the Excel data file containing contextual parameters for
-        different countires, default path (and file) will be used if not provdided.
+        different countries, default path (and file) will be used if not provided.
     location_name : str
         Name of the location by country.
     num_alt : int
@@ -233,7 +233,7 @@ class AHP:
         # Local Weight Indicator S8: Disposal convenience preference
         # related to the preference for disposal requirements
         # 0 being low importance to frequency of disposal to 100 being high importance for frequency of disposal
-        # ## Specific to Bwaise example: the sanitation system is controlled by the end-usr, not landlord ##
+        # ## Specific to Bwaise example: the sanitation system is controlled by the end-user, not landlord ##
         weights.append(X)
 
         # ## Input management preference ##
