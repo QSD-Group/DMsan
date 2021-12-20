@@ -9,6 +9,7 @@ Run this script to look at the different possible improvements that could change
 the performance score of each system and thus the final winner.
 """
 
+
 import os
 import numpy as np, pandas as pd
 from warnings import warn
@@ -18,6 +19,9 @@ from matplotlib.collections import LineCollection
 from qsdsan.utils import time_printer, colors, save_pickle
 from dmsan import AHP
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
+from dmsan.bwaise.uncertainty_sensitivity import \
+    criteria_num, wt_scenario_num as sce_num1, generate_weights
+
 
 loaded = import_from_pickle(param=False, tech_scores=True, ahp=True, mcda=True,
                             uncertainty=False, sensitivity=None)
@@ -25,9 +29,6 @@ loaded = import_from_pickle(param=False, tech_scores=True, ahp=True, mcda=True,
 tech_score_dct = loaded['tech_scores']
 bwaise_ahp = loaded['ahp']
 bwaise_mcda = loaded['mcda']
-
-file_path = os.path.join(results_path, 'Global_weights.xlsx')
-bwaise_mcda.criteria_weights = pd.read_excel(file_path)
 
 # Save a copy
 baseline_tech_scores =  bwaise_mcda.tech_scores.copy()
@@ -46,7 +47,7 @@ def update_local_weights(tech_scores):
         # Need subtract in `int(i[1])-1` because of 0-indexing
         ahp.init_weights[i[0]][int(i[1])-1] = ahp.na_default
 
-    ahp.get_AHP_weights(True)
+    ahp.get_local_weights(True)
 
     return ahp.norm_weights_df
 
@@ -66,7 +67,7 @@ best_score_dct = {
     'T2': 3,
     'T3': 5,
     'T4': 7,
-    'T5': 7, #!!! Yalin added this one, need to double-check with Tori
+    'T5': 5, #!!! Yalin added this one, need to double-check with Tori
     'T6': 5,
     'T7': 2,
     'T8': 3,
@@ -100,7 +101,7 @@ def test_oat(mcda, alt, best_score={}):
 
     If `all_at_once` is True, will change all the indicators at one time
     '''
-    weight_num = mcda.criteria_weights.shape[0]
+    weight_num = mcda.criterion_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
     oat_dct = {ind: {} for ind in best_score.keys()}
@@ -158,13 +159,12 @@ def test_oat(mcda, alt, best_score={}):
     return oat_dct
 
 
-def plot_oat(oat_dct, file_path=''):
+def plot_oat(oat_dct, wt_sce_num, file_path=''):
     labels, winning = ['baseline'], [oat_dct['baseline']['winning chance']]
     get_rounded = lambda val: round(val, 2) if len(str(val).split('.')[-1]) >= 2 else val
 
     for ind, data in oat_dct.items():
         if not ind == 'baseline':
-        # if not ind in ('baseline', 'all at once'):
             labels.append(f'{ind}: {get_rounded(data["baseline"])}->{get_rounded(data["updated"])}')
             winning.append(data['winning chance'])
 
@@ -179,7 +179,7 @@ def plot_oat(oat_dct, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, 'baseline_oat.png')
+            else os.path.join(figures_path, f'baseline_oat_{wt_sce_num}.png')
         fig.savefig(file_path, dpi=100)
 
     return ax
@@ -192,9 +192,9 @@ def plot_oat(oat_dct, file_path=''):
 # =============================================================================
 
 @time_printer
-def local_optimum_approach(mcda, alt, oat_dct, file_path=''):
+def local_optimum_approach(mcda, alt, oat_dct, wt_sce_num, file_path=''):
     '''Find the local optimum trajectory for improving the indicator scores.'''
-    weight_num = mcda.criteria_weights.shape[0]
+    weight_num = mcda.criterion_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
     winning_chances = [data['winning chance'] for data in oat_dct.values()]
@@ -241,41 +241,13 @@ def local_optimum_approach(mcda, alt, oat_dct, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(results_path, 'improvements/local_optimum.xlsx')
+            else os.path.join(results_path, f'improvements/local_optimum_{wt_sce_num}.xlsx')
         loc_df.to_excel(file_path)
 
     return loc_dct, loc_df
 
 
-def plot_acc(acc_dct, file_path=None):
-    fig, ax = plt.subplots(figsize=(6, 8))
-    labels = [f'+{i}' for i in acc_dct.keys()]
-    values = list(acc_dct.values())
-    if '+baseline' in labels:
-        idx = labels.index('+baseline')
-        labels.insert(0, labels.pop(idx))
-        values.insert(0, values.pop(idx))
-
-    labels[0] = labels[0].lstrip('+')
-
-    x = np.arange(len(labels))
-    ax.plot(x, values, '-o')
-
-    ax.set(xticks=x, xticklabels=labels, xlabel='Changed indicator (accumulated)',
-            ylabel='Winning chance')
-
-    for label in ax.get_xticklabels():
-        label.set_rotation(30)
-
-    if file_path is not None:
-        file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, 'baseline_acc.png')
-        fig.savefig(file_path, dpi=100)
-
-    return ax
-
-
-def plot_local_optimum(loc_dct, file_path=''):
+def plot_local_optimum(loc_dct, wt_sce_num, file_path=''):
     fig, ax = plt.subplots(figsize=(6, 8))
     labels = [f'+{i}' for i in loc_dct.keys()]
     values = list(loc_dct.values())
@@ -297,7 +269,7 @@ def plot_local_optimum(loc_dct, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, 'local_optimum.png')
+            else os.path.join(figures_path, f'local_optimum_{wt_sce_num}.png')
         ax.figure.savefig(file_path, dpi=100)
     return ax
 
@@ -309,7 +281,7 @@ def plot_local_optimum(loc_dct, file_path=''):
 # =============================================================================
 
 @time_printer
-def global_optimum_approach(mcda, alt, oat_dct,
+def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
                             consider_order=False, select_top=None,
                             target_chance=1, cutoff_step=None, file_path=''):
     '''
@@ -325,7 +297,7 @@ def global_optimum_approach(mcda, alt, oat_dct,
     Otherwise, the `cutoff_step` will be the same as the number of indicators
     where the alternative has not achieved the best score.
     '''
-    weight_num = mcda.criteria_weights.shape[0]
+    weight_num = mcda.criterion_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
     # updated_scores = baseline_tech_scores.copy()
 
@@ -352,7 +324,7 @@ def global_optimum_approach(mcda, alt, oat_dct,
     runs = list(combinations(inds, cutoff_step)) if not consider_order \
         else list(permutations(inds, cutoff_step))
 
-    glob_dct = {'baseline': {1:baseline_chance}}
+    glob_dct = {'baseline': {0: baseline_chance}}
     for run in runs:
         glob_dct[run] = {}
         mcda.tech_scores = baseline_tech_scores.copy()
@@ -376,11 +348,11 @@ def global_optimum_approach(mcda, alt, oat_dct,
 
     glob_df = pd.DataFrame.from_dict(glob_dct).transpose()
 
-    save_pickle(glob_dct, os.path.join(results_path, 'improvements/glob_dct.pckl'))
+    save_pickle(glob_dct, os.path.join(results_path, f'improvements/glob_dct_{wt_sce_num}.pckl'))
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(results_path, 'improvements/global_optimum.xlsx')
+            else os.path.join(results_path, f'improvements/global_optimum_{wt_sce_num}.xlsx')
         glob_df.to_excel(file_path)
 
     return glob_dct, glob_df
@@ -397,33 +369,28 @@ color_dct = {
     }
 get_colors = lambda inds: [color_dct[ind[:-1]] for ind in inds]
 
-def plot_global_optimum(glob_dct, file_path=''):
+def plot_global_optimum(glob_dct, wt_sce_num, file_path=''):
     fig, ax = plt.subplots(figsize=(6, 8))
+    baseline_x, baseline_y = glob_dct.pop('baseline').items()
     for idx, chance_dct in glob_dct.items():
-        x = list(chance_dct.keys())
-        y = list(chance_dct.values())
+        x = [baseline_x] + list(chance_dct.keys())
+        y = [baseline_y] + list(chance_dct.values())
 
-        # # All the same color
-        # ax.plot(x, y, '-k', linewidth=0.5)
-
-        # Use different colors
-        if idx == 'baseline':
-            ax.plot(x, y, '-k', linewidth=1.5)
-        else: # plot the line graph in segments with different colors
-            c = get_colors(idx)
-            points = np.array([x, y]).T.reshape(-1, 1, 2)
-            segments = np.concatenate([points[:-1], points[1:]], axis=1)
-            lc = LineCollection(segments, colors=c)
-            lc.set_array(x[:1])
-            lc.set_linewidth(0.5)
-            ax.add_collection(lc)
+        # Plot the line graph in segments with different colors
+        c = get_colors(idx)
+        points = np.array([x, y]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        lc = LineCollection(segments, colors=c)
+        lc.set_array(x[:1])
+        lc.set_linewidth(0.5)
+        ax.add_collection(lc)
 
     ax.set(xticks=x, xlabel='Number of changed indicator',
            yticks=[0, 0.25, 0.5, 0.75, 1], ylabel='Winning chance')
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, 'global_optimum.png')
+            else os.path.join(figures_path, f'global_optimum_{wt_sce_num}.png')
         ax.figure.savefig(file_path, dpi=300)
     return ax
 
@@ -431,16 +398,39 @@ def plot_global_optimum(glob_dct, file_path=''):
 # %%
 
 if __name__ == '__main__':
+    # Using original number of criterion weight scenarios
+    file_path = os.path.join(results_path, f'criterion_weights_{sce_num1}.xlsx')
+    weight_df1 = pd.read_excel(file_path)
+    bwaise_mcda.criterion_weights = weight_df1
+    wt_sce_num = len(weight_df1)
+    # One-at-a-time at baseline
     oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
-    ax = plot_oat(oat_dct, file_path='')
-
+    ax = plot_oat(oat_dct, wt_sce_num=wt_sce_num)
+    # Local optimum
     loc_dct, loc_df = local_optimum_approach(
-        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, file_path='')
-    ax = plot_local_optimum(loc_dct, file_path='')
-    glob_dct, glob_df = global_optimum_approach(
-        bwaise_mcda, 'Alternative C', oat_dct, consider_order=False,
-        select_top=10, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
-    ax = plot_global_optimum(glob_dct)
+        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=wt_sce_num)
+    ax = plot_local_optimum(loc_dct, wt_sce_num=wt_sce_num)
+
+    # Smaller number of criterion weight scenarios
+    sce_num2 = 100 # use fewer scenarios here
+    weight_df2 = generate_weights(criteria_num=criteria_num, wt_scenario_num=sce_num2)
+    bwaise_mcda.criterion_weights = weight_df2
+    file_path = os.path.join(results_path, f'criterion_weights_{sce_num2}.xlsx')
+    weight_df2.to_excel(file_path, sheet_name='Criterion weights')
+    wt_sce_num = len(weight_df2)
+    # One-at-a-time at baseline
+    oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
+    ax = plot_oat(oat_dct, wt_sce_num=wt_sce_num)
+    # Local optimum
+    loc_dct, loc_df = local_optimum_approach(
+        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=wt_sce_num, file_path='')
+    ax = plot_local_optimum(loc_dct, wt_sce_num=wt_sce_num)
+    # Global optimum
+    #!!! Need to update the procedure with checked results
+    # glob_dct, glob_df = global_optimum_approach(
+    #     bwaise_mcda, 'Alternative C', oat_dct, wt_sce_num=wt_sce_num, consider_order=False,
+    #     select_top=10, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
+    # ax = plot_global_optimum(glob_dct, wt_sce_num=wt_sce_num)
 
 
 # %%
@@ -463,7 +453,7 @@ if __name__ == '__main__':
 #     max_val = max_val if max_val else baseline_tech_scores.loc[idx, indicator]
 
 #     # Total number of global weights
-#     weight_num = mcda.criteria_weights.shape[0]
+#     weight_num = mcda.criterion_weights.shape[0]
 
 #     vals = np.linspace(min_val, max_val, num=step_num)
 #     win_dct = {}
@@ -524,8 +514,10 @@ if __name__ == '__main__':
 
 # %%
 
-# # Legacy codes to test accumulatice effects of improving indicators
-# # might be removed in the future because the results do not mean much
+# =============================================================================
+# Legacy codes to test and plot accumulatice effects of improving indicators
+# might be removed in the future because the results do not mean much
+# =============================================================================
 
 # def test_acc(mcda, alt, oat_dct):
 #     '''Test the accumulative effects of the one-at-a-time best (at baseline).'''
@@ -545,7 +537,7 @@ if __name__ == '__main__':
 #     acc_dct['baseline'] = baseline_winning
 #     acc_dct = {ind:acc_dct[ind] for ind in ind_list}
 
-#     weight_num = mcda.criteria_weights.shape[0]
+#     weight_num = mcda.criterion_weights.shape[0]
 #     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
 #     for ind in acc_dct.keys():
@@ -558,3 +550,30 @@ if __name__ == '__main__':
 #             acc_dct[ind] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
 #     return acc_dct
+
+# def plot_acc(acc_dct, file_path=None):
+#     fig, ax = plt.subplots(figsize=(6, 8))
+#     labels = [f'+{i}' for i in acc_dct.keys()]
+#     values = list(acc_dct.values())
+#     if '+baseline' in labels:
+#         idx = labels.index('+baseline')
+#         labels.insert(0, labels.pop(idx))
+#         values.insert(0, values.pop(idx))
+
+#     labels[0] = labels[0].lstrip('+')
+
+#     x = np.arange(len(labels))
+#     ax.plot(x, values, '-o')
+
+#     ax.set(xticks=x, xticklabels=labels, xlabel='Changed indicator (accumulated)',
+#             ylabel='Winning chance')
+
+#     for label in ax.get_xticklabels():
+#         label.set_rotation(30)
+
+#     if file_path is not None:
+#         file_path = file_path if file_path != '' \
+#             else os.path.join(figures_path, 'baseline_acc.png')
+#         fig.savefig(file_path, dpi=100)
+
+#     return ax

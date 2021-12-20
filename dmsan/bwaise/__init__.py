@@ -12,6 +12,7 @@ scores_path = os.path.join(bwaise_path, 'scores')
 results_path = os.path.join(bwaise_path, 'results')
 figures_path = os.path.join(bwaise_path, 'figures')
 
+
 def import_from_pickle(param=False, tech_scores=False, ahp=False, mcda=False,
                        uncertainty=False, sensitivity=None):
     loaded = dict.fromkeys(('param', 'tech_score', 'ahp', 'mcda',
@@ -34,11 +35,11 @@ def import_from_pickle(param=False, tech_scores=False, ahp=False, mcda=False,
         loaded['mcda'] = load_pickle(file_path)
 
     if uncertainty:
-        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
+        file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.pckl')
         loaded['uncertainty'] = load_pickle(file_path)
 
     if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
+        file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
         loaded['sensitivity'] = [load_pickle(file_path)]
 
         if sensitivity != 'KS':

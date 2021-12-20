@@ -4,8 +4,8 @@
 @authors:
     Tori Morgan <vlmorgan@illinois.edu>,
     Hannah Lohman <hlohman94@gmail.com>,
-    Stetson Rowles <stetsonsc@gmail.com>,
-    Yalin Li <zoe.yalin.li@gmail.com>
+    Yalin Li <zoe.yalin.li@gmail.com>,
+    Stetson Rowles <stetsonsc@gmail.com>
 
 This model is developed to assist sanitation system research, development, and
 deployment. Users of the model need to manually input where exclamation points
@@ -80,8 +80,17 @@ class AHP:
         self._set_init_Env_weights()
         self._set_init_Econ_weights()
         self._set_init_S_weights()
-        self._AHP_weights = None # initiate the property
-        self.get_AHP_weights()
+        init_weights = self.init_weights
+        init_weights_df = pd.DataFrame(sum(list(init_weights.values()), [])).transpose()
+        init_weights_df.columns = [
+            *[f'T{i+1}' for i in range(len(init_weights['T']))],
+            *[f'RR{i+1}' for i in range(len(init_weights['RR']))],
+            *[f'Env{i+1}' for i in range(len(init_weights['Env']))],
+            *[f'Econ{i+1}' for i in range(len(init_weights['Econ']))],
+            *[f'S{i+1}' for i in range(len(init_weights['S']))],
+            ]
+        self._init_weights_df = init_weights_df
+        self.get_local_weights()
 
     def _get_val(self, df, col='Value'):
         '''Util function for retrieving data.'''
@@ -247,7 +256,7 @@ class AHP:
         return f'<AHP: {self.location.location_name}>'
 
 
-    def get_AHP_weights(self, return_results=False):
+    def get_local_weights(self, return_results=False):
         '''Analytic hierarchy process (AHP) to determine indicators weights.'''
         RI = self.random_index
         norm_weights = self.norm_weights = {} # sub-criteria weights

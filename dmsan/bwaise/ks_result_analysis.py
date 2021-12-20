@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 from dmsan.bwaise import scores_path, results_path, figures_path
 folder = os.path.join(results_path, 'sensitivity')
-path = "AHP_TOPSIS_KS_ranks.pckl"
+file = "performance_KS_ranks.pckl"
 
 idx = pd.IndexSlice
 param_path = os.path.join(scores_path, 'parameters_annotated.xlsx')
@@ -108,4 +108,4 @@ def analyze(folder, path):
     make_scatter(dct1, figures_path)
 
 if __name__ == '__main__':
-    analyze(folder, path)
+    analyze(folder, file)

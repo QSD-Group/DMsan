@@ -47,7 +47,7 @@ class MCDA:
         and vice versa for non-beneficial factors.
     tech_scores : :class:`pandas.DataFrame`
         Calculated scores for the alternative systems with regard to each indicator.
-    criteria_weights : :class:`pandas.DataFrame`
+    criterion_weights : :class:`pandas.DataFrame`
         Weight scenarios for the different criteria,
         will use default scenarios if not provided.
 
@@ -58,8 +58,8 @@ class MCDA:
     '''
     def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
                  *, indicator_weights, tech_scores, indicator_type=None,
-                 criteria_weights=None):
-        path = file_path if file_path else os.path.join(data_path, 'criteria_weight_scenarios.xlsx')
+                 criterion_weights=None):
+        path = file_path if file_path else os.path.join(data_path, 'criteria_and_indicators.xlsx')
         file = pd.ExcelFile(path)
         read_excel = lambda name: pd.read_excel(file, name) # name is sheet name
 
@@ -70,21 +70,21 @@ class MCDA:
                 defs.variable[i]: defs.category_binary[i] for i in defs.index
                 }, index=[0])
         self.tech_scores = tech_scores
-        self.criteria_weights = criteria_weights if criteria_weights else read_excel('weight_scenarios')
+        self.criterion_weights = criterion_weights if criterion_weights else read_excel('weight_scenarios')
         self.method = method
         self._perform_socres = self._ranks = self._winners = None
 
 
-    def run_MCDA(self, criteria_weights=None, method=None,
+    def run_MCDA(self, criterion_weights=None, method=None,
                  save=False, file_path=''):
         '''
         MCDA using the set method.
 
         Parameters
         ----------
-        criteria_weights : :class:`pandas.DataFrame`
+        criterion_weights : :class:`pandas.DataFrame`
             Weights for the different criteria, will be defaulted to all of the
-            associated criteria in the `criteria_weights` property if left as None.
+            associated criteria in the `criterion_weights` property if left as None.
         method : str
             MCDA method, will use value set in the `method` property if not provided.
         save : bool
@@ -94,7 +94,7 @@ class MCDA:
         '''
         method = self.method if not method else method
         if method.upper() == 'TOPSIS':
-            self._run_TOPSIS(criteria_weights, save, file_path)
+            self._run_TOPSIS(criterion_weights, save, file_path)
         elif method.upper() == 'ELECTRE':
             self._run_ELECTRE()
         else:
@@ -102,8 +102,8 @@ class MCDA:
                              f'not {method}.')
 
 
-    def _run_TOPSIS(self, criteria_weights=None, save=False, file_path=''):
-        cr_wt = self.criteria_weights if criteria_weights is None else criteria_weights
+    def _run_TOPSIS(self, criterion_weights=None, save=False, file_path=''):
+        cr_wt = self.criterion_weights if criterion_weights is None else criterion_weights
         ind_type = self.indicator_type
         rev_ind_type = np.ones_like(ind_type) - ind_type
         ind_wt = self.indicator_weights
@@ -191,7 +191,7 @@ class MCDA:
                 rank_df.to_excel(writer, sheet_name='Rank')
 
 
-    def _run_ELECTRE(self, criteria_weights=None):
+    def _run_ELECTRE(self, criterion_weights=None):
         '''NOT READY YET.'''
         raise ValueError('Method not ready yet.')
 
@@ -202,13 +202,13 @@ class MCDA:
 
 
     @time_printer
-    def run_MCDA_multi_scores(self, criteria_weights=None, tech_score_dct={}):
+    def run_MCDA_multi_scores(self, criterion_weights=None, tech_score_dct={}):
         '''
         Run MCDA with multiple sets of technology scores.
 
         Parameters
         ----------
-        criteria_weights : :class:`pandas.DataFrame`
+        criterion_weights : :class:`pandas.DataFrame`
             Weight scenarios for the different criteria,
             will use default scenarios if not provided.
         tech_score_dct : dict
@@ -226,16 +226,16 @@ class MCDA:
             MCDA winners. Columns are the global weights, rows are indices for
             the different simulations.
         '''
-        if criteria_weights is None:
-            criteria_weights = self.criteria_weights
+        if criterion_weights is None:
+            criterion_weights = self.criterion_weights
 
         score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
-        for n, w in criteria_weights.iterrows():
+        for n, w in criterion_weights.iterrows():
             scores, ranks, winners = [], [], []
 
             for k, v in tech_score_dct.items():
                 self.tech_scores = v
-                self.run_MCDA(criteria_weights=w)
+                self.run_MCDA(criterion_weights=w)
                 scores.append(self.perform_scores)
                 ranks.append(self.ranks)
                 winners.append(self.winners.Winner.values.item())

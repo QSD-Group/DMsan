@@ -26,9 +26,10 @@ import os
 import numpy as np
 import pandas as pd
 from scipy import stats
-from qsdsan.utils import time_printer, save_pickle
+from matplotlib import pyplot as plt
+from qsdsan.utils import time_printer, save_pickle, colors
 from dmsan import AHP, MCDA
-from dmsan.bwaise import scores_path, results_path
+from dmsan.bwaise import scores_path, results_path, figures_path
 
 # Utils
 tech_scores_path = os.path.join(scores_path, 'other_tech_scores.xlsx')
@@ -36,7 +37,7 @@ score_file = pd.ExcelFile(tech_scores_path)
 read_baseline = lambda name: pd.read_excel(score_file, name).expected
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 criteria_num = 5 # number of criteria
-mcda_num = 1000 # number of criteria weights considered
+wt_scenario_num = 1000 # number of criteria weights considered
 
 
 # %%
@@ -214,10 +215,10 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
 # TOPSIS uncertainties for selected weighing scenarios
 # =============================================================================
 
-def generate_weights():
+def generate_weights(criteria_num, wt_scenario_num, savefig=True):
     # Use randomly generated criteria weights
     wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
-    n = int(mcda_num/criteria_num)
+    n = int(wt_scenario_num/criteria_num)
     wt1 = wt_sampler1.random(n=n) # draw from 0 to 1 for one criterion
 
     wt_sampler4 = stats.qmc.LatinHypercube(d=(criteria_num-1), seed=rng)
@@ -234,10 +235,16 @@ def generate_weights():
 
     weights = np.concatenate(wts).transpose()
 
-    # # Get a quick plot of the weights
-    # from matplotlib import pyplot as plt
-    # fig0, ax0 = plt.subplots(figsize=(8, 4.5))
-    # ax0.plot(weights, linewidth=0.5)
+    # Plot all of the criterion weight scenarios
+    if savefig:
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        ax.plot(weights, color=colors.Guest.gray.RGBn, linewidth=0.5, alpha=0.5)
+        ax.set(title='Criterion Weight Scenarios',
+               xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
+               xticks=(0, 1, 2, 3, 4),
+               xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
+        fig.savefig(os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png'),
+                    dpi=300)
 
     weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
     colon = np.full(weight_df.shape[0], fill_value=':', dtype='str')
@@ -306,28 +313,28 @@ def run_uncertainty_corr(df_dct, kind):
 
 # The Excel files could be vary large, try not to use when have thousands of samples,
 # especially for saving the uncertainty analysis results
-def export_to_excel(ahp=True, mcda=True, weights=True,
+def export_to_excel(local_weights=True, mcda=True, criterion_weights=True,
                     uncertainty=True, sensitivity='KS'):
-    if ahp:
-        file_path = os.path.join(results_path, 'AHP_weights.xlsx')
+    if local_weights:
+        file_path = os.path.join(results_path, 'local_weights.xlsx')
         bwaise_ahp.norm_weights_df.to_excel(file_path, sheet_name='Local weights')
-        print(f'\nAHP local weights exported to "{file_path}".')
+        print(f'\nLocal weights exported to "{file_path}".')
 
     if mcda:
         bwaise_mcda.tech_scores = baseline_tech_scores
-        file_path = os.path.join(results_path, 'MCDA_baseline.xlsx')
+        file_path = os.path.join(results_path, 'performance_baseline.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
             bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
-        print(f'\nBaseline MCDA results exported to "{file_path}".')
+        print(f'\nBaseline performance results exported to "{file_path}".')
 
-    if weights:
-        file_path = os.path.join(results_path, 'Global_weights.xlsx')
-        weight_df.to_excel(file_path, sheet_name='Global weights')
-        print(f'\nGlobal weights exported to "{file_path}".')
+    if criterion_weights:
+        file_path = os.path.join(results_path, f'criterion_weights_{wt_scenario_num}.xlsx')
+        weight_df.to_excel(file_path, sheet_name='Criterion weights')
+        print(f'\nCriterion weights exported to "{file_path}".')
 
     if uncertainty:
-        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.xlsx')
+        file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             winner_df.to_excel(writer, sheet_name='Winner')
 
@@ -341,10 +348,10 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
                 v.to_excel(writer, sheet_name='Score', startcol=col_num)
                 rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
                 col_num += v.shape[1]+2
-        print(f'\nUncertainty MCDA results exported to "{file_path}".')
+        print(f'\nUncertainty performance results exported to "{file_path}".')
 
     if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.xlsx')
+        file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.xlsx')
         with pd.ExcelWriter(file_path) as writer:
             for k, v in rank_corr_dct.items():
                 v.to_excel(writer, sheet_name=k)
@@ -352,7 +359,7 @@ def export_to_excel(ahp=True, mcda=True, weights=True,
         print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
 
         if sensitivity != 'KS':
-            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
+            file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_scores.xlsx')
             with pd.ExcelWriter(file_path) as writer:
                 for k, v in score_corr_dct.items():
                     v.to_excel(writer, sheet_name=k)
@@ -390,17 +397,17 @@ def export_to_pickle(param=True, tech_scores=True, ahp=True, mcda=True,
 
     if uncertainty:
         obj = (score_df_dct, rank_df_dct, winner_df)
-        file_path = os.path.join(results_path, 'uncertainty/AHP_TOPSIS.pckl')
+        file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.pckl')
         save_pickle(obj, file_path)
-        print(f'\nUncertainty MCDA results exported to "{file_path}".')
+        print(f'\nUncertainty performance results exported to "{file_path}".')
 
     if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_ranks.pckl')
+        file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
         save_pickle(rank_corr_dct, file_path)
         print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
 
         if sensitivity != 'KS':
-            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.pckl')
+            file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_scores.pckl')
             save_pickle(score_corr_dct, file_path)
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
@@ -429,7 +436,7 @@ def run_analyses(save_excel=False):
         # Need subtract in `int(i[1])-1` because of 0-indexing
         bwaise_ahp.init_weights[i[0]][int(i[1])-1] = bwaise_ahp.na_default
 
-    bwaise_ahp.get_AHP_weights(True)
+    bwaise_ahp.get_local_weights(True)
 
     global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
@@ -440,19 +447,19 @@ def run_analyses(save_excel=False):
     # # Legacy code related to updating local weights for each set of scores
     # # from system simulation
     # global AHP_dct
-    # AHP_dct = get_AHP_weights(N=sim_num)
+    # AHP_dct = get_local_weights(N=sim_num)
 
     global weight_df
-    weight_df = generate_weights()
+    weight_df = generate_weights(criteria_num=criteria_num, wt_scenario_num=wt_scenario_num)
 
-    export_to_excel(ahp=True, mcda=True, weights=True,
+    export_to_excel(local_weights=True, mcda=True, criterion_weights=True,
                     uncertainty=False, sensitivity=None)
 
     # Note that empty cells (with nan value) are failed simulations
     # (i.e., corresponding tech scores are empty)
     global score_df_dct, rank_df_dct, winner_df
     score_df_dct, rank_df_dct, winner_df = \
-        bwaise_mcda.run_MCDA_multi_scores(criteria_weights=weight_df,
+        bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
                                           tech_score_dct=tech_score_dct)
 
     kind = 'Spearman'
@@ -460,16 +467,16 @@ def run_analyses(save_excel=False):
     score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
     if save_excel: # too large, prefer not to do it
-        export_to_excel(ahp=True, mcda=True, uncertainty=False, sensitivity='Spearman')
+        export_to_excel(local_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
     export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
 
     kind = 'KS'
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
     if save_excel: # too large, prefer not to do it
-        export_to_excel(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
+        export_to_excel(local_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
 
     export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 
 
 if __name__ == '__main__':
-    run_analyses(False)
+    run_analyses(save_excel=False)

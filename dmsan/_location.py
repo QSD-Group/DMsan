@@ -13,6 +13,7 @@ This module is used to import data from the country-specific database.
 
 # %%
 
+import os
 import pandas as pd
 import country_converter as coco
 from . import data_path
@@ -26,7 +27,7 @@ class Location:
     '''Contains the contextual parameters related to a given location.'''
 
     def __init__(self, file_path='', location_name='Uganda'):
-        path = file_path if file_path else data_path+'/location.xlsx'
+        path = file_path if file_path else os.path.join(data_path, 'location.xlsx')
         file = pd.ExcelFile(path)
         read_excel = lambda name: pd.read_excel(file, name, index_col='Country') # name is sheet name
         self.location_name = coco.convert(names=[location_name], to='name_short')
