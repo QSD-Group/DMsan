@@ -198,7 +198,7 @@ class MCDA:
         if file_path is not None:
             if not os.path.isdir(results_path):
                 os.mkdir(results_path)
-            file_path = file_path if file_path else os.path.join(results_path, 'AHP_TOPSIS.xlsx')
+            file_path = file_path if file_path else os.path.join(results_path, 'performance_scores.xlsx')
             with pd.ExcelWriter(file_path) as writer:
                 winner_df.to_excel(writer, sheet_name='Winner')
                 score_df.to_excel(writer, sheet_name='Score')

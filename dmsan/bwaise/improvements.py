@@ -140,7 +140,7 @@ def test_oat(mcda, alt, best_score={}):
         mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 
         # Run MCDA with multiple global weights
-        mcda.run_MCDA()
+        mcda.run_MCDA(file_path=None)
         winning_chance = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
         data['indicator type']: ind_type
@@ -153,7 +153,7 @@ def test_oat(mcda, alt, best_score={}):
     # Get the winning chance at baseline values
     mcda.indicator_scores = baseline_ind_scores.copy()
     mcda.indicator_weights = baseline_indicator_weights.copy()
-    mcda.run_MCDA()
+    mcda.run_MCDA(file_path=None)
     oat_dct['baseline'] = {'winning chance':
                             mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num}
 
@@ -226,7 +226,7 @@ def local_optimum_approach(mcda, alt, oat_dct, wt_sce_num, file_path=''):
             mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 
             # Run MCDA with multiple global weights
-            mcda.run_MCDA()
+            mcda.run_MCDA(file_path=None)
             winning_dct[ind] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
         series = pd.Series(data=winning_dct.values(), index=winning_dct.keys())
@@ -340,7 +340,7 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
                 # Update local weights
                 mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
                 # Run MCDA with multiple global weights
-                mcda.run_MCDA()
+                mcda.run_MCDA(file_path=None)
                 glob_dct[run][n] = winning_chance = \
                     mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
             if winning_chance >= target_chance:
@@ -462,7 +462,7 @@ if __name__ == '__main__':
 
 #         for val in vals:
 #             mcda.indicator_scores.loc[idx, indicator] = val
-#             mcda.run_MCDA()
+#             mcda.run_MCDA(file_path=None)
 #             win_dct[val] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
 #     else:
@@ -547,7 +547,7 @@ if __name__ == '__main__':
 #         else:
 #             mcda.indicator_scores.loc[idx, ind] = oat_dct[ind]['updated']
 #             mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
-#             mcda.run_MCDA()
+#             mcda.run_MCDA(file_path=None)
 #             acc_dct[ind] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
 #     return acc_dct
