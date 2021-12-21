@@ -32,12 +32,12 @@ from dmsan import AHP, MCDA
 from dmsan.bwaise import scores_path, results_path, figures_path
 
 # Utils
-tech_scores_path = os.path.join(scores_path, 'other_tech_scores.xlsx')
-score_file = pd.ExcelFile(tech_scores_path)
+indicator_scores_path = os.path.join(scores_path, 'other_indicator_scores.xlsx')
+score_file = pd.ExcelFile(indicator_scores_path)
 read_baseline = lambda name: pd.read_excel(score_file, name).expected
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
-criteria_num = 5 # number of criteria
-wt_scenario_num = 1000 # number of criteria weights considered
+criterion_num = 5 # number of criteria
+wt_scenario_num = 1000 # number of criterion weights considered
 
 
 # %%
@@ -53,11 +53,11 @@ def check_lca(lca_perspective):
 
 
 # Baseline
-def get_baseline_tech_scores(lca_perspective='H'):
+def get_baseline_indicator_scores(lca_perspective='H'):
     check_lca(lca_perspective)
 
     # Technical
-    tech_score_T_All = pd.DataFrame([
+    ind_score_T_All = pd.DataFrame([
         read_baseline('user_interface'),
         read_baseline('treatment_type'),
         read_baseline('system_part_accessibility'),
@@ -69,14 +69,14 @@ def get_baseline_tech_scores(lca_perspective='H'):
         read_baseline('drought_flexibility')
         ]).transpose()
 
-    tech_score_T_All.columns = [f'T{i+1}' for i in range(tech_score_T_All.shape[1])]
+    ind_score_T_All.columns = [f'T{i+1}' for i in range(ind_score_T_All.shape[1])]
 
     # Resource Recovery
     # Import simulated results
     baseline = pd.read_csv(os.path.join(scores_path, 'sys_baseline.tsv'),
                            index_col=(0, 1), sep='\t')
 
-    tech_score_RR_All = pd.DataFrame([
+    ind_score_RR_All = pd.DataFrame([
         read_baseline('water_reuse'),
         baseline.loc[('Net recovery', 'N')].values,
         baseline.loc[('Net recovery', 'P')].values,
@@ -85,28 +85,28 @@ def get_baseline_tech_scores(lca_perspective='H'):
         read_baseline('supply_chain')
         ]).transpose()
 
-    tech_score_RR_All.columns = [f'RR{i+1}' for i in range(tech_score_RR_All.shape[1])]
+    ind_score_RR_All.columns = [f'RR{i+1}' for i in range(ind_score_RR_All.shape[1])]
 
     # Environmental, lca_perspective can be "I", "H", or "E" for
     # individualist, hierarchist, or egalitarian
     lca_ind = [ind for ind in baseline.index if ind[1].startswith(f'{lca_perspective.upper()}_')]
-    tech_score_Env_All = pd.DataFrame([
+    ind_score_Env_All = pd.DataFrame([
         baseline[baseline.index==lca_ind[0]].values[0], # ecosystem quality
         baseline[baseline.index==lca_ind[1]].values[0], # human health
         baseline[baseline.index==lca_ind[2]].values[0], # resource depletion
         ]).transpose()
 
-    tech_score_Env_All.columns = [f'Env{i+1}' for i in range(tech_score_Env_All.shape[1])]
+    ind_score_Env_All.columns = [f'Env{i+1}' for i in range(ind_score_Env_All.shape[1])]
 
     # Economic
-    tech_score_Econ_All = pd.DataFrame([
+    ind_score_Econ_All = pd.DataFrame([
         baseline.loc[('TEA results', 'Net cost')].values
         ]).transpose()
 
-    tech_score_Econ_All.columns = ['Econ1']
+    ind_score_Econ_All.columns = ['Econ1']
 
     # Social
-    tech_score_S_All = pd.DataFrame([
+    ind_score_S_All = pd.DataFrame([
         read_baseline('design_job_creation'),
         read_baseline('design_high_pay_jobs'),
         read_baseline('end_user_disposal'),
@@ -118,15 +118,15 @@ def get_baseline_tech_scores(lca_perspective='H'):
         read_baseline('management_cleaning')
         ]).transpose()
 
-    tech_score_S_All.columns = [f'S{i+1}' for i in range(tech_score_S_All.shape[1])]
+    ind_score_S_All.columns = [f'S{i+1}' for i in range(ind_score_S_All.shape[1])]
 
-    # `tech_scores` is `Tech_Scores_compiled` in the original script,
+    # `indicator_scores` is `Tech_Scores_compiled` in the original script,
     # values checked to be the same as the original script
-    tech_scores = pd.concat([tech_score_T_All, tech_score_RR_All,
-                             tech_score_Env_All, tech_score_Econ_All,
-                             tech_score_S_All], axis=1)
+    indicator_scores = pd.concat([ind_score_T_All, ind_score_RR_All,
+                                  ind_score_Env_All, ind_score_Econ_All,
+                                  ind_score_S_All], axis=1)
 
-    return tech_scores
+    return indicator_scores
 
 
 # For uncertainties of those simulated (only some certain parameters are affected)
@@ -139,7 +139,7 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None,):
     check_lca(lca_perspective)
 
     if not baseline_scores:
-        baseline_scores = get_baseline_tech_scores()
+        baseline_scores = get_baseline_indicator_scores()
 
     file_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
     file = pd.ExcelFile(file_path)
@@ -167,30 +167,30 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None,):
     sysB_val = sysB[col_names]
     sysC_val = sysC[col_names]
 
-    tech_score_dct = {}
+    ind_score_dct = {}
     N = sysA.shape[0]
     for i in range(N):
         simulated = pd.DataFrame([sysA_val.iloc[i],
                                   sysB_val.iloc[i],
                                   sysC_val.iloc[i]]).reset_index(drop=True)
-        tech_scores = baseline_scores.copy()
-        tech_scores[varied_inds] = simulated
+        indicator_scores = baseline_scores.copy()
+        indicator_scores[varied_inds] = simulated
 
         # design_job_creation including unskilled and skilled (constant) jobs,
         # only Alternative B with the alternative wastewater treatment plant
         # has uncertainties
-        tech_scores['S1'] = 5 + paramB[('TEA', 'Unskilled staff num [-]')][i]
+        indicator_scores['S1'] = 5 + paramB[('TEA', 'Unskilled staff num [-]')][i]
         # end_user_disposal, how many times the toilet needed to be emptied each year
-        tech_scores['S3'] = [*[1/paramA[('Pit latrine-A2', 'Pit latrine emptying period [yr]')][i]]*2,
-                             365/paramC[('UDDT-C2', 'UDDT collection period [d]')][i]]
+        indicator_scores['S3'] = [*[1/paramA[('Pit latrine-A2', 'Pit latrine emptying period [yr]')][i]]*2,
+                                  365/paramC[('UDDT-C2', 'UDDT collection period [d]')][i]]
         # privacy, i.e., num of household per toilet
-        tech_scores['S5'] = paramA[('Pit latrine-A2', 'Toilet density [household/toilet]')][i]
-        tech_score_dct[i] = tech_scores
+        indicator_scores['S5'] = paramA[('Pit latrine-A2', 'Toilet density [household/toilet]')][i]
+        ind_score_dct[i] = indicator_scores
 
-    return param_dct, tech_score_dct
+    return param_dct, ind_score_dct
 
-param_dct, tech_score_dct = get_uncertainty_data()
-sim_num = len(tech_score_dct) # number of system simulations
+param_dct, ind_score_dct = get_uncertainty_data()
+sim_num = len(ind_score_dct) # number of system simulations
 
 
 # %%
@@ -200,7 +200,7 @@ sim_num = len(tech_score_dct) # number of system simulations
 # =============================================================================
 
 # Names of the alternative systems
-alt_names = pd.read_excel(tech_scores_path, sheet_name='user_interface').system
+alt_names = pd.read_excel(indicator_scores_path, sheet_name='user_interface').system
 
 # Baseline
 # `bwaise_ahp.norm_weights_df` is `subcriteria_weights` in the original script,
@@ -215,13 +215,13 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
 # TOPSIS uncertainties for selected weighing scenarios
 # =============================================================================
 
-def generate_weights(criteria_num, wt_scenario_num, savefig=True):
+def generate_weights(criterion_num, wt_scenario_num, savefig=True):
     # Use randomly generated criteria weights
     wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
-    n = int(wt_scenario_num/criteria_num)
+    n = int(wt_scenario_num/criterion_num)
     wt1 = wt_sampler1.random(n=n) # draw from 0 to 1 for one criterion
 
-    wt_sampler4 = stats.qmc.LatinHypercube(d=(criteria_num-1), seed=rng)
+    wt_sampler4 = stats.qmc.LatinHypercube(d=(criterion_num-1), seed=rng)
     wt4 = wt_sampler4.random(n=n) # normalize the rest four based on the first criterion
     tot = wt4.sum(axis=1) / ((np.ones_like(wt1)-wt1).transpose())
     wt4 = wt4.transpose()/np.tile(tot, (wt4.shape[1], 1))
@@ -229,7 +229,7 @@ def generate_weights(criteria_num, wt_scenario_num, savefig=True):
     combined = np.concatenate((wt1.transpose(), wt4)).transpose()
 
     wts = [combined]
-    for num in range(criteria_num-1):
+    for num in range(criterion_num-1):
         combined = np.roll(combined, 1, axis=1)
         wts.append(combined)
 
@@ -313,20 +313,20 @@ def run_uncertainty_corr(df_dct, kind):
 
 # The Excel files could be vary large, try not to use when have thousands of samples,
 # especially for saving the uncertainty analysis results
-def export_to_excel(local_weights=True, mcda=True, criterion_weights=True,
+def export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
                     uncertainty=True, sensitivity='KS'):
-    if local_weights:
-        file_path = os.path.join(results_path, 'local_weights.xlsx')
+    if indicator_weights:
+        file_path = os.path.join(results_path, 'indicator_weights.xlsx')
         bwaise_ahp.norm_weights_df.to_excel(file_path, sheet_name='Local weights')
-        print(f'\nLocal weights exported to "{file_path}".')
+        print(f'\nIndicator weights exported to "{file_path}".')
 
     if mcda:
-        bwaise_mcda.tech_scores = baseline_tech_scores
+        bwaise_mcda.indicator_scores = baseline_indicator_scores
         file_path = os.path.join(results_path, 'performance_baseline.xlsx')
         with pd.ExcelWriter(file_path) as writer:
-            bwaise_mcda.perform_scores.to_excel(writer, sheet_name='Score')
+            bwaise_mcda.performance_scores.to_excel(writer, sheet_name='Score')
             bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
-        print(f'\nBaseline performance results exported to "{file_path}".')
+        print(f'\nBaseline performance scores exported to "{file_path}".')
 
     if criterion_weights:
         file_path = os.path.join(results_path, f'criterion_weights_{wt_scenario_num}.xlsx')
@@ -348,7 +348,7 @@ def export_to_excel(local_weights=True, mcda=True, criterion_weights=True,
                 v.to_excel(writer, sheet_name='Score', startcol=col_num)
                 rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
                 col_num += v.shape[1]+2
-        print(f'\nUncertainty performance results exported to "{file_path}".')
+        print(f'\Performance score uncertainties exported to "{file_path}".')
 
     if sensitivity:
         file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.xlsx')
@@ -372,17 +372,18 @@ def export_to_excel(local_weights=True, mcda=True, criterion_weights=True,
 # and cannot be opened outside of Python,
 # but takes much less time to load/save than Excel files
 # https://stackoverflow.com/questions/9619199/best-way-to-preserve-numpy-arrays-on-disk
-def export_to_pickle(param=True, tech_scores=True, ahp=True, mcda=True,
+def export_to_pickle(parameters=True, indicator_scores=True,
+                     ahp=True, mcda=True,
                      uncertainty=True, sensitivity='KS'):
-    if param:
-        file_path = os.path.join(results_path, 'param.pckl')
+    if parameters:
+        file_path = os.path.join(results_path, 'parameters.pckl')
         save_pickle(param_dct, file_path)
         print(f'\nDict of parameter values exported to "{file_path}".')
 
-    if tech_scores:
-        file_path = os.path.join(results_path, 'tech_scores.pckl')
-        save_pickle(tech_score_dct, file_path)
-        print(f'\nDict of technology scores exported to "{file_path}".')
+    if indicator_scores:
+        file_path = os.path.join(results_path, 'indicator_scores.pckl')
+        save_pickle(ind_score_dct, file_path)
+        print(f'\nDict of indicator scores exported to "{file_path}".')
 
     if ahp:
         file_path = os.path.join(results_path, 'ahp.pckl')
@@ -390,7 +391,7 @@ def export_to_pickle(param=True, tech_scores=True, ahp=True, mcda=True,
         print(f'\nAHP object exported to "{file_path}".')
 
     if mcda:
-        bwaise_mcda.tech_scores = baseline_tech_scores
+        bwaise_mcda.indicator_scores = baseline_indicator_scores
         file_path = os.path.join(results_path, 'mcda.pckl')
         save_pickle(bwaise_mcda, file_path)
         print(f'\nMCDA object exported to "{file_path}".')
@@ -399,7 +400,7 @@ def export_to_pickle(param=True, tech_scores=True, ahp=True, mcda=True,
         obj = (score_df_dct, rank_df_dct, winner_df)
         file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.pckl')
         save_pickle(obj, file_path)
-        print(f'\nUncertainty performance results exported to "{file_path}".')
+        print(f'\nPerformance score uncertainties exported to "{file_path}".')
 
     if sensitivity:
         file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
@@ -424,35 +425,30 @@ def run_analyses(save_excel=False):
     # values checked to be the same as the original script
     # Note that the small discrepancies in scores are due to the rounding error
     # in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
-    global baseline_tech_scores
-    baseline_tech_scores = get_baseline_tech_scores()
+    global baseline_indicator_scores
+    baseline_indicator_scores = get_baseline_indicator_scores()
 
     # Set the local weight of indicators that all three systems score the same
     # to zero (to prevent diluting the scores)
-    eq_ind = baseline_tech_scores.min()==baseline_tech_scores.max()
+    eq_ind = baseline_indicator_scores.min()==baseline_indicator_scores.max()
     eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind==True].index]
 
     for i in eq_inds:
         # Need subtract in `int(i[1])-1` because of 0-indexing
         bwaise_ahp.init_weights[i[0]][int(i[1])-1] = bwaise_ahp.na_default
 
-    bwaise_ahp.get_local_weights(True)
+    bwaise_ahp.get_indicator_weights(True)
 
     global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
                        indicator_weights=bwaise_ahp.norm_weights_df,
-                       tech_scores=baseline_tech_scores)
+                       indicator_scores=baseline_indicator_scores)
     bwaise_mcda.run_MCDA()
 
-    # # Legacy code related to updating local weights for each set of scores
-    # # from system simulation
-    # global AHP_dct
-    # AHP_dct = get_local_weights(N=sim_num)
-
     global weight_df
-    weight_df = generate_weights(criteria_num=criteria_num, wt_scenario_num=wt_scenario_num)
+    weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
 
-    export_to_excel(local_weights=True, mcda=True, criterion_weights=True,
+    export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
                     uncertainty=False, sensitivity=None)
 
     # Note that empty cells (with nan value) are failed simulations
@@ -460,20 +456,20 @@ def run_analyses(save_excel=False):
     global score_df_dct, rank_df_dct, winner_df
     score_df_dct, rank_df_dct, winner_df = \
         bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
-                                          tech_score_dct=tech_score_dct)
+                                          ind_score_dct=ind_score_dct)
 
     kind = 'Spearman'
     global score_corr_dct, rank_corr_dct
     score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
     if save_excel: # too large, prefer not to do it
-        export_to_excel(local_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
+        export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
     export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
 
     kind = 'KS'
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
     if save_excel: # too large, prefer not to do it
-        export_to_excel(local_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
+        export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
 
     export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 

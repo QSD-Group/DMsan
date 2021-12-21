@@ -20,34 +20,35 @@ from qsdsan.utils import time_printer, colors, save_pickle
 from dmsan import AHP
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 from dmsan.bwaise.uncertainty_sensitivity import \
-    criteria_num, wt_scenario_num as sce_num1, generate_weights
+    criterion_num, wt_scenario_num as sce_num1, generate_weights
 
 
-loaded = import_from_pickle(param=False, tech_scores=True, ahp=True, mcda=True,
+loaded = import_from_pickle(parameters=False, indicator_scores=True,
+                            ahp=True, mcda=True,
                             uncertainty=False, sensitivity=None)
 
-tech_score_dct = loaded['tech_scores']
+ind_score_dct = loaded['indicator_scores']
 bwaise_ahp = loaded['ahp']
 bwaise_mcda = loaded['mcda']
 
 # Save a copy
-baseline_tech_scores =  bwaise_mcda.tech_scores.copy()
-baseline_local_weights = bwaise_ahp.norm_weights_df.copy()
+baseline_ind_scores =  bwaise_mcda.indicator_scores.copy()
+baseline_indicator_weights = bwaise_ahp.norm_weights_df.copy()
 
-def update_local_weights(tech_scores):
+def update_indicator_weights(ind_scores):
     ahp = AHP(location_name='Uganda', num_alt=bwaise_ahp.num_alt,
               na_default=0.00001, random_index={})
 
     # Set the local weight of indicators that all three systems score the same
     # to zero (to prevent diluting the scores)
-    eq_ind = tech_scores.min()==tech_scores.max()
+    eq_ind = ind_scores.min()==ind_scores.max()
     eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind==True].index]
 
     for i in eq_inds:
         # Need subtract in `int(i[1])-1` because of 0-indexing
         ahp.init_weights[i[0]][int(i[1])-1] = ahp.na_default
 
-    ahp.get_local_weights(True)
+    ahp.get_indicator_weights(True)
 
     return ahp.norm_weights_df
 
@@ -107,8 +108,8 @@ def test_oat(mcda, alt, best_score={}):
     oat_dct = {ind: {} for ind in best_score.keys()}
     for ind, data in oat_dct.items():
         # Reset technology scores and refresh results
-        mcda.tech_scores = baseline_tech_scores.copy()
-        series = mcda.tech_scores.loc[:, ind]
+        mcda.indicator_scores = baseline_ind_scores.copy()
+        series = mcda.indicator_scores.loc[:, ind]
         baseline = series.loc[alt_idx]
         ind_type = int(mcda.indicator_type[ind])
         baseline_rank = series.rank(
@@ -126,17 +127,17 @@ def test_oat(mcda, alt, best_score={}):
             else:
                 updated = series.max()
 
-        mcda.tech_scores.loc[alt_idx, ind] = updated
-        updated_rank = mcda.tech_scores.loc[:, ind].rank(
+        mcda.indicator_scores.loc[alt_idx, ind] = updated
+        updated_rank = mcda.indicator_scores.loc[:, ind].rank(
             ascending=bool(not ind_type), method='min').loc[alt_idx]
         if updated_rank != 1:
             warn(f'The rank of indicator {ind} is {updated_rank} '
                  'with the provided best score.\n'
                  f'Scores for {ind} are:')
-            print(mcda.tech_scores.loc[:, ind])
+            print(mcda.indicator_scores.loc[:, ind])
 
         # Update local weights
-        mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+        mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 
         # Run MCDA with multiple global weights
         mcda.run_MCDA()
@@ -150,8 +151,8 @@ def test_oat(mcda, alt, best_score={}):
         data['winning chance'] = winning_chance
 
     # Get the winning chance at baseline values
-    mcda.tech_scores = baseline_tech_scores.copy()
-    mcda.indicator_weights = baseline_local_weights.copy()
+    mcda.indicator_scores = baseline_ind_scores.copy()
+    mcda.indicator_weights = baseline_indicator_weights.copy()
     mcda.run_MCDA()
     oat_dct['baseline'] = {'winning chance':
                             mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num}
@@ -180,7 +181,7 @@ def plot_oat(oat_dct, wt_sce_num, file_path=''):
     if file_path is not None:
         file_path = file_path if file_path != '' \
             else os.path.join(figures_path, f'baseline_oat_{wt_sce_num}.png')
-        fig.savefig(file_path, dpi=100)
+        fig.savefig(file_path, dpi=300)
 
     return ax
 
@@ -203,7 +204,7 @@ def local_optimum_approach(mcda, alt, oat_dct, wt_sce_num, file_path=''):
                if data['winning chance']==max(winning_chances)}
     ind = list(loc_dct.keys())[0]
     winning_chance = list(loc_dct.values())[0]
-    updated_scores = baseline_tech_scores.copy()
+    updated_scores = baseline_ind_scores.copy()
     updated_scores.loc[alt_idx, ind] = winning_chance
 
     copied = oat_dct.copy()
@@ -218,11 +219,11 @@ def local_optimum_approach(mcda, alt, oat_dct, wt_sce_num, file_path=''):
     while (winning_chance<1 and len(copied)!=0):
         winning_dct = {}
         for ind, data in copied.items():
-            mcda.tech_scores = updated_scores.copy()
-            mcda.tech_scores.loc[alt_idx, ind] = data['updated']
+            mcda.indicator_scores = updated_scores.copy()
+            mcda.indicator_scores.loc[alt_idx, ind] = data['updated']
 
             # Update local weights
-            mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+            mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 
             # Run MCDA with multiple global weights
             mcda.run_MCDA()
@@ -270,7 +271,7 @@ def plot_local_optimum(loc_dct, wt_sce_num, file_path=''):
     if file_path is not None:
         file_path = file_path if file_path != '' \
             else os.path.join(figures_path, f'local_optimum_{wt_sce_num}.png')
-        ax.figure.savefig(file_path, dpi=100)
+        ax.figure.savefig(file_path, dpi=300)
     return ax
 
 
@@ -299,7 +300,7 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
     '''
     weight_num = mcda.criterion_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
-    # updated_scores = baseline_tech_scores.copy()
+    # updated_scores = baseline_ind_scores.copy()
 
     # Take care of the baseline winning chance
     copied = oat_dct.copy()
@@ -327,17 +328,17 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
     glob_dct = {'baseline': {0: baseline_chance}}
     for run in runs:
         glob_dct[run] = {}
-        mcda.tech_scores = baseline_tech_scores.copy()
+        mcda.indicator_scores = baseline_ind_scores.copy()
         winning_chance = 0
         n = 1
         for ind in run:
-            mcda.tech_scores.loc[alt_idx, ind] = copied_df.loc[ind]['updated']
+            mcda.indicator_scores.loc[alt_idx, ind] = copied_df.loc[ind]['updated']
             if n == 1: # at baseline, no need to run again
                 glob_dct[run][n] = winning_chance = \
                     copied_df.loc[ind]['winning chance']
             else:
                 # Update local weights
-                mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+                mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
                 # Run MCDA with multiple global weights
                 mcda.run_MCDA()
                 glob_dct[run][n] = winning_chance = \
@@ -413,7 +414,7 @@ if __name__ == '__main__':
 
     # Smaller number of criterion weight scenarios
     sce_num2 = 100 # use fewer scenarios here
-    weight_df2 = generate_weights(criteria_num=criteria_num, wt_scenario_num=sce_num2)
+    weight_df2 = generate_weights(criterion_num=criterion_num, wt_scenario_num=sce_num2)
     bwaise_mcda.criterion_weights = weight_df2
     file_path = os.path.join(results_path, f'criterion_weights_{sce_num2}.xlsx')
     weight_df2.to_excel(file_path, sheet_name='Criterion weights')
@@ -446,11 +447,11 @@ if __name__ == '__main__':
 #                      min_val=None, max_val=None, step_num=10):
 #     '''Run all global weight scenarios at certain steps with the desired range.'''
 #     # Reset technology scores
-#     mcda.tech_scores = baseline_tech_scores.copy()
+#     mcda.indicator_scores = baseline_ind_scores.copy()
 #     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
 #     min_val = min_val if min_val else 0
-#     max_val = max_val if max_val else baseline_tech_scores.loc[idx, indicator]
+#     max_val = max_val if max_val else baseline_ind_scores.loc[idx, indicator]
 
 #     # Total number of global weights
 #     weight_num = mcda.criterion_weights.shape[0]
@@ -460,19 +461,19 @@ if __name__ == '__main__':
 #     if not include_simulation_uncertainties: # fix other tech scores at the baseline
 
 #         for val in vals:
-#             mcda.tech_scores.loc[idx, indicator] = val
+#             mcda.indicator_scores.loc[idx, indicator] = val
 #             mcda.run_MCDA()
 #             win_dct[val] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
 #     else:
 #         # Make a copy for manipulating
-#         tech_score_dct_updated = tech_score_dct.copy()
+#         ind_score_dct_updated = ind_score_dct.copy()
 #         for val in vals:
 #             # Update all the costs to be the set value
-#             for v in tech_score_dct_updated.values():
-#                 tech_score_dct_updated.loc[idx, indicator] = val
+#             for v in ind_score_dct_updated.values():
+#                 ind_score_dct_updated.loc[idx, indicator] = val
 #             score_df_dct, rank_df_dct, winner_df = \
-#                 mcda.run_MCDA_multi_scores(tech_score_dct=tech_score_dct_updated)
+#                 mcda.run_MCDA_multi_scores(ind_score_dct=ind_score_dct_updated)
 #             win_dct[val] = winner_df[winner_df==alt].count()/weight_num
 
 #     return win_dct
@@ -501,7 +502,7 @@ if __name__ == '__main__':
 #                                         include_simulation_uncertainties=False,
 #                                         min_val=0, step_num=100)
 #     ax0 = plot_across_axis(Cwin_across_cost, include_simulation_uncertainties=False)
-#     ax0.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost.png'), dpi=100)
+#     ax0.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost.png'), dpi=300)
 
 #     # **Each** step takes ~1 hour (at each step, we are running 1000 simulation*1000 global weights)
 #     Cwin_across_cost_uncertainty = test_across_axis(bwaise_mcda, alt='Alternative C',
@@ -509,7 +510,7 @@ if __name__ == '__main__':
 #                                                     include_simulation_uncertainties=True,
 #                                                     min_val=0, step_num=2)
 #     ax1 = plot_across_axis(Cwin_across_cost_uncertainty, include_simulation_uncertainties=True)
-#     ax1.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost_with_band.png'), dpi=100)
+#     ax1.figure.savefig(os.path.join(figures_path, 'Cwin_across_cost_with_band.png'), dpi=300)
 
 
 # %%
@@ -544,8 +545,8 @@ if __name__ == '__main__':
 #         if ind == 'baseline':
 #             pass
 #         else:
-#             mcda.tech_scores.loc[idx, ind] = oat_dct[ind]['updated']
-#             mcda.indicator_weights = update_local_weights(mcda.tech_scores)
+#             mcda.indicator_scores.loc[idx, ind] = oat_dct[ind]['updated']
+#             mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 #             mcda.run_MCDA()
 #             acc_dct[ind] = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
 
@@ -574,6 +575,6 @@ if __name__ == '__main__':
 #     if file_path is not None:
 #         file_path = file_path if file_path != '' \
 #             else os.path.join(figures_path, 'baseline_acc.png')
-#         fig.savefig(file_path, dpi=100)
+#         fig.savefig(file_path, dpi=300)
 
 #     return ax

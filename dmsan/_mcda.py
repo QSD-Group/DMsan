@@ -21,6 +21,14 @@ from . import data_path, results_path
 
 __all__ = ('MCDA',)
 
+supported_criteria = ('T', 'RR', 'Env', 'Econ', 'S')
+single_cr_df = pd.DataFrame(
+    data=np.diag([1]*len(supported_criteria)),
+    columns=supported_criteria, dtype='float')
+single_cr_df['Ratio'] = [':'.join(single_cr_df.values.astype('int').astype('str')[i])
+                         for i in range(len(single_cr_df))]
+single_cr_df['Description'] = supported_criteria
+
 
 # %%
 
@@ -34,7 +42,7 @@ class MCDA:
         Path for the Excel data file containing information related to
         criteria weighing, default path (and file) will be used if not provided.
     alt_names : Iterable
-        Names of the alternative systems under consideration.
+        Names of the alternatives under consideration.
     method : str
         MCDA method, either TOPSIS (technique for order of preference by similarity
         to ideal solution) or ELECTRE (ELimination Et Choice Translating REality).
@@ -43,10 +51,10 @@ class MCDA:
     indicator_type : :class:`pandas.DataFrame`
         Columns should be the code of the indicators as used in :class:`DMsan.,
         values should by either "1" (beneficial) or "0" (non-beneficial).
-        For beneficial indicators, the higher the technology score is, the better;
+        For beneficial indicators, the higher the indicator score is, the better;
         and vice versa for non-beneficial factors.
-    tech_scores : :class:`pandas.DataFrame`
-        Calculated scores for the alternative systems with regard to each indicator.
+    indicator_scores : :class:`pandas.DataFrame`
+        Calculated scores for the alternatives with regard to each indicator.
     criterion_weights : :class:`pandas.DataFrame`
         Weight scenarios for the different criteria,
         will use default scenarios if not provided.
@@ -57,7 +65,7 @@ class MCDA:
 
     '''
     def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
-                 *, indicator_weights, tech_scores, indicator_type=None,
+                 *, indicator_weights, indicator_scores, indicator_type=None,
                  criterion_weights=None):
         path = file_path if file_path else os.path.join(data_path, 'criteria_and_indicators.xlsx')
         file = pd.ExcelFile(path)
@@ -69,16 +77,19 @@ class MCDA:
         self.indicator_type = pd.DataFrame({
                 defs.variable[i]: defs.category_binary[i] for i in defs.index
                 }, index=[0])
-        self.tech_scores = tech_scores
+        self.indicator_scores = indicator_scores
         self.criterion_weights = criterion_weights if criterion_weights else read_excel('weight_scenarios')
         self.method = method
-        self._perform_socres = self._ranks = self._winners = None
+        self._normalized_indicator_scores = self._criterion_scores = \
+            self._performance_scores = self._ranks = self._winners = None
 
 
-    def run_MCDA(self, criterion_weights=None, method=None,
-                 save=False, file_path=''):
+    def run_MCDA(self, criterion_weights=None, method=None, file_path='',
+                 **kwargs):
         '''
-        MCDA using the set method.
+        Calculate perfomance scores using the selected method,
+        multiple criterion weights can be considered,
+        but only one set of indicator scores are used.
 
         Parameters
         ----------
@@ -87,66 +98,73 @@ class MCDA:
             associated criteria in the `criterion_weights` property if left as None.
         method : str
             MCDA method, will use value set in the `method` property if not provided.
-        save : bool
-            If True, the results will be save as an Excel file.
         file_path : str
-            Path for the output Excel file, default path will be used if not provided.
+            Path for the output Excel file, default path will be used if left as blank,
+            no file will be saved if None.
+
+        See Also
+        --------
+        :func:`run_MCDA_multi_scores` for running multiple sets of
+        criterion weights and indicator scores.
         '''
-        method = self.method if not method else method
+        method = method or self.method
         if method.upper() == 'TOPSIS':
-            self._run_TOPSIS(criterion_weights, save, file_path)
+            returned = self._run_TOPSIS(criterion_weights, file_path, **kwargs)
         elif method.upper() == 'ELECTRE':
-            self._run_ELECTRE()
+            returned = self._run_ELECTRE(**kwargs)
+        elif method.upper() == 'AHP':
+            returned = self._run_AHP(**kwargs)
         else:
-            raise ValueError('`method` can only be "TOPSIS" OR "ELECTRE", '
+            raise ValueError('`method` can only be "TOPSIS", "ELECTRE", or "AHP", '
                              f'not {method}.')
+        return returned
 
 
-    def _run_TOPSIS(self, criterion_weights=None, save=False, file_path=''):
+    def _run_TOPSIS(self, criterion_weights=None, file_path='', **kwargs):
         cr_wt = self.criterion_weights if criterion_weights is None else criterion_weights
         ind_type = self.indicator_type
         rev_ind_type = np.ones_like(ind_type) - ind_type
         ind_wt = self.indicator_weights
 
-        tech_scores = self.tech_scores
-        tech_scores_a = tech_scores.values # a for array
-        num_ind = tech_scores.shape[1]
-        num_alt = tech_scores.shape[0]
-        num_cr = cr_wt.shape[0] if len(cr_wt.shape)==2 else 1 # cr_wt will be a Series if only criterion
+        indicator_scores = self.indicator_scores
+        indicator_scores_a = indicator_scores.values # a for array
+        num_ind = indicator_scores.shape[1]
+        num_alt = indicator_scores.shape[0]
+        num_cr = cr_wt.shape[0] if len(cr_wt.shape)==2 else 1 # cr_wt will be a Series if only one criterion
 
-        # Step 1: Normalize tech scores (vector normalization)
-        denominators = np.array([sum(tech_scores_a[:, i]**2)**0.5
+        # Step 1: Normalize indicator scores (vector normalization)
+        denominators = np.array([sum(indicator_scores_a[:, i]**2)**0.5
                                  for i in range(num_ind)])
-        norm_val = np.divide(tech_scores_a, denominators,
-                             out=np.zeros_like(tech_scores_a), # fill 0 when denominator is 0
-                             where=denominators!=0)
+        norm_ind_scores = self._normalized_indicator_scores = \
+            np.divide(indicator_scores_a, denominators,
+                      out=np.zeros_like(indicator_scores_a), # fill 0 when denominator is 0
+                      where=denominators!=0)
 
-        # Step 2: Rank systems under criteria weighting scenarios
-        criteria = ['T', 'RR', 'Env', 'Econ', 'S']
-        num_ind_dct = dict.fromkeys(criteria)
-        for k in criteria:
-            num_ind_dct[k] = len([i for i in ind_wt.columns if i.startswith(k)])
+        # Step 2: Rank alternatives under crterion weighting scenarios
+        # Find num of indicators within each criterion
+        criteria = self.criteria
+        num_ind_dct = {k: len([i for i in ind_wt.columns if i.startswith(k)])
+                       for k in criteria}
 
-        # For all criteria weighing scenarios and all indicators
+        # For all criterion weight scenarios and all indicators
         norm_indicator_weights = np.concatenate(
             [np.tile(cr_wt[i], (num_ind_dct[i], 1)) for i in criteria]
             ).transpose() # the shape is (num_of_weighing_scenarios, num_of_indicators)
         norm_indicator_weights *= np.tile(ind_wt, (num_cr, 1))
 
+        #!!! Looks like codes from here and above used in both TOPSIS and ELECTRE
 
-        #!!! PAUSED, looks like from here and above used in both TOPSIS and ELECTRE
-
-        # For each weighing scenario considering all alternative systems
+        # For each weighing scenario considering all alternatives
         scores, ranks, winners = [], [], []
         columns = self.alt_names
         for i in norm_indicator_weights:
-            results = i * norm_val
+            weighed_ind_scores = i * norm_ind_scores
 
             # Get ideal best and worst values for each indicator,
             # for indicator types, 0 is non-beneficial (want low value)
             # and 1 is beneficial
-            min_a = results.min(axis=0)
-            max_a = results.max(axis=0)
+            min_a = weighed_ind_scores.min(axis=0)
+            max_a = weighed_ind_scores.max(axis=0)
 
             # Best would be the max for beneficial indicators
             # and min for non-beneficial indicators
@@ -154,10 +172,10 @@ class MCDA:
             worst_a = (ind_type.values*min_a) + (rev_ind_type.values*max_a)
 
             # Calculate the Euclidean distance from best and worst
-            dif_best = (results-np.tile(best_a, (num_alt, 1))) ** 2
-            dif_worst = (results-np.tile(worst_a, (num_alt, 1))) ** 2
-            d_best = dif_best.sum(axis=1) ** 0.5
-            d_worst = dif_worst.sum(axis=1) ** 0.5
+            diff_best = (weighed_ind_scores-np.tile(best_a, (num_alt, 1))) ** 2
+            diff_worst = (weighed_ind_scores-np.tile(worst_a, (num_alt, 1))) ** 2
+            d_best = diff_best.sum(axis=1) ** 0.5
+            d_worst = diff_worst.sum(axis=1) ** 0.5
 
             # Calculate performance score
             score = d_worst / (d_best+d_worst)
@@ -177,11 +195,7 @@ class MCDA:
         rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index(drop=True)
         winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index(drop=True)
 
-        self._perform_socres = score_df
-        self._ranks = rank_df
-        self._winners = winner_df
-
-        if save:
+        if file_path is not None:
             if not os.path.isdir(results_path):
                 os.mkdir(results_path)
             file_path = file_path if file_path else os.path.join(results_path, 'AHP_TOPSIS.xlsx')
@@ -190,8 +204,20 @@ class MCDA:
                 score_df.to_excel(writer, sheet_name='Score')
                 rank_df.to_excel(writer, sheet_name='Rank')
 
+        if kwargs.get('update_attr') is not False:
+            self._performance_scores = score_df
+            self._ranks = rank_df
+            self._winners = winner_df
+        else:
+            return score_df, rank_df, winner_df
 
-    def _run_ELECTRE(self, criterion_weights=None):
+
+    def _run_ELECTRE(self, **kwargs):
+        '''NOT READY YET.'''
+        raise ValueError('Method not ready yet.')
+
+
+    def _run_AHP(self, **kwargs):
         '''NOT READY YET.'''
         raise ValueError('Method not ready yet.')
 
@@ -202,17 +228,20 @@ class MCDA:
 
 
     @time_printer
-    def run_MCDA_multi_scores(self, criterion_weights=None, tech_score_dct={}):
+    def run_MCDA_multi_scores(self, criterion_weights=None, method=None,
+                              ind_score_dct={}, **kwargs):
         '''
-        Run MCDA with multiple sets of technology scores.
+        Run MCDA with multiple sets of criterion weights and indicator scores.
 
         Parameters
         ----------
         criterion_weights : :class:`pandas.DataFrame`
             Weight scenarios for the different criteria,
             will use default scenarios if not provided.
-        tech_score_dct : dict
-            Dict containing the technology scores for all criteria.
+        method : str
+            MCDA method, will use value set in the `method` property if not provided.
+        ind_score_dct : dict
+            Dict containing the indicator scores for all criteria.
 
         Returns
         -------
@@ -230,24 +259,65 @@ class MCDA:
             criterion_weights = self.criterion_weights
 
         score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
-        for n, w in criterion_weights.iterrows():
-            scores, ranks, winners = [], [], []
-
-            for k, v in tech_score_dct.items():
-                self.tech_scores = v
-                self.run_MCDA(criterion_weights=w)
-                scores.append(self.perform_scores)
-                ranks.append(self.ranks)
-                winners.append(self.winners.Winner.values.item())
-
-            name = w.Ratio
-            score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
-            rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
-            winner_df_dct[name] = winners
+        if kwargs.get('update_attr') is not False:
+            for n, w in criterion_weights.iterrows():
+                scores, ranks, winners = [], [], []
+                for k, v in ind_score_dct.items():
+                    self.indicator_scores = v
+                    self.run_MCDA(criterion_weights=w)
+                    scores.append(self.performance_scores)
+                    ranks.append(self.ranks)
+                    winners.append(self.winners.Winner.values.item())
+                name = w.Ratio
+                score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
+                rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
+                winner_df_dct[name] = winners
+        else:
+            for n, w in criterion_weights.iterrows():
+                scores, ranks, winners = [], [], []
+                for k, v in ind_score_dct.items():
+                    self.indicator_scores = v
+                    score_df, rank_df, winner_df = \
+                        self.run_MCDA(criterion_weights=w, update_attr=False)
+                name = w.Ratio
+                score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
+                rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
+                winner_df_dct[name] = winners
 
         winner_df = pd.DataFrame.from_dict(winner_df_dct)
 
         return score_df_dct, rank_df_dct, winner_df
+
+
+    def calc_criterion_score(self, criterion_weights=None, method=None, ind_score_dct={}):
+        '''
+        Calculate the score for each criterion by
+        setting the criterion weight for that crtierion to 1
+        while criterion weights for the other criteria to 0.
+
+        Parameters
+        ----------
+        criterion_weights : :class:`pandas.DataFrame`
+            Weights for the different criteria, will be defaulted to all of the
+            associated criteria in the `criterion_weights` property if left as None.
+        method : str
+            MCDA method, will use value set in the `method` property if not provided.
+        ind_score_dct : dict
+            Dict containing the indicator scores for all criteria,
+            if want to calculate the criterion scores for multiple sets of indicator scores.
+            If empty, will use the `indicator_scores` attribute to
+            get the corresponding criterion scores.
+        '''
+        if not ind_score_dct:
+            score_df, rank_df, winner_df = self.run_MCDA(
+                criterion_weights=criterion_weights, method=method,
+                file_path=None, update_attr=False)
+            return score_df
+        else:
+            score_df_dct, rank_df_dct, winner_df = self.run_MCDA_multi_scores(
+                criterion_weights=criterion_weights, method=method,
+                ind_score_dct=ind_score_dct, update_attr=False)
+            return score_df_dct
 
 
     def correlation_test(self, input_x, input_y, kind,
@@ -354,22 +424,47 @@ class MCDA:
 
 
     @property
-    def perform_scores(self):
+    def criteria(self):
+        '''[tuple(str)] All criteria considered in MCDA.'''
+        return supported_criteria
+
+    #!!! This needs double-checking to consider indicator types and negatives
+    @property
+    def normalized_indicator_scores(self):
+        '''[:class:`pandas.DataFrame`] Indicator scores normalized based on their scales.'''
+        if self._normalized_indicator_scores is None:
+            try: self.run_MCDA()
+            except: pass
+        return self._normalized_indicator_scores
+
+    @property
+    def criterion_scores(self):
+        '''[dict or :class:`pandas.DataFrame`] Criterion scores.'''
+        if self._criterion_scores is None:
+            self._criterion_scores = \
+                self.calc_criterion_score(criterion_weights=single_cr_df)
+        return self._criterion_scores
+
+    @property
+    def performance_scores(self):
         '''[:class:`pandas.DataFrame`] Calculated performance scores.'''
-        if self._perform_socres is None:
-            self.run_MCDA()
-        return self._perform_socres
+        if self._performance_scores is None:
+            try: self.run_MCDA()
+            except: pass
+        return self._performance_scores
 
     @property
     def ranks(self):
         '''[:class:`pandas.DataFrame`] Calculated ranks.'''
         if self._ranks is None:
-            self.run_MCDA()
+            try: self.run_MCDA()
+            except: pass
         return self._ranks
 
     @property
     def winners(self):
         '''[:class:`pandas.DataFrame`] The alternatives that rank first.'''
         if self._winners is None:
-            self.run_MCDA()
+            try: self.run_MCDA()
+            except: pass
         return self._winners

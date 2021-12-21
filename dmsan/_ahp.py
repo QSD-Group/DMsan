@@ -90,7 +90,7 @@ class AHP:
             *[f'S{i+1}' for i in range(len(init_weights['S']))],
             ]
         self._init_weights_df = init_weights_df
-        self.get_local_weights()
+        self.get_indicator_weights()
 
     def _get_val(self, df, col='Value'):
         '''Util function for retrieving data.'''
@@ -256,7 +256,7 @@ class AHP:
         return f'<AHP: {self.location.location_name}>'
 
 
-    def get_local_weights(self, return_results=False):
+    def get_indicator_weights(self, return_results=False):
         '''Analytic hierarchy process (AHP) to determine indicators weights.'''
         RI = self.random_index
         norm_weights = self.norm_weights = {} # sub-criteria weights
