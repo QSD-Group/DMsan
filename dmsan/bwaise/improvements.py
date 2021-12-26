@@ -32,7 +32,7 @@ bwaise_ahp = loaded['ahp']
 bwaise_mcda = loaded['mcda']
 
 # Save a copy
-baseline_ind_scores =  bwaise_mcda.indicator_scores.copy()
+baseline_indicator_scores =  bwaise_mcda.indicator_scores.copy()
 baseline_indicator_weights = bwaise_ahp.norm_weights_df.copy()
 
 def update_indicator_weights(ind_scores):
@@ -108,7 +108,7 @@ def test_oat(mcda, alt, best_score={}):
     oat_dct = {ind: {} for ind in best_score.keys()}
     for ind, data in oat_dct.items():
         # Reset technology scores and refresh results
-        mcda.indicator_scores = baseline_ind_scores.copy()
+        mcda.indicator_scores = baseline_indicator_scores.copy()
         series = mcda.indicator_scores.loc[:, ind]
         baseline = series.loc[alt_idx]
         ind_type = int(mcda.indicator_type[ind])
@@ -151,7 +151,7 @@ def test_oat(mcda, alt, best_score={}):
         data['winning chance'] = winning_chance
 
     # Get the winning chance at baseline values
-    mcda.indicator_scores = baseline_ind_scores.copy()
+    mcda.indicator_scores = baseline_indicator_scores.copy()
     mcda.indicator_weights = baseline_indicator_weights.copy()
     mcda.run_MCDA(file_path=None)
     oat_dct['baseline'] = {'winning chance':
@@ -204,7 +204,7 @@ def local_optimum_approach(mcda, alt, oat_dct, wt_sce_num, file_path=''):
                if data['winning chance']==max(winning_chances)}
     ind = list(loc_dct.keys())[0]
     winning_chance = list(loc_dct.values())[0]
-    updated_scores = baseline_ind_scores.copy()
+    updated_scores = baseline_indicator_scores.copy()
     updated_scores.loc[alt_idx, ind] = winning_chance
 
     copied = oat_dct.copy()
@@ -283,10 +283,10 @@ def plot_local_optimum(loc_dct, wt_sce_num, file_path=''):
 
 @time_printer
 def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
-                            consider_order=False, select_top=None,
-                            target_chance=1, cutoff_step=None, file_path=''):
+                            select_top=None, target_chance=1,
+                            cutoff_step=None, file_path=''):
     '''
-    Test all possible routes to the targeted winning chance.
+    Test all possible routes to the target winning chance.
 
     If `select_top` is provided (int), will only look at the X-best indicators
     at baseline.
@@ -300,7 +300,6 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
     '''
     weight_num = mcda.criterion_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
-    # updated_scores = baseline_ind_scores.copy()
 
     # Take care of the baseline winning chance
     copied = oat_dct.copy()
@@ -320,43 +319,74 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
     copied_df.sort_values('winning chance', ascending=False, inplace=True)
     inds = copied_df.index.to_list()[:select_top] if select_top else copied_df.index.to_list()
 
-    # Permutations to be iterated from
-    cutoff_step = cutoff_step or len(inds) # exhaust all indicators if `cutpf_step` not provided
-    runs = list(combinations(inds, cutoff_step)) if not consider_order \
-        else list(permutations(inds, cutoff_step))
+    # Function to run through the given iterations
+    def iter_run(runs):
+        glob_dct = {'baseline': {0: baseline_chance}}
+        for run in runs:
+            glob_dct[run] = {}
+            mcda.indicator_scores = baseline_indicator_scores.copy()
+            winning_chance = 0
+            n = 1
+            for ind in run:
+                mcda.indicator_scores.loc[alt_idx, ind] = copied_df.loc[ind]['updated']
+                if n == 1: # at baseline, no need to run again
+                    glob_dct[run][n] = winning_chance = \
+                        copied_df.loc[ind]['winning chance']
+                else:
+                    # Update local weights
+                    mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
+                    # Run MCDA with multiple global weights
+                    mcda.run_MCDA(file_path=None)
+                    glob_dct[run][n] = winning_chance = \
+                        mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
+                if winning_chance >= target_chance:
+                    break
+                n += 1
+        glob_df = pd.DataFrame.from_dict(glob_dct).transpose()
+        return glob_dct, glob_df
 
-    glob_dct = {'baseline': {0: baseline_chance}}
-    for run in runs:
-        glob_dct[run] = {}
-        mcda.indicator_scores = baseline_ind_scores.copy()
-        winning_chance = 0
-        n = 1
-        for ind in run:
-            mcda.indicator_scores.loc[alt_idx, ind] = copied_df.loc[ind]['updated']
-            if n == 1: # at baseline, no need to run again
-                glob_dct[run][n] = winning_chance = \
-                    copied_df.loc[ind]['winning chance']
-            else:
-                # Update local weights
-                mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
-                # Run MCDA with multiple global weights
-                mcda.run_MCDA(file_path=None)
-                glob_dct[run][n] = winning_chance = \
-                    mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
-            if winning_chance >= target_chance:
-                break
-            n += 1
+    # Firstly run all the combinations
+    cutoff_step = cutoff_step or len(inds) # exhaust all indicators if `cutoff_step` not provided
+    runs = list(combinations(inds, cutoff_step))
+    glob_dct_comb, glob_df_comb = iter_run(runs)
 
-    glob_df = pd.DataFrame.from_dict(glob_dct).transpose()
+    # Select all iterations that can reach the maximum
+    max_iter = glob_df_comb[glob_df_comb.iloc[:, -1]==glob_df_comb.max().iloc[-1]].index.to_list()
+    max_inds = set(sum([i for i in max_iter], ())) # use set to eliminate repetitive ones
 
-    save_pickle(glob_dct, os.path.join(results_path, f'improvements/glob_dct_{wt_sce_num}.pckl'))
+    # Update the best scores (ones that are not from a manual scale,
+    # but from the min/max of all alternatives)
+    for k, v in best_score_dct.items():
+        if v == None:
+            best_score_dct[k] = oat_dct[k]['updated']
+    # Add in indicators where the other alternatives have already reached the best score
+    temp_scores = baseline_indicator_scores.copy()
+    best_df = pd.DataFrame.from_dict(best_score_dct, orient='index')
+    temp_scores = temp_scores[best_df.index] # exclude indicators without best scores
+    temp_scores.loc[alt_idx] = best_df.values.T[0]
+    add_inds = temp_scores.transpose()[temp_scores.apply(pd.Series.nunique)==1].index.to_list()
+    perm_inds = max_inds.union(set(add_inds))
+    perm_inds = perm_inds.intersection(set(inds)).difference(set(already_best))
+
+    # Run permutations from the indicators that can either reach the target winning chance
+    # within the cutoff_step, or will lead to the elimination of the indicator in local weighing
+    # (e.g., where the alternative of interest will catch up with the other alternatives
+    # and result in all alternatives having the same indicator score)
+    perm_runs = list(permutations(perm_inds, cutoff_step))
+    glob_dct_perm, glob_df_perm = iter_run(perm_runs)
+
+    save_pickle(glob_dct_comb, os.path.join(results_path, f'improvements/glob_dct_comb_{wt_sce_num}.pckl'))
+    save_pickle(glob_dct_perm, os.path.join(results_path, f'improvements/glob_dct_perm_{wt_sce_num}.pckl'))
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
             else os.path.join(results_path, f'improvements/global_optimum_{wt_sce_num}.xlsx')
-        glob_df.to_excel(file_path)
+        writer = pd.ExcelWriter(file_path)
+        glob_df_comb.to_excel(writer, sheet_name='combinations')
+        glob_df_perm.to_excel(writer, sheet_name='permutations')
+        writer.save()
 
-    return glob_dct, glob_df
+    return glob_dct_comb, glob_df_comb, glob_dct_perm, glob_df_perm
 
 
 # Colors for plotting
@@ -372,22 +402,22 @@ get_colors = lambda inds: [color_dct[ind[:-1]] for ind in inds]
 
 def plot_global_optimum(glob_dct, wt_sce_num, file_path=''):
     fig, ax = plt.subplots(figsize=(6, 8))
-    baseline_x, baseline_y = glob_dct.pop('baseline').items()
+    baseline_x, baseline_y = zip(*glob_dct.pop('baseline').items())
     for idx, chance_dct in glob_dct.items():
-        x = [baseline_x] + list(chance_dct.keys())
-        y = [baseline_y] + list(chance_dct.values())
+        x = (*baseline_x, *chance_dct.keys())
+        y = (*baseline_y, *chance_dct.values())
 
         # Plot the line graph in segments with different colors
         c = get_colors(idx)
         points = np.array([x, y]).T.reshape(-1, 1, 2)
         segments = np.concatenate([points[:-1], points[1:]], axis=1)
         lc = LineCollection(segments, colors=c)
-        lc.set_array(x[:1])
+        lc.set_array(x[1:])
         lc.set_linewidth(0.5)
         ax.add_collection(lc)
 
-    ax.set(xticks=x, xlabel='Number of changed indicator',
-           yticks=[0, 0.25, 0.5, 0.75, 1], ylabel='Winning chance')
+    ax.set(xticks=x, xlabel='Number of changed indicators',
+           yticks=[0, 0.2, 0.4, 0.6, 0.8, 1], ylabel='Winning chance')
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
@@ -403,14 +433,13 @@ if __name__ == '__main__':
     file_path = os.path.join(results_path, f'criterion_weights_{sce_num1}.xlsx')
     weight_df1 = pd.read_excel(file_path)
     bwaise_mcda.criterion_weights = weight_df1
-    wt_sce_num = len(weight_df1)
     # One-at-a-time at baseline
     oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
-    ax = plot_oat(oat_dct, wt_sce_num=wt_sce_num)
+    ax_oat = plot_oat(oat_dct, wt_sce_num=sce_num1)
     # Local optimum
     loc_dct, loc_df = local_optimum_approach(
-        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=wt_sce_num)
-    ax = plot_local_optimum(loc_dct, wt_sce_num=wt_sce_num)
+        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=sce_num1)
+    ax_loc = plot_local_optimum(loc_dct, wt_sce_num=sce_num1)
 
     # Smaller number of criterion weight scenarios
     sce_num2 = 100 # use fewer scenarios here
@@ -418,20 +447,24 @@ if __name__ == '__main__':
     bwaise_mcda.criterion_weights = weight_df2
     file_path = os.path.join(results_path, f'criterion_weights_{sce_num2}.xlsx')
     weight_df2.to_excel(file_path, sheet_name='Criterion weights')
-    wt_sce_num = len(weight_df2)
     # One-at-a-time at baseline
     oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
-    ax = plot_oat(oat_dct, wt_sce_num=wt_sce_num)
+    ax_oat2 = plot_oat(oat_dct, wt_sce_num=sce_num2)
     # Local optimum
     loc_dct, loc_df = local_optimum_approach(
-        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=wt_sce_num, file_path='')
-    ax = plot_local_optimum(loc_dct, wt_sce_num=wt_sce_num)
+        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=sce_num2, file_path='')
+    ax_loc2 = plot_local_optimum(loc_dct, wt_sce_num=sce_num2)
+
     # Global optimum
-    #!!! Need to update the procedure with checked results
-    # glob_dct, glob_df = global_optimum_approach(
-    #     bwaise_mcda, 'Alternative C', oat_dct, wt_sce_num=wt_sce_num, consider_order=False,
-    #     select_top=10, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
-    # ax = plot_global_optimum(glob_dct, wt_sce_num=wt_sce_num)
+    glob_dct_comb, glob_df_comb, glob_dct_perm, glob_df_perm = global_optimum_approach(
+        bwaise_mcda, 'Alternative C', oat_dct, wt_sce_num=sce_num2,
+        select_top=None, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
+    ax_comb = plot_global_optimum(
+        glob_dct_comb, wt_sce_num=sce_num2,
+        file_path=os.path.join(figures_path, f'global_optimum_comb_{sce_num2}.png'))
+    ax_perm = plot_global_optimum(
+        glob_dct_perm, wt_sce_num=sce_num2,
+        file_path=os.path.join(figures_path, f'global_optimum_perm_{sce_num2}.png'))
 
 
 # %%
@@ -447,11 +480,11 @@ if __name__ == '__main__':
 #                      min_val=None, max_val=None, step_num=10):
 #     '''Run all global weight scenarios at certain steps with the desired range.'''
 #     # Reset technology scores
-#     mcda.indicator_scores = baseline_ind_scores.copy()
+#     mcda.indicator_scores = baseline_indicator_scores.copy()
 #     idx = mcda.alt_names[mcda.alt_names==alt].index[0]
 
 #     min_val = min_val if min_val else 0
-#     max_val = max_val if max_val else baseline_ind_scores.loc[idx, indicator]
+#     max_val = max_val if max_val else baseline_indicator_scores.loc[idx, indicator]
 
 #     # Total number of global weights
 #     weight_num = mcda.criterion_weights.shape[0]
