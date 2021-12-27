@@ -7,11 +7,16 @@ Created on Mon Sep  6 12:20:16 2021
 
 Run this script to look at the different possible improvements that could change
 the performance score of each system and thus the final winner.
+
+There are a total of 28 indicators for the five criteria,
+26 of which are included in the analysis (S8 and S9 excluded).
+
+Alternative C achieved the best score for four indicators (T3, T5, T7, Env1)
+without any improvements.
 """
 
-
 import os
-import numpy as np, pandas as pd
+import numpy as np, pandas as pd, seaborn as sns
 from warnings import warn
 from itertools import combinations, permutations
 from matplotlib import pyplot as plt
@@ -180,7 +185,7 @@ def plot_oat(oat_dct, wt_sce_num, file_path=''):
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, f'baseline_oat_{wt_sce_num}.png')
+            else os.path.join(figures_path, f'improvements_oat_{wt_sce_num}.png')
         fig.savefig(file_path, dpi=300)
 
     return ax
@@ -189,7 +194,7 @@ def plot_oat(oat_dct, wt_sce_num, file_path=''):
 # %%
 
 # =============================================================================
-# Find the local optimum
+# Find and plot the local optimum
 # =============================================================================
 
 @time_printer
@@ -264,13 +269,14 @@ def plot_local_optimum(loc_dct, wt_sce_num, file_path=''):
 
     ax.set(xticks=x, xticklabels=labels, xlabel='Changed indicator (accumulated)',
             ylabel='Winning chance')
+    ax.grid(axis='x', color=Guest_colors.gray.RGBn, linestyle='--', linewidth=0.5)
 
     for label in ax.get_xticklabels():
         label.set_rotation(30)
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, f'local_optimum_{wt_sce_num}.png')
+            else os.path.join(figures_path, f'improvements_local_{wt_sce_num}.png')
         ax.figure.savefig(file_path, dpi=300)
     return ax
 
@@ -343,6 +349,12 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
                     break
                 n += 1
         glob_df = pd.DataFrame.from_dict(glob_dct).transpose()
+        steps = glob_df.index.to_list()
+        steps[0] = [steps[0]]*len(steps[1])
+        steps = np.array(steps)
+        num_steps = steps.shape[1]
+        for i in range(num_steps):
+            glob_df.insert(0, f'step{num_steps-i}', steps[:,-i])
         return glob_dct, glob_df
 
     # Firstly run all the combinations
@@ -389,6 +401,12 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
     return glob_dct_comb, glob_df_comb, glob_dct_perm, glob_df_perm
 
 
+# %%
+
+# =============================================================================
+# Plot the global trajectories
+# =============================================================================
+
 # Colors for plotting
 Guest_colors = colors.Guest
 color_dct = {
@@ -400,7 +418,7 @@ color_dct = {
     }
 get_colors = lambda inds: [color_dct[ind[:-1]] for ind in inds]
 
-def plot_global_optimum(glob_dct, wt_sce_num, file_path=''):
+def plot_global_trajectory(glob_dct, wt_sce_num, file_path=''):
     fig, ax = plt.subplots(figsize=(6, 8))
     baseline_x, baseline_y = zip(*glob_dct.pop('baseline').items())
     for idx, chance_dct in glob_dct.items():
@@ -415,15 +433,133 @@ def plot_global_optimum(glob_dct, wt_sce_num, file_path=''):
         lc.set_array(x[1:])
         lc.set_linewidth(0.5)
         ax.add_collection(lc)
+    glob_dct['baseline'] = dict.fromkeys(baseline_x, *baseline_y) # add back the baseline
 
     ax.set(xticks=x, xlabel='Number of changed indicators',
            yticks=[0, 0.2, 0.4, 0.6, 0.8, 1], ylabel='Winning chance')
+    ax.grid(axis='x', color=Guest_colors.gray.RGBn, linestyle='--', linewidth=0.5)
 
     if file_path is not None:
         file_path = file_path if file_path != '' \
-            else os.path.join(figures_path, f'global_optimum_{wt_sce_num}.png')
+            else os.path.join(figures_path, f'improvements_global_{wt_sce_num}.png')
         ax.figure.savefig(file_path, dpi=300)
     return ax
+
+
+def plot_global_success(glob_dct_perm, wt_sce_num, file_path=''):
+    # Only plot ones that can reach 100% winning chance
+    glob_dct_success = glob_dct_perm.copy()
+    temp_dct = glob_dct_success.copy()
+    for idx, chance_dct in temp_dct.items():
+        if idx == 'baseline':
+            continue
+        else:
+            chances = list(chance_dct.values())
+            if chances[-1] != 1:
+                glob_dct_success.pop(idx)
+    file_path = file_path or \
+        os.path.join(figures_path, f'improvements_global_success_{wt_sce_num}.png')
+    ax_success = plot_global_trajectory(
+        glob_dct_success, wt_sce_num=sce_num2,
+        file_path=file_path)
+    return ax_success
+
+
+
+# %%
+
+# =============================================================================
+# For each indicator, find the ranges of winning chances with it and without it
+# =============================================================================
+
+def get_indicator_chances(glob_df_comb, file_path=''):
+    df = glob_df_comb.copy()
+    # Take care of the baseline
+    baseline = df.loc['baseline'].to_list()
+    [baseline] = [i for i in baseline if not str(i).isalpha()]
+    df.drop('baseline', inplace=True)
+    # Get all indicators
+    num_step = df.shape[1]//2 # one extra column for baseline
+    inds = df.iloc[:, :num_step].stack().unique().tolist()
+    inds.sort()
+    categorize_ind = lambda criterion: [i for i in inds if i.startswith(criterion)]
+    inds = categorize_ind('T')+categorize_ind('RR')+categorize_ind('Env') \
+        +categorize_ind('Econ')+categorize_ind('S')
+
+    # Differentiate the results into those including a particular indicator
+    # and those excluding this one
+    final_chance = df[num_step]
+    idxs = final_chance.index
+    include_df, exclude_df = pd.DataFrame(), pd.DataFrame()
+    for ind in inds: # iterate through all indicators
+        include, exclude = [], []
+        for idx in idxs: # iterate through all indices (each index is one combination)
+            if ind in idx:
+                include.append(idx)
+            else:
+                exclude.append(idx)
+        include_df[ind] = final_chance[include].values
+        exclude_df[ind] = final_chance[exclude].values
+
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(results_path, 'improvements/indicator_chances.xlsx')
+        writer = pd.ExcelWriter(file_path)
+        include_df.to_excel(writer, sheet_name='include')
+        exclude_df.to_excel(writer, sheet_name='exclude')
+        writer.save()
+
+    return include_df, exclude_df
+
+#%%
+def plot_indicator_chances(indicator_df, file_path=''):
+    sns.set_theme(style='white', rc={'axes.facecolor': (0, 0, 0, 0)})
+    df = indicator_df.stack().reset_index().drop('level_0', axis=1)
+    df = df.rename(columns={'level_1': 'indicator', 0: 'chance'})
+    df.insert(0, 'criterion', df['indicator'].apply(lambda x:x[:-1]))
+
+    # Make palette
+    pal = dict.fromkeys(df.indicator.unique())
+    for k in pal.keys():
+        pal[k] = color_dct[k[:-1]]
+
+    # Initialize the FacetGrid object
+    g = sns.FacetGrid(df, row='indicator', hue='indicator', aspect=15, height=.5,
+                      palette=pal)
+
+    # Draw the densities in a few steps
+    g.map(sns.kdeplot, 'chance',
+          bw_adjust=.5, clip_on=False,
+          fill=True, alpha=1, linewidth=1.5)
+    g.map(sns.kdeplot, 'chance', clip_on=False, color='w', lw=2, bw_adjust=.5)
+
+    # passing color=None to refline() uses the hue mapping
+    g.refline(y=0, linewidth=2, linestyle='-', color=None, clip_on=False)
+
+    # Define and use a simple function to label the plot in axes coordinates
+    def label(x, color, label):
+        ax = plt.gca()
+        ax.text(0, .2, label, fontweight='bold', color=color,
+                ha='left', va='center', transform=ax.transAxes)
+    g.map(label, 'chance')
+
+    # Set the subplots to overlap
+    g.figure.subplots_adjust(hspace=-.25)
+
+    # Remove axes details that don't play well with overlap
+    g.set_titles('')
+    g.set(yticks=[], ylabel='')
+    g.despine(bottom=True, left=True)
+
+    # Other fine tuning
+    last_ax = g.axes[-1].item()
+    last_ax.set(xlabel='Winning chance')
+
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(figures_path, 'improvements_indicator_chance.png')
+        g.figure.savefig(file_path, dpi=300)
+    return g
 
 
 # %%
@@ -459,12 +595,38 @@ if __name__ == '__main__':
     glob_dct_comb, glob_df_comb, glob_dct_perm, glob_df_perm = global_optimum_approach(
         bwaise_mcda, 'Alternative C', oat_dct, wt_sce_num=sce_num2,
         select_top=None, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
-    ax_comb = plot_global_optimum(
+    # Trajectory plots
+    ax_comb = plot_global_trajectory(
         glob_dct_comb, wt_sce_num=sce_num2,
-        file_path=os.path.join(figures_path, f'global_optimum_comb_{sce_num2}.png'))
-    ax_perm = plot_global_optimum(
+        file_path=os.path.join(figures_path, f'improvements_global_comb_{sce_num2}.png'))
+    ax_perm = plot_global_trajectory(
         glob_dct_perm, wt_sce_num=sce_num2,
-        file_path=os.path.join(figures_path, f'global_optimum_perm_{sce_num2}.png'))
+        file_path=os.path.join(figures_path, f'improvements_global_perm_{sce_num2}.png'))
+    ax_success = plot_global_success(glob_dct_perm, sce_num2)
+    # Ridge plots (overlapping density plots)
+    include_df, exclude_df = get_indicator_chances(glob_df_comb)
+    g_include = plot_indicator_chances(
+        include_df, file_path=os.path.join(figures_path, 'improvements_indicator_chance_include.png'))
+    g_exclude = plot_indicator_chances(
+        exclude_df, file_path=os.path.join(figures_path, 'improvements_indicator_chance_exclude.png'))
+
+
+# %%
+
+# =============================================================================
+# Use matplotlib for plotting, doesn't look very good
+# =============================================================================
+
+# def plot_indicator_chances(df, file_path=''):
+#     fig, ax = plt.subplots(figsize=(6, 8))
+#     ax.boxplot(df, vert=False)
+#     ax.set(yticklabels=include_df.columns.to_list(),
+#            xlabel='Winning chance')
+#     if file_path is not None:
+#         file_path = file_path if file_path != '' \
+#             else os.path.join(figures_path, 'improvements_indicator_chance.png')
+#         ax.figure.savefig(file_path, dpi=300)
+#     return ax
 
 
 # %%
