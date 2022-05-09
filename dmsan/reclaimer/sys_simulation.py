@@ -184,6 +184,8 @@ def get_uncertainties(N, country, seed=None, rule='L',
 def run_simulations(country):
     global baseline_df, uncertainty_dct
     country_folder = os.path.join(scores_path, country)
+    # Create the folder if there isn't one already
+    if not os.path.isdir(country_folder): os.mkdir(country_folder)
     baseline_path = os.path.join(country_folder, 'sys_baseline.tsv')
     param_path = os.path.join(country_folder, 'parameters.xlsx')
     pickle_path = os.path.join(country_folder, 'model_data.pckl')
