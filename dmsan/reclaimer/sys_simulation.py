@@ -17,9 +17,8 @@ import os
 import numpy as np
 import pandas as pd
 from qsdsan.utils import time_printer, load_pickle, save_pickle, copy_samples
-from exposan import bwaise as bw
 from exposan import reclaimer as re
-from dmsan.gates import scores_path
+from dmsan.reclaimer import scores_path
 
 # Comment these out if want to see all warnings
 import warnings
@@ -37,41 +36,43 @@ __all__ = ('rebuild_models', 'get_baseline', 'get_uncertainties')
 from exposan.reclaimer.country_specific import create_country_specific_model
 
 def get_model(N, seed=None, rule='L'):
-    models = []
-    for country in ('China', 'XXX', 'XXX'):
-        for sys_ID in ('sysA', 'sysB',):
-            models.append(create_country_specific_model((sys_ID, country)))
     if seed:
         np.random.seed(seed)
-    for model in models:
-        get_metric = lambda name: [i for i in model.metrics if i.name==name]
-        mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
-        # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
-        mRR += get_metric('Gas COD') # energy, only gas
-        mEnv = [get_metric(name) for name in ('H_Resources', 'H_Health', 'H_Ecosystems')]
-        # mEnv.sort(key=lambda i: i.name_with_units)  # I do not need this code
-        mEcon = get_metric('Annual net cost')
-        model.metrics = mRR + mEnv + mEcon
 
-        samples = model.sample(N, rule)
-        model.load_samples(samples)
+    for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
 
-    copy_samples(modelA, modelB)
-    copy_samples(modelA, modelC)
-    copy_samples(modelB, modelC, exclude=modelA.parameters)
+        models = []
 
-    return modelA, modelB, modelC
+        for sys_ID in ('sysB', 'sysC',):
+            models.append(create_country_specific_model((sys_ID, country)))
+
+        for model in models:
+            get_metric = lambda name: [i for i in model.metrics if i.name==name]
+            mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
+            # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
+            mRR += get_metric('Gas COD')  # energy, only gas
+            mEnv = [get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Health')]
+            # mEnv.sort(key=lambda i: i.name_with_units)  # I do not need this code
+            mEcon = get_metric('Annual net cost')
+            model.metrics = mRR + mEnv + mEcon
+
+            samples = model.sample(N, rule)
+            model.load_samples(samples)
+
+        copy_samples(models[0], models[1])
+
+        return models
 
 
 def rebuild_models(path=''):
     path = path if path else os.path.join(scores_path, 'model_data.pckl')
     data = load_pickle(path)
 
-    modelA, modelB, modelC = get_model(*data['inputs'])
-    modelA._samples, modelB._samples, modelC._samples = data['samples']
-    modelA.table, modelB.table, modelC.table = data['tables']
+    modelB, modelC = get_model(*data['inputs'])
+    modelB._samples, modelC._samples = data['samples']
+    modelB.table, modelC.table = data['tables']
 
-    return modelA, modelB, modelC
+    return modelB, modelC
 
 
 # %%
@@ -82,14 +83,14 @@ def rebuild_models(path=''):
 
 def get_cap_yr_pts(lca):
     impact_dct = lca.get_total_impacts()
-    ratio = lca.lifetime * bw.systems.get_ppl(lca.system.ID[-1])
+    ratio = lca.lifetime * re.systems.ppl(lca.system.ID[-1])
     for k, v in impact_dct.items():
         impact_dct[k] = v / ratio
     return impact_dct
 
 
 def get_baseline(file_path=''):
-    baseline_dct = {'sysA': [], 'sysB': [], 'sysC': []}
+    baseline_dct = {'sysB': [], 'sysC': []}
     inds = ['H_Ecosystems', 'H_Health', 'H_Resources']    # make sure this is in the same order always
     idxs = pd.MultiIndex.from_tuples([
         *zip(('Net recovery',)*4, ('N', 'P', 'K', 'energy')),
@@ -98,10 +99,10 @@ def get_baseline(file_path=''):
         ])
     df = pd.DataFrame(index=idxs)
 
-    sys_dct = bw.systems.sys_dct
-    for sys in (bw.sysA, bw.sysB, bw.sysC):
+    sys_dct = re.systems.sys_dct
+    for sys in (re.sysB, re.sysC):
         data = baseline_dct[sys.ID]
-        func_dct = bw.systems.get_summarizing_functions(sys)
+        func_dct = re.systems.get_summarizing_functions(sys)
         for i in ('N', 'P', 'K'):
             data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
         data.append(func_dct['get_gas_COD_recovery'](sys, 'COD')) # energy, only gas
@@ -130,7 +131,7 @@ baseline_path = os.path.join(scores_path, 'sys_baseline.tsv')
 # =============================================================================
 
 @time_printer
-def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
+def get_uncertainties(N, seed=None, rule='L',
                       pickle_path='', param_path='', result_path=''):
     models = get_model(N, seed, rule)
     uncertainty_dct = {}
@@ -146,9 +147,9 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
 
     if param_path:
         # MAKE SURE I CALL MY SYSTEMS WHAT I WANT HERE AND IN SPREADSHEETS
-        dfs = dict.fromkeys(('Alternative A', 'Alternative B', 'Alternative C'))
+        dfs = dict.fromkeys(('Reclaimer B', 'Reclaimer C'))
         for model in models:
-            df = dfs[f'Alternative {model.system.ID[-1]}'] = pd.DataFrame()
+            df = dfs[f'Reclaimer {model.system.ID[-1]}'] = pd.DataFrame()
             parameters = [i for i in model.table.columns[:len(model.parameters)]]
             parameters.sort(key=lambda i: i[0][-2:])
             df['Parameters'] = parameters
@@ -163,7 +164,7 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
         # Cannot just save the `Model` object as a pickle file
         # because it contains local functions
         data = {
-            'inputs': [N, seed, rule, lca_perspective],
+            'inputs': [N, seed, rule],
             'samples': [i._samples for i in models],
             'tables': [i.table for i in models]
             }
