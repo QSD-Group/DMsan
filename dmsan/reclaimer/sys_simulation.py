@@ -35,37 +35,35 @@ __all__ = ('rebuild_models', 'get_baseline', 'get_uncertainties')
 
 from exposan.reclaimer.country_specific import create_country_specific_model
 
-def get_model(N, seed=None, rule='L'):
+def get_model(N, country, seed=None, rule='L'):
     if seed:
         np.random.seed(seed)
 
-    for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
+    models = []
 
-        models = []
+    for sys_ID in ('sysB', 'sysC',):
+        models.append(create_country_specific_model((sys_ID, country)))
 
-        for sys_ID in ('sysB', 'sysC',):
-            models.append(create_country_specific_model((sys_ID, country)))
+    for model in models:
+        get_metric = lambda name: [i for i in model.metrics if i.name==name]
+        mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
+        # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
+        mRR += get_metric('Gas COD')  # energy, only gas
+        mEnv = [get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Health')]
+        # mEnv.sort(key=lambda i: i.name_with_units)  # I do not need this code
+        mEcon = get_metric('Annual net cost')
+        model.metrics = mRR + mEnv + mEcon
 
-        for model in models:
-            get_metric = lambda name: [i for i in model.metrics if i.name==name]
-            mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
-            # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
-            mRR += get_metric('Gas COD')  # energy, only gas
-            mEnv = [get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Health')]
-            # mEnv.sort(key=lambda i: i.name_with_units)  # I do not need this code
-            mEcon = get_metric('Annual net cost')
-            model.metrics = mRR + mEnv + mEcon
+        samples = model.sample(N, rule)
+        model.load_samples(samples)
 
-            samples = model.sample(N, rule)
-            model.load_samples(samples)
+    copy_samples(models[0], models[1])
 
-        copy_samples(models[0], models[1])
-
-        return models
+    return models
 
 
-def rebuild_models(path=''):
-    path = path if path else os.path.join(scores_path, 'model_data.pckl')
+def rebuild_models(country):
+    path =  os.path.join(scores_path, f'{country}/model_data.pckl')
     data = load_pickle(path)
 
     modelB, modelC = get_model(*data['inputs'])
@@ -121,8 +119,6 @@ def get_baseline(file_path=''):
         df.to_csv(file_path, sep=sep)
     return df
 
-baseline_path = os.path.join(scores_path, 'sys_baseline.tsv')
-
 
 # %%
 
@@ -131,7 +127,7 @@ baseline_path = os.path.join(scores_path, 'sys_baseline.tsv')
 # =============================================================================
 
 @time_printer
-def get_uncertainties(N, seed=None, rule='L',
+def get_uncertainties(N, country, seed=None, rule='L',
                       pickle_path='', param_path='', result_path=''):
     models = get_model(N, seed, rule)
     uncertainty_dct = {}
@@ -164,7 +160,7 @@ def get_uncertainties(N, seed=None, rule='L',
         # Cannot just save the `Model` object as a pickle file
         # because it contains local functions
         data = {
-            'inputs': [N, seed, rule],
+            'inputs': [N, country, seed, rule],
             'samples': [i._samples for i in models],
             'tables': [i.table for i in models]
             }
@@ -179,24 +175,26 @@ def get_uncertainties(N, seed=None, rule='L',
     return uncertainty_dct
 
 
-param_path = os.path.join(scores_path, 'parameters.xlsx')
-pickle_path = os.path.join(scores_path, 'model_data.pckl')
-uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
-
-
 # %%
 
 # =============================================================================
 # Run all simulations
 # =============================================================================
 
-def run_simulations():
+def run_simulations(country):
     global baseline_df, uncertainty_dct
+    country_folder = os.path.join(scores_path, country)
+    baseline_path = os.path.join(country_folder, 'sys_baseline.tsv')
+    param_path = os.path.join(country_folder, 'parameters.xlsx')
+    pickle_path = os.path.join(country_folder, 'model_data.pckl')
+    uncertainty_path = os.path.join(country_folder, 'sys_uncertainties.xlsx')
+
     baseline_df = get_baseline(file_path=baseline_path)
-    uncertainty_dct = get_uncertainties(N=1000, seed=3221,
+    uncertainty_dct = get_uncertainties(N=1000, country=country, seed=3221,
                                         param_path=param_path,
                                         pickle_path=pickle_path,
                                         result_path=uncertainty_path)
 
 if __name__ == '__main__':
-    run_simulations()
+    for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
+        run_simulations(country)
