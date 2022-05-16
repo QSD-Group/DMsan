@@ -4,6 +4,7 @@
 @authors:
     Yalin Li <zoe.yalin.li@gmail.com>
     Joy Zhang <joycheung1994@gmail.com>
+    Hannah Lohman <hlohman94@gmail.com>
 
 Run this module for uncertainty and sensitivity analyses.
 
@@ -45,7 +46,6 @@ wt_scenario_num = 100 # number of criterion weights considered
 # =============================================================================
 # Technology scores
 # =============================================================================
-
 
 # Baseline
 def get_baseline_indicator_scores():
@@ -126,7 +126,7 @@ def get_baseline_indicator_scores():
 # For uncertainties of those simulated (only some certain parameters are affected)
 varied_inds = [*[f'RR{i}' for i in range(2, 6)],  # only include indicators that are simulated
                *[f'Env{i}' for i in range(1, 4)],
-               'Econ1'] # user net cost
+               'Econ1']  # net user cost
 
 
 def get_uncertainty_data(baseline_scores=None,):
@@ -151,8 +151,8 @@ def get_uncertainty_data(baseline_scores=None,):
         ('K recovery', 'Total K'),
         ('COD recovery', 'Gas COD'),  # energy, only gas
         ('LCA results', 'Net emission H_EcosystemQuality_Total [points/cap/yr]'),
-        ('LCA results', f'Net emission {lca_perspective.upper()}_HumanHealth_Total [points/cap/yr]'),
-        ('LCA results', f'Net emission {lca_perspective.upper()}_Resources_Total [points/cap/yr]'),
+        ('LCA results', f'Net emission H_HumanHealth_Total [points/cap/yr]'),
+        ('LCA results', f'Net emission H_Resources_Total [points/cap/yr]'),
         ('TEA results', 'Annual net cost [USD/cap/yr]'),
         ]
 
@@ -413,58 +413,57 @@ def export_to_pickle(parameters=True, indicator_scores=True,
 # =============================================================================
 
 def run_analyses(save_excel=False):
-    # `bwaise_mcda.score` is `performance_score_FINAL` in the original script,
-    # `bwaise_mcda.rank` is `ranking_FINAL` in the original script,
-    # values checked to be the same as the original script
-    # Note that the small discrepancies in scores are due to the rounding error
-    # in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
     global baseline_indicator_scores
     baseline_indicator_scores = get_baseline_indicator_scores()
 
-    # Set the local weight of indicators that all three systems score the same
-    # to zero (to prevent diluting the scores)
-    eq_ind = baseline_indicator_scores.min()==baseline_indicator_scores.max()
-    eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind==True].index]
+    for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
 
-    for i in eq_inds:
-        # Need subtract in `int(i[1])-1` because of 0-indexing
-        bwaise_ahp.init_weights[i[0]][int(i[1])-1] = bwaise_ahp.na_default
+        # Set the local weight of indicators that all three systems score the same
+        # to zero (to prevent diluting the scores)
+        eq_ind = baseline_indicator_scores.min() == baseline_indicator_scores.max()
+        eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind == True].index]
 
-    bwaise_ahp.get_indicator_weights(True)
+        ahp = AHP(location_name=country, num_alt=len(alt_names),
+                  na_default=0.00001, random_index={})
+        for i in eq_inds:
+            # Need subtract in `int(i[1])-1` because of 0-indexing
+            bwaise_ahp.init_weights[i[0]][int(i[1]) - 1] = bwaise_ahp.na_default
 
-    global bwaise_mcda
-    bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
-                       indicator_weights=bwaise_ahp.norm_weights_df,
-                       indicator_scores=baseline_indicator_scores)
-    bwaise_mcda.run_MCDA()
+        bwaise_ahp.get_indicator_weights(True)
 
-    global weight_df
-    weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
+        global bwaise_mcda
+        bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
+                           indicator_weights=ahp.norm_weights_df,
+                           indicator_scores=baseline_indicator_scores)
+        bwaise_mcda.run_MCDA()
 
-    export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
-                    uncertainty=False, sensitivity=None)
+        global weight_df
+        weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
 
-    # Note that empty cells (with nan value) are failed simulations
-    # (i.e., corresponding tech scores are empty)
-    global score_df_dct, rank_df_dct, winner_df
-    score_df_dct, rank_df_dct, winner_df = \
-        bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
-                                          ind_score_dct=ind_score_dct)
+        export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
+                        uncertainty=False, sensitivity=None)
 
-    # kind = 'Spearman'
-    # global score_corr_dct, rank_corr_dct
-    # score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
-    # rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    # if save_excel: # too large, prefer not to do it
-    #     export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
-    export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
+        # Note that empty cells (with nan value) are failed simulations
+        # (i.e., corresponding tech scores are empty)
+        global score_df_dct, rank_df_dct, winner_df
+        score_df_dct, rank_df_dct, winner_df = \
+            bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
+                                              ind_score_dct=ind_score_dct)
 
-    # kind = 'KS'
-    # rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    # if save_excel: # too large, prefer not to do it
-    #     export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
+        #    kind = 'Spearman'
+        #    global score_corr_dct, rank_corr_dct
+        #    score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
+        #    rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+        #    if save_excel: # too large, prefer not to do it
+        #        export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
+        export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
 
-    export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
+        #    kind = 'KS'
+        #    rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+        #    if save_excel: # too large, prefer not to do it
+        #        export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
+
+        export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 
 
 if __name__ == '__main__':
