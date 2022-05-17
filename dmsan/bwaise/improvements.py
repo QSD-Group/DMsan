@@ -47,13 +47,12 @@ def update_indicator_weights(ind_scores):
     # Set the local weight of indicators that all three systems score the same
     # to zero (to prevent diluting the scores)
     eq_ind = ind_scores.min()==ind_scores.max()
-    eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind==True].index]
+    eq_inds = eq_ind[eq_ind==True].index
 
     for i in eq_inds:
-        # Need subtract in `int(i[1])-1` because of 0-indexing
-        ahp.init_weights[i[0]][int(i[1])-1] = ahp.na_default
+        bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
 
-    ahp.get_indicator_weights(True)
+    ahp.get_indicator_weights(return_results=True)
 
     return ahp.norm_weights_df
 

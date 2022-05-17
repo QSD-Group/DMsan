@@ -208,6 +208,11 @@ alt_names = pd.read_excel(indicator_scores_path, sheet_name='user_interface').sy
 bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
                  na_default=0.00001, random_index={})
 
+# # If want to use initial weights different from the default
+# bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
+#                  init_weights={'S1': 1}, # include all the different ones here
+#                  na_default=0.00001, random_index={})
+
 
 # %%
 
@@ -431,13 +436,12 @@ def run_analyses(save_excel=False):
     # Set the local weight of indicators that all three systems score the same
     # to zero (to prevent diluting the scores)
     eq_ind = baseline_indicator_scores.min()==baseline_indicator_scores.max()
-    eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind==True].index]
+    eq_inds = eq_ind[eq_ind==True].index
 
     for i in eq_inds:
-        # Need subtract in `int(i[1])-1` because of 0-indexing
-        bwaise_ahp.init_weights[i[0]][int(i[1])-1] = bwaise_ahp.na_default
+        bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
 
-    bwaise_ahp.get_indicator_weights(True)
+    bwaise_ahp.get_indicator_weights(return_results=True)
 
     global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,

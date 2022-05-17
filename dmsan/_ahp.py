@@ -4,7 +4,7 @@
 @authors:
     Tori Morgan <vlmorgan@illinois.edu>,
     Hannah Lohman <hlohman94@gmail.com>,
-    Yalin Li <zoe.yalin.li@gmail.com>,
+    Yalin Li <mailto.yalin.li@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>
 
 This model is developed to assist sanitation system research, development, and
@@ -36,21 +36,27 @@ class AHP:
         different countries, default path (and file) will be used if not provided.
     location_name : str
         Name of the location by country.
+    init_weights : dict(str, float)
+        Dictionary of the initial indicator weights, the keys should be the indicator name
+        and the values should be the indicator weight.
+        Default indicator weights (for the specific country) will be used
+        if not given in the dict.
     num_alt : int
         Number of alternatives to be evaluated.
     na_default : float
         Default values when an indicator is empty (i.e., N/A).
-    RI : dict
+    random_index : dict
         Random indices corresponding to the number of the sub-criteria,
         default ones will be used if not given.
 
     Examples
     --------
     NOT READY YET.
-
     '''
-    def __init__(self, file_path='', location_name='Uganda', num_alt=3,
-                 na_default=0.00001, random_index={}):
+
+
+    def __init__(self, file_path='', location_name='Uganda', init_weights={},
+                 num_alt=3, na_default=0.00001, random_index={}):
         # Convert location to match the database
         self.set_location(location_name=location_name, file_path=file_path)
         self.num_alt = int(num_alt)
@@ -70,137 +76,122 @@ class AHP:
                 }
         if random_index:
             self.random_index.update(random_index)
-
-        # Initiate the dict
-        self.init_weights = {}
-
         # Set initial weights for different criteria
-        self._set_init_T_weights()
-        self._set_init_RR_weights()
-        self._set_init_Env_weights()
-        self._set_init_Econ_weights()
-        self._set_init_S_weights()
-        init_weights = self.init_weights
-        init_weights_df = pd.DataFrame(sum(list(init_weights.values()), [])).transpose()
+        self._init_weights = self._get_default_init_weights()
+        self.init_weights = init_weights
+        self.get_indicator_weights()
+
+    def update_init_weights(self, init_weights={}):
+        init_weights = {} if not init_weights else init_weights
+        self._init_weights.update(init_weights)
+        weights = self._init_weights
+        init_weights_df = pd.DataFrame(list(weights.values())).transpose()
+        get_ind_range = lambda abbr: range(len([i for i in weights.keys() if i.startswith(abbr)]))
         init_weights_df.columns = [
-            *[f'T{i+1}' for i in range(len(init_weights['T']))],
-            *[f'RR{i+1}' for i in range(len(init_weights['RR']))],
-            *[f'Env{i+1}' for i in range(len(init_weights['Env']))],
-            *[f'Econ{i+1}' for i in range(len(init_weights['Econ']))],
-            *[f'S{i+1}' for i in range(len(init_weights['S']))],
+            *[f'T{i+1}' for i in get_ind_range('T')],
+            *[f'RR{i+1}' for i in get_ind_range('RR')],
+            *[f'Env{i+1}' for i in get_ind_range('Env')],
+            *[f'Econ{i+1}' for i in get_ind_range('Econ')],
+            *[f'S{i+1}' for i in get_ind_range('S')],
             ]
         self._init_weights_df = init_weights_df
-        self.get_indicator_weights()
+
 
     def _get_val(self, df, col='Value'):
         '''Util function for retrieving data.'''
         return df.loc[self.location.location_name, col]
 
-    def _set_init_T_weights(self):
-        '''Set initial weights for technical indicators.'''
+    def _get_default_init_weights(self):
+        ''' Set default initial indicator weights.'''
+        ##### Technical indicators #####
         get_val = self._get_val
         location = self.location
-        self.init_weights['T'] = weights = []
+        weights = {}
 
         # Sub-criteria: Resilience
         # Local Weight Indicator T1: Extent of training
         # related to how much training is available to train users and personnel
-        weights.append(100 - (get_val(location.training)/7*100))
+        weights['T1'] = 100 - (get_val(location.training)/7*100)
 
         # Local Weight Indicator T2: Population with access to improved sanitation
         # related to how available improved sanitation is in the region in case a system fails
-        weights.append(100 - get_val(location.sanitation_availability, 'Value - Improved Sanitation'))
+        weights['T2'] = 100 - get_val(location.sanitation_availability, 'Value - Improved Sanitation')
 
         # Sub-criteria: Feasibility
         # Local Weight Indicator T3: Accessibility to technology
         # related to how easily the region can access technology
-        weights.append(100-(get_val(location.tech_absorption)/7*100))
+        weights['T3'] = 100-(get_val(location.tech_absorption)/7*100)
 
         # Local Weight Indicator T4: Transportation infrastructure
         # related to the quality of transportation infrastructure for transport of waste
-        weights.append(100-(get_val(location.road_quality)/7*100))
+        weights['T4'] = 100-(get_val(location.road_quality)/7*100)
 
         # Local Weight Indicator T5: Construction skills available
         # related to the construction expertise available
-        weights.append(100 - (get_val(location.construction)/40.5*100))
+        weights['T5'] = 100 - (get_val(location.construction)/40.5*100)
 
         # Local Weight Indicator T6: O&M expertise available
         # related to the O&M expertise available
-        weights.append(100-(get_val(location.OM_expertise)/7*100))
+        weights['T6'] = 100-(get_val(location.OM_expertise)/7*100)
 
         # Local Weight Indicator T7: Population growth trajectory
         # related to the population flexibility
-        weights.append(get_val(location.pop_growth)/4.5*100)
+        weights['T7'] = get_val(location.pop_growth)/4.5*100
 
         # Local Weight Indicator T8:
         # related to the grid-electricity flexibility
-        weights.append(100-(get_val(location.electricity_blackouts)/72.5*100))
+        weights['T8'] = 100-(get_val(location.electricity_blackouts)/72.5*100)
 
         # Local Weight Indicator T9:
         # related to the drought flexibility
-        weights.append(100-(get_val(location.water_stress)/4.82*100))
+        weights['T9'] = 100-(get_val(location.water_stress)/4.82*100)
 
-
-    def _set_init_RR_weights(self):
-        '''Set initial weights for resource recovery indicators.'''
-        get_val = self._get_val
-        location = self.location
-        self.init_weights['RR'] = weights = []
-
+        ##### Resource recovery #####
         # Local Weight Indicator RR1:
         # related to the water stress (Water Recovery)
-        weights.append(self.init_weights['T'][-1])
+        weights['RR1'] = weights['T9']
 
         # Local Weight Indicator RR2:
         # related to nitrogen (N) fertilizer fulfillment (Nutrient Recovery)
-        weights.append((1-(get_val(location.n_fertilizer_fulfillment)/100))*100)
+        weights['RR2'] = (1-(get_val(location.n_fertilizer_fulfillment)/100))*100
 
         # Local Weight Indicator RR3:
         # related to phosphorus (P) fertilizer fulfillment (Nutrient Recovery)
-        weights.append((1-(get_val(location.p_fertilizer_fulfillment)/100))*100)
+        weights['RR3'] = (1-(get_val(location.p_fertilizer_fulfillment)/100))*100
 
         # Local Weight Indicator RR4:
         # related to potassium (K) fertilizer fulfillment (Nutrient Recovery)
-        weights.append((1-(get_val(location.k_fertilizer_fulfillment)/100))*100)
+        weights['RR4'] = (1-(get_val(location.k_fertilizer_fulfillment)/100))*100
 
         # Local Weight Indicator RR5:
         # related to renewable energy consumption (Energy Recovery)
-        weights.append(get_val(location.renewable_energy))
+        weights['RR5'] = get_val(location.renewable_energy)
 
         # Local Weight Indicator RR6:
         # related to infrastructure quality (Supply Chain Infrastructure)
-        weights.append((1-(get_val(location.infrastructure)/7))*100)
+        weights['RR6'] = (1-(get_val(location.infrastructure)/7))*100
 
-
-    def _set_init_Env_weights(self):
-        '''Set initial weights for economic indicators.'''
-        # Local Weight Indicator
+        ##### Environmental #####
         # Env1: ecosystem quality (LCA)
         # Env2: human health (LCA)
         # Env3: resource depletion (LCA)
-        self.init_weights['Env'] = [1/self.num_alt] * self.num_alt
+        val = 1/self.num_alt
+        for i in range(3): weights[f'Env{i+1}'] = val
 
+        ##### Economic #####
+        weights['Econ1'] = 1 # only one for the net cost
 
-    def _set_init_Econ_weights(self):
-        '''Set initial weights for economic indicators.'''
-        self.init_weights['Econ'] = [1] # only one for the net cost
-
-
-    def _set_init_S_weights(self):
-        '''Set initial weights for social indicators.'''
-        get_val = self._get_val
-        location = self.location
+        ##### Social #####
         X = self.na_default
-        self.init_weights['S'] = weights = []
 
         # Sub-criteria: Job Creation
         # Local Weight Indicator S1: Unemployment
         # related to the unemployment rate
-        weights.append(get_val(location.unemployment_rate)/28.74*100)
+        weights['S1'] = get_val(location.unemployment_rate)/28.74*100
 
         # Local Weight Indicator S2: High paying jobs
         # related to the need for higher paying jobs
-        weights.append(get_val(location.high_pay_jobs)/94.3*100)
+        weights['S2'] = get_val(location.high_pay_jobs)/94.3*100
 
         # Sub-criteria: End-user acceptability, S3-S7
         # !!! Input community preference
@@ -210,59 +201,68 @@ class AHP:
         # this indicator as important, then insert X
         # 0 being low preference to frequency of disposal to 100 being high preference for frequency of disposal
         # ## Specific to Bwaise example: community did not mention disposal as affecting their acceptability ##
-        weights.append(X)
+        weights['S3'] = X
 
         # !!! Input community preference
         # Local Weight Indicator S4: Cleaning preference
         # related to the preference for cleaning requirements
         # 0 being low preference to frequency of cleaning to 100 being high preference for frequency of cleaning
-        weights.append(44)
+        weights['S4'] = 44
 
         # !!! Input community preference
         # Local Weight Indicator S5: Privacy preference
         # related to the preference for privacy (# of households sharing a system)
         # 0 being low preference for privacy to 100 being high preference for privacy
-        weights.append(47)
+        weights['S5'] = 47
 
         # !!! Input community preference
         # Local Weight Indicator S6: Odor preference
         # related to the preference of odor with
         # 0 being low preference for odor to 100 being high preference for odor
-        weights.append(22)
+        weights['S6'] = 22
 
         # !!! Input community preference
         # Local Weight Indicator S7: Security preference
         # related to the preference of security with
-        # 0 being low preference for secutiy to 100 being high preference for secutiy
+        # 0 being low preference for security to 100 being high preference for security
         # ## Specific to Bwaise example: community did not mention disposal as affecting their acceptability ##
-        weights.append(24)
+        weights['S7'] = 24
 
         # Sub-criteria: Management Acceptability, S8 & S9
         # !!! Input management (i.e., landlord) preference
         # Local Weight Indicator S8: Disposal convenience preference
         # related to the preference for disposal requirements
         # 0 being low importance to frequency of disposal to 100 being high importance for frequency of disposal
-        # ## Specific to Bwaise example: the sanitation system is controlled by the end-user, not landlord ##
-        weights.append(X)
+        # ## Specific to Bwaise example: the sanitation system is controlled by the end-user, not the landlord ##
+        weights['S8'] = X
 
         # ## Input management preference ##
         # Local Weight Indicator S9: Cleaning preference
         # related to the preference for cleaning requirements
         # 0 being low importance to frequency of cleaning to 100 being high importance for frequency of cleaning
-        weights.append(X)
+        weights['S9'] = X
+
+        return weights
 
 
     def __repr__(self):
         return f'<AHP: {self.location.location_name}>'
 
 
-    def get_indicator_weights(self, return_results=False):
+    def get_indicator_weights(self, init_weights=None, return_results=False):
         '''Analytic hierarchy process (AHP) to determine indicators weights.'''
         RI = self.random_index
         norm_weights = self.norm_weights = {} # sub-criteria weights
         CRs = self.CRs = {} # consistency ratio
+        if not init_weights:
+            init_weights_df = self.init_weights_df
+        if isinstance(init_weights, dict) or init_weights is None:
+            self.update_init_weights(init_weights)
+            init_weights_df = self.init_weights_df
+        else: # assume to be a dataframe
+            init_weights_df = init_weights
 
-        for indicator, weights in self.init_weights.items():
+        for indicator, weights in init_weights_df.items():
             num = len(weights)
             index = [f'{indicator}{i+1}' for i in range(num)]
 
@@ -313,6 +313,21 @@ class AHP:
     def location(self):
         '''[:class:`~.Location`] Selected location of interest.'''
         return self._location
+
+    @property
+    def init_weights(self):
+        '''[dict] Initial indicator weights.'''
+        return self._init_weights
+    @init_weights.setter
+    def init_weights(self, i):
+        if isinstance(i, dict): self.update_init_weights(i)
+        else: raise ValueError('`init_weights` should be a dict, '
+                               f'not {type(i).__name__}.')
+
+    @property
+    def init_weights_df(self):
+        '''[:class:`pandas.DataFrame`] Initial indicator weights.'''
+        return self._init_weights_df
 
     @property
     def norm_weights_df(self):
