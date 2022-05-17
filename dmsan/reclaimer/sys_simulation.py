@@ -35,6 +35,7 @@ __all__ = ('rebuild_models', 'get_baseline', 'get_uncertainties')
 
 from exposan.reclaimer.country_specific import create_country_specific_model
 
+
 def get_model(N, country, seed=None, rule='L'):
     if seed:
         np.random.seed(seed)
@@ -45,11 +46,11 @@ def get_model(N, country, seed=None, rule='L'):
         models.append(create_country_specific_model((sys_ID, country)))
 
     for model in models:
-        get_metric = lambda name: [i for i in model.metrics if i.name==name]
+        get_metric = lambda name: [i for i in model.metrics if i.name == name]
         mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
         # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
         mRR += get_metric('Gas COD')  # energy, only gas
-        mEnv = [get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Health')]
+        mEnv = [get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Resources')]
         # mEnv.sort(key=lambda i: i.name_with_units)  # I do not need this code
         mEcon = get_metric('Annual net cost')
         model.metrics = mRR + mEnv + mEcon
@@ -63,7 +64,7 @@ def get_model(N, country, seed=None, rule='L'):
 
 
 def rebuild_models(country):
-    path =  os.path.join(scores_path, f'{country}/model_data.pckl')
+    path = os.path.join(scores_path, f'{country}/model_data.pckl')
     data = load_pickle(path)
 
     modelB, modelC = get_model(*data['inputs'])
@@ -89,7 +90,7 @@ def get_cap_yr_pts(lca):
 
 def get_baseline(file_path=''):
     baseline_dct = {'sysB': [], 'sysC': []}
-    inds = ['H_Ecosystems', 'H_Health', 'H_Resources']    # make sure this is in the same order always
+    inds = ['H_Ecosystems', 'H_Health', 'H_Resources']  # make sure this is in the same order always
     idxs = pd.MultiIndex.from_tuples([
         *zip(('Net recovery',)*4, ('N', 'P', 'K', 'energy')),
         *zip(('LCA results',)*len(inds), inds),
@@ -101,9 +102,8 @@ def get_baseline(file_path=''):
     for sys in (re.sysB, re.sysC):
         data = baseline_dct[sys.ID]
         func_dct = re.systems.get_summarizing_functions(sys)
-        for i in ('N', 'P', 'K'):
-            data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
-        data.append(func_dct['get_gas_COD_recovery'](sys, 'COD')) # energy, only gas
+        for i in ('N', 'P', 'K', 'COD'):
+            data.append(0.0)  # 0 because no N, P, K, and COD recovery
 
         lca = sys_dct['LCA'][sys.ID]
         data.extend((i for i in get_cap_yr_pts(lca).values()))
@@ -196,6 +196,7 @@ def run_simulations(country):
                                         param_path=param_path,
                                         pickle_path=pickle_path,
                                         result_path=uncertainty_path)
+
 
 if __name__ == '__main__':
     for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
