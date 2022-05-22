@@ -1,0 +1,9 @@
+		sysB	sysC
+Net recovery	N	0.0	0.0
+Net recovery	P	0.0	0.0
+Net recovery	K	0.0	0.0
+Net recovery	energy	0.0	0.0
+LCA results	H_Ecosystems	260.51585903915696	181.73893020710844
+LCA results	H_Health	291.5634714319947	172.57424989637738
+LCA results	H_Resources	239.12053862655438	181.72113560865444
+TEA results	Net cost	46.163658907984264	39.293557061154644

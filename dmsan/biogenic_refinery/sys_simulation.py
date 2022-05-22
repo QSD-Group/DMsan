@@ -35,22 +35,20 @@ __all__ = ('rebuild_models', 'get_baseline', 'get_uncertainties')
 from exposan.biogenic_refinery.country_specific import create_country_specific_model
 
 
-def get_model(N, country, seed=None, rule='L'):
-    if seed:
-        np.random.seed(seed)
+def get_model(country, N, seed=None, rule='L'):
+    if seed: np.random.seed(seed)
 
     models = []
 
     for sys_ID in ('sysA', 'sysB',):
-        models.append(create_country_specific_model((sys_ID, country)))
+        models.append(create_country_specific_model(sys_ID, country))
 
     for model in models:
         get_metric = lambda name: [i for i in model.metrics if i.name == name]
         mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K')], [])
         # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
         mRR += get_metric('Gas COD')  # energy, only gas
-        mEnv = [get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Resources')]
-        # mEnv.sort(key=lambda i: i.name_with_units)  # I do not need this code
+        mEnv = sum([get_metric(name) for name in ('H_Ecosystems', 'H_Health', 'H_Resources')], [])
         mEcon = get_metric('Annual net cost')
         model.metrics = mRR + mEnv + mEcon
 
@@ -81,7 +79,7 @@ def rebuild_models(country):
 
 def get_cap_yr_pts(lca):
     impact_dct = lca.get_total_impacts()
-    ratio = lca.lifetime * br.systems.ppl_12k(lca.system.ID[-1])
+    ratio = lca.lifetime * br.systems.ppl_12k # 12,000
     for k, v in impact_dct.items():
         impact_dct[k] = v / ratio
     return impact_dct
@@ -98,15 +96,13 @@ def get_baseline(file_path=''):
     df = pd.DataFrame(index=idxs)
 
     sys_dct = br.systems.sys_dct
+    func_dct = br.systems.get_summarizing_functions()
     for sys in (br.sysA, br.sysB):
         data = baseline_dct[sys.ID]
-        func_dct = br.systems.get_summarizing_functions(sys)
         for i in ('N', 'P', 'K'):
             data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
         data.append(func_dct['get_gas_COD_recovery'](sys, 'COD'))  # energy, only gas
-
-        lca = sys_dct['LCA'][sys.ID]
-        data.extend((i for i in get_cap_yr_pts(lca).values()))
+        data.extend([v for k,v in get_cap_yr_pts(sys.LCA).items() if 'H_' in k]) # exclude GlobalWarming
 
         tea = sys_dct['TEA'][sys.ID]
         ppl = sys_dct['ppl'][sys.ID]
@@ -127,9 +123,9 @@ def get_baseline(file_path=''):
 # =============================================================================
 
 @time_printer
-def get_uncertainties(N, country, seed=None, rule='L',
+def get_uncertainties(country, N, seed=None, rule='L',
                       pickle_path='', param_path='', result_path=''):
-    models = get_model(N, seed, rule)
+    models = get_model(country, N, seed, rule)
     uncertainty_dct = {}
 
     for model in models:
@@ -181,7 +177,7 @@ def get_uncertainties(N, country, seed=None, rule='L',
 # Run all simulations
 # =============================================================================
 
-def run_simulations(country):
+def run_simulations(country, N, seed=None):
     global baseline_df, uncertainty_dct
     country_folder = os.path.join(scores_path, country)
     # Create the folder if there isn't one already
@@ -192,7 +188,7 @@ def run_simulations(country):
     uncertainty_path = os.path.join(country_folder, 'sys_uncertainties.xlsx')
 
     baseline_df = get_baseline(file_path=baseline_path)
-    uncertainty_dct = get_uncertainties(N=1000, country=country, seed=3221,
+    uncertainty_dct = get_uncertainties(country=country, N=N, seed=seed,
                                         param_path=param_path,
                                         pickle_path=pickle_path,
                                         result_path=uncertainty_path)
@@ -200,4 +196,4 @@ def run_simulations(country):
 
 if __name__ == '__main__':
     for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
-        run_simulations(country)
+        run_simulations(country, N=20, seed=3221)

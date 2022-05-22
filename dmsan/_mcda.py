@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from qsdsan.utils import time_printer
-from . import data_path, results_path
+from . import data_path
 
 __all__ = ('MCDA',)
 
@@ -84,8 +84,7 @@ class MCDA:
             self._performance_scores = self._ranks = self._winners = None
 
 
-    def run_MCDA(self, criterion_weights=None, method=None, file_path='',
-                 **kwargs):
+    def run_MCDA(self, criterion_weights=None, method=None, **kwargs):
         '''
         Calculate perfomance scores using the selected method,
         multiple criterion weights can be considered,
@@ -98,9 +97,6 @@ class MCDA:
             associated criteria in the `criterion_weights` property if left as None.
         method : str
             MCDA method, will use value set in the `method` property if not provided.
-        file_path : str
-            Path for the output Excel file, default path will be used if left as blank,
-            no file will be saved if None.
 
         See Also
         --------
@@ -109,7 +105,7 @@ class MCDA:
         '''
         method = method or self.method
         if method.upper() == 'TOPSIS':
-            returned = self._run_TOPSIS(criterion_weights, file_path, **kwargs)
+            returned = self._run_TOPSIS(criterion_weights, **kwargs)
         elif method.upper() == 'ELECTRE':
             returned = self._run_ELECTRE(**kwargs)
         elif method.upper() == 'AHP':
@@ -120,7 +116,7 @@ class MCDA:
         return returned
 
 
-    def _run_TOPSIS(self, criterion_weights=None, file_path='', **kwargs):
+    def _run_TOPSIS(self, criterion_weights=None, **kwargs):
         cr_wt = self.criterion_weights if criterion_weights is None else criterion_weights
         ind_type = self.indicator_type
         rev_ind_type = np.ones_like(ind_type) - ind_type
@@ -194,15 +190,6 @@ class MCDA:
         score_df = pd.concat([pre_df, score_df], axis=1).reset_index(drop=True)
         rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index(drop=True)
         winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index(drop=True)
-
-        if file_path is not None:
-            if not os.path.isdir(results_path):
-                os.mkdir(results_path)
-            file_path = file_path if file_path else os.path.join(results_path, 'performance_scores.xlsx')
-            with pd.ExcelWriter(file_path) as writer:
-                winner_df.to_excel(writer, sheet_name='Winner')
-                score_df.to_excel(writer, sheet_name='Score')
-                rank_df.to_excel(writer, sheet_name='Rank')
 
         if kwargs.get('update_attr') is not False:
             self._performance_scores = score_df

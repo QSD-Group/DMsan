@@ -1,0 +1,9 @@
+		sysA	sysB
+Net recovery	N	0.0	0.0
+Net recovery	P	0.0	0.0
+Net recovery	K	0.0	0.0
+Net recovery	energy	<function get_energy_recovery at 0x7fa382f4c0d0>	<function get_energy_recovery at 0x7fa382f4c0d0>
+LCA results	H_Ecosystems	9.514117606551418	25.128682347359653
+LCA results	H_Health	9.514117606551418	25.128682347359653
+LCA results	H_Resources	9.514117606551418	25.128682347359653
+TEA results	Net cost	35.24397886354391	31.235736995442327

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 @authors:
-    Yalin Li <zoe.yalin.li@gmail.com>
+    Yalin Li <mailto.yalin.li@gmail.com>
     Joy Zhang <joycheung1994@gmail.com>
 
 Run this module for uncertainty and sensitivity analyses.

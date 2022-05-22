@@ -1,50 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-@author: Yalin Li <zoe.yalin.li@gmail.com>
-"""
 
-import os
-from qsdsan.utils import load_pickle
+'''
+DMsan: Decision-making for sanitation and resource recovery systems
 
-bwaise_path = os.path.dirname(__file__)
-scores_path = os.path.join(bwaise_path, 'scores')
-results_path = os.path.join(bwaise_path, 'results')
-figures_path = os.path.join(bwaise_path, 'figures')
+This module is developed by:
+    Yalin Li <mailto.yalin.li@gmail.com>
+    Hannah Lohman <hlohman94@gmail.com>
+'''
 
+from dmsan import _init_modules, _import_from_pickle
+
+scores_path, results_path, figures_path = _init_modules('bwaise')
 
 def import_from_pickle(parameters=False, indicator_scores=False,
                        ahp=False, mcda=False,
                        uncertainty=False, sensitivity=None):
-    loaded = dict.fromkeys(('param', 'tech_score', 'ahp', 'mcda',
-                            'uncertainty', 'sensitivity'))
-
-    if parameters:
-        file_path = os.path.join(results_path, 'parameters.pckl')
-        loaded['parameters'] = load_pickle(file_path)
-
-    if indicator_scores:
-        file_path = os.path.join(results_path, 'indicator_scores.pckl')
-        loaded['indicator_scores'] = load_pickle(file_path)
-
-    if ahp:
-        file_path = os.path.join(results_path, 'ahp.pckl')
-        loaded['ahp'] = load_pickle(file_path)
-
-    if mcda:
-        file_path = os.path.join(results_path, 'mcda.pckl')
-        loaded['mcda'] = load_pickle(file_path)
-
-    if uncertainty:
-        file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.pckl')
-        loaded['uncertainty'] = load_pickle(file_path)
-
-    if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
-        loaded['sensitivity'] = [load_pickle(file_path)]
-
-        if sensitivity != 'KS':
-            file_path = os.path.join(results_path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
-            loaded['sensitivity'].append(load_pickle(file_path))
-
-    return loaded
+    return _import_from_pickle(
+        results_path,
+        parameters=parameters,
+        indicator_scores=indicator_scores,
+        ahp=ahp,
+        mcda=mcda,
+        uncertainty=uncertainty,
+        sensitivity=sensitivity,
+        )
