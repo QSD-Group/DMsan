@@ -67,7 +67,7 @@ class MCDA:
     def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
                  *, indicator_weights, indicator_scores, indicator_type=None,
                  criterion_weights=None):
-        path = file_path if file_path else os.path.join(data_path, 'criteria_and_indicators.xlsx')
+        path = file_path or os.path.join(data_path, 'criteria_and_indicators.xlsx')
         file = pd.ExcelFile(path)
         read_excel = lambda name: pd.read_excel(file, name) # name is sheet name
 
@@ -77,8 +77,8 @@ class MCDA:
         self.indicator_type = pd.DataFrame({
                 defs.variable[i]: defs.category_binary[i] for i in defs.index
                 }, index=[0])
-        self.indicator_scores = indicator_scores
-        self.criterion_weights = criterion_weights if criterion_weights else read_excel('weight_scenarios')
+        self._indicator_scores = indicator_scores
+        self.criterion_weights = criterion_weights or read_excel('weight_scenarios')
         self.method = method
         self._normalized_indicator_scores = self._criterion_scores = \
             self._performance_scores = self._ranks = self._winners = None
@@ -86,7 +86,7 @@ class MCDA:
 
     def run_MCDA(self, criterion_weights=None, method=None, **kwargs):
         '''
-        Calculate perfomance scores using the selected method,
+        Calculate performance scores using the selected method,
         multiple criterion weights can be considered,
         but only one set of indicator scores are used.
 
@@ -136,7 +136,7 @@ class MCDA:
                       out=np.zeros_like(indicator_scores_a), # fill 0 when denominator is 0
                       where=denominators!=0)
 
-        # Step 2: Rank alternatives under crterion weighting scenarios
+        # Step 2: Rank alternatives under criterion weighting scenarios
         # Find num of indicators within each criterion
         criteria = self.criteria
         num_ind_dct = {k: len([i for i in ind_wt.columns if i.startswith(k)])
@@ -176,10 +176,12 @@ class MCDA:
             # Calculate performance score
             score = d_worst / (d_best+d_worst)
             rank = (num_alt+1) - stats.rankdata(score).astype(int)
-            winner = columns.loc[np.where(rank==1)]
+            winner = columns.loc[np.where(rank==rank.min())]
             scores.append(score)
             ranks.append(rank)
-            winners.append(winner.values.item())
+            if len(winner) == 1:
+                winners.append(winner.values.item())
+            else: winners.append(', '.join(winner.values.tolist()))
 
         score_df = pd.DataFrame(scores, columns=columns)
         rank_df = pd.DataFrame(ranks, columns=columns)
@@ -279,7 +281,7 @@ class MCDA:
     def calc_criterion_score(self, criterion_weights=None, method=None, ind_score_dct={}):
         '''
         Calculate the score for each criterion by
-        setting the criterion weight for that crtierion to 1
+        setting the criterion weight for that criterion to 1
         while criterion weights for the other criteria to 0.
 
         Parameters
@@ -317,7 +319,7 @@ class MCDA:
         input_x : :class:`pandas.DataFrame`
             The first set of input (typically uncertainty parameters).
         input_y : :class:`pandas.DataFrame`
-            The second set of input (typicall scores or ranks).
+            The second set of input (typically scores or ranks).
         kind : str
             The type of test to run, can be "Spearman" for Spearman's rho,
             "Pearson" for Pearson's r, "Kendall" for Kendall's tau,
@@ -411,9 +413,26 @@ class MCDA:
 
 
     @property
+    def alt_names(self):
+        '''[:class:`pandas.Series`] Names of the alternative systems under consideration.'''
+        return self._alt_names
+    @alt_names.setter
+    def alt_names(self, i):
+        self._alt_names = pd.Series(i)
+
+    @property
     def criteria(self):
         '''[tuple(str)] All criteria considered in MCDA.'''
         return supported_criteria
+
+    @property
+    def indicator_scores(self):
+        '''[:class:`pandas.DataFrame`] Raw indicator scores (i.e., no need to be normalized).'''
+        return self._indicator_scores
+    @indicator_scores.setter
+    def indicator_scores(self, i):
+        self._indicator_scores = i
+        self.run_MCDA()
 
     #!!! This needs double-checking to consider indicator types and negatives
     @property

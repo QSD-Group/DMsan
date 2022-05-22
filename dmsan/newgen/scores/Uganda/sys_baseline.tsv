@@ -2,7 +2,7 @@
 Net recovery	N	0.0	0.0
 Net recovery	P	0.0	0.0
 Net recovery	K	0.0	0.0
-Net recovery	energy	<function get_energy_recovery at 0x7fa382f4c0d0>	<function get_energy_recovery at 0x7fa382f4c0d0>
+Net recovery	energy	0.0	0.0
 LCA results	H_Ecosystems	9.803018664596465	21.390176414393267
 LCA results	H_Health	2.455258381770556	7.873869475733824
 LCA results	H_Resources	7.030156645684811	31.483780674757355

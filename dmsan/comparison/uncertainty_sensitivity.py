@@ -21,10 +21,10 @@ create difficulties in identifying the drivers of the results, thus not included
 import os, numpy as np, pandas as pd
 from scipy import stats
 from matplotlib import pyplot as plt
-from qsdsan.utils import time_printer, save_pickle, colors
+from qsdsan.utils import save_pickle, colors
 from dmsan import AHP, MCDA, path
+from dmsan.comparison import results_path, figures_path
 
-#!!! NEED TO USE THE SAME SAMPLES ACROSS SYSTEMS
 
 # %%
 
@@ -65,7 +65,6 @@ def generate_weights(criterion_num, wt_scenario_num, savefig=True):
                xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
                xticks=(0, 1, 2, 3, 4),
                xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
-        from dmsan.gates import figures_path
         fig.savefig(os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png'),
                     dpi=300)
 
@@ -94,12 +93,16 @@ def generate_weights(criterion_num, wt_scenario_num, savefig=True):
 # Baseline
 # =============================================================================
 
+# Alternative systems
 # modules = ('biogenic_refinery', 'newgen', 'reclaimer') #!!! need to add in biogenic_refinery when it's done
 modules = ('newgen', 'reclaimer')
 get_alt_names = lambda module: [f'{module}A', f'{module}B'] if module!='reclaimer' \
     else [f'{module}B', f'{module}C']
+alt_names = sum([get_alt_names(module) for module in modules], [])
+ahp_kwargs = dict(num_alt=len(alt_names), na_default=0.00001, random_index={})
 
 
+#!!! Should reconstruct and run the uncertainties here to copy samples
 # Baseline
 def get_baseline_indicator_scores(country):
     indicator_scores = pd.DataFrame()
@@ -194,7 +197,7 @@ varied_inds = [*[f'RR{i}' for i in range(2, 6)],  # only include indicators that
                *[f'Env{i}' for i in range(1, 4)],
                'Econ1']  # net user cost
 
-def get_uncertainty_data(country):
+def get_uncertainty_data(country, baseline_indicator_scores=None):
     col_names = [
         ('N recovery', 'Total N'),
         ('P recovery', 'Total P'),
@@ -211,14 +214,16 @@ def get_uncertainty_data(country):
         scores_path = os.path.join(path, f'{module}/scores')
         file_path = os.path.join(scores_path, f'{country}/sys_uncertainties.xlsx')
         file = pd.ExcelFile(file_path)
-        baseline_scores = get_baseline_indicator_scores(country)
+        baseline_scores = baseline_indicator_scores or get_baseline_indicator_scores(country)
 
         AB = 'AB' if module != 'reclaimer' else 'BC'
         sysA = pd.read_excel(file, f'sys{AB[0]}-results', index_col=0, header=(0, 1))
         sysB = pd.read_excel(file, f'sys{AB[1]}-results', index_col=0, header=(0, 1))
         sys_val = pd.concat((sys_val, sysA[col_names], sysB[col_names]))
 
-    ind_score_dct = {}
+    #!!! NEED TO USE THE SAME SAMPLES ACROSS SYSTEMS
+    # also should add lines to save the parameters
+    param_dct, ind_score_dct = {}, {}
     N = sysA.shape[0]
     n = int(len(sys_val)/N)
     for i in range(N):
@@ -228,7 +233,7 @@ def get_uncertainty_data(country):
         indicator_scores[varied_inds] = simulated.values
         ind_score_dct[i] = indicator_scores
 
-    return ind_score_dct
+    return param_dct, ind_score_dct
 
 
 # %%
@@ -275,129 +280,116 @@ def get_uncertainty_data(country):
 # %%
 
 # =============================================================================
-# Result exporting
+# MCDA with result exporting
 # =============================================================================
 
-#!!! PAUSED
+def run_analyses(country, weight_df=None):
+    print(f'\nRunning analyses for country: {country}.')
+    country_folder = os.path.join(results_path, country)
+    if not os.path.isdir(country_folder): os.mkdir(country_folder)
+
+    ##### Baseline indicator scores and weights #####
+    baseline_indicator_scores = get_baseline_indicator_scores(country)
+
+    # Set the local weight of indicators that all systems score the same
+    # to zero (to prevent diluting the scores)
+    eq_ind = baseline_indicator_scores.min() == baseline_indicator_scores.max()
+    eq_inds = eq_ind[eq_ind == True].index.to_list()
+
+    ahp = AHP(location_name=country, **ahp_kwargs)
+    for i in eq_inds: ahp.init_weights[i] = ahp.na_default
+
+    norm_weights_df = ahp.get_indicator_weights(return_results=True)
+
+    # Save normalized indicator weights
+    file_path = os.path.join(country_folder, 'ahp.pckl')
+    save_pickle(ahp, file_path)
+    file_path = os.path.join(country_folder, 'indicator_weights.xlsx')
+    norm_weights_df.to_excel(file_path, sheet_name='Local weights')
+
+    ##### Baseline performance scores #####
+    mcda = MCDA(method='TOPSIS', alt_names=alt_names,
+                indicator_weights=norm_weights_df,
+                indicator_scores=baseline_indicator_scores)
+    mcda.run_MCDA()
+
+    # Save performance scores and ranks
+    file_path = os.path.join(country_folder, 'mcda.pckl')
+    save_pickle(mcda, file_path)
+    file_path = os.path.join(country_folder, 'performance_baseline.xlsx')
+    with pd.ExcelWriter(file_path) as writer:
+        mcda.performance_scores.to_excel(writer, sheet_name='Score')
+        mcda.ranks.to_excel(writer, sheet_name='Rank')
+
+    ##### Performance score uncertainty #####
+    # Note that empty cells (with nan value) are failed simulations
+    # (i.e., corresponding tech scores are empty)
+    param_dct, ind_score_dct = get_uncertainty_data(country)
+
+    # Save parameters
+    #!!! Needed for each country?
+    file_path = os.path.join(country_folder, 'parameters.pckl')
+    save_pickle(ind_score_dct, file_path)
+
+    # Save indicator scores
+    file_path = os.path.join(country_folder, 'indicator_scores.pckl')
+    save_pickle(ind_score_dct, file_path)
+
+    weight_df = weight_df or generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
+    score_df_dct, rank_df_dct, winner_df = mcda.run_MCDA_multi_scores(
+        criterion_weights=weight_df, ind_score_dct=ind_score_dct)
+
+    # Save performance scores and ranks
+    obj = (score_df_dct, rank_df_dct, winner_df)
+    file_path = os.path.join(country_folder, 'performance_uncertainties.pckl')
+    save_pickle(obj, file_path)
+    file_path = os.path.join(results_path, 'performance_uncertainties.xlsx')
+
+    score_df = pd.DataFrame()
+    rank_df = pd.DataFrame()
+    for k, v in score_df_dct.items():
+        temp_score = pd.DataFrame()
+        temp_rank = pd.DataFrame()
+        for module in alt_names:
+            temp_score[module] = v[module]
+            temp_rank[module] = rank_df_dct[k][module]
+        temp_score.columns = temp_rank.columns = pd.MultiIndex.from_product([[k], alt_names])
 
 
-# The Excel files could be vary large, try not to use when have thousands of samples,
-# especially for saving the uncertainty analysis results
-def export_to_excel(country, indicator_weights=True, mcda=True, criterion_weights=True,
-                    uncertainty=True):
-    if indicator_weights:
-        file_path = os.path.join(results_path, 'indicator_weights.xlsx')
-        ahp.norm_weights_df.to_excel(file_path, sheet_name='Local weights')
-        print(f'\nIndicator weights exported to "{file_path}".')
+    with pd.ExcelWriter(file_path) as writer:
+        winner_df.to_excel(writer, sheet_name='Winner')
+        score_df.to_excel(writer, sheet_name='Score')
+        rank_df.to_excel(writer, sheet_name='Rank')
+        # Score = writer.book.add_worksheet('Score')
+        # Rank = writer.book.add_worksheet('Rank')
+        # writer.sheets['Rank'] = Rank
+        # writer.sheets['Score'] = Score
+        # col_num = 0
+        # for k, v in score_df_dct.items():
+        #     v.to_excel(writer, sheet_name='Score', startcol=col_num)
+        #     rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
+        #     col_num += v.shape[1]+2
 
-    if mcda:
-        bwaise_mcda.indicator_scores = baseline_indicator_scores
-        file_path = os.path.join(results_path, 'performance_baseline.xlsx')
-        with pd.ExcelWriter(file_path) as writer:
-            bwaise_mcda.performance_scores.to_excel(writer, sheet_name='Score')
-            bwaise_mcda.ranks.to_excel(writer, sheet_name='Rank')
-        print(f'\nBaseline performance scores exported to "{file_path}".')
-
-    if criterion_weights:
-        file_path = os.path.join(results_path, f'criterion_weights_{wt_scenario_num}.xlsx')
-        weight_df.to_excel(file_path, sheet_name='Criterion weights')
-        print(f'\nCriterion weights exported to "{file_path}".')
-
-    if uncertainty:
-        file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.xlsx')
-        with pd.ExcelWriter(file_path) as writer:
-            winner_df.to_excel(writer, sheet_name='Winner')
-
-            Score = writer.book.add_worksheet('Score')
-            Rank = writer.book.add_worksheet('Rank')
-            writer.sheets['Rank'] = Rank
-            writer.sheets['Score'] = Score
-
-            col_num = 0
-            for k, v in score_df_dct.items():
-                v.to_excel(writer, sheet_name='Score', startcol=col_num)
-                rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
-                col_num += v.shape[1]+2
-        print(f'\Performance score uncertainties exported to "{file_path}".')
+    ##### Performance score sensitivity #####
+    #TODO
+    return ahp, mcda
 
 
-def export_to_pickle(country, indicator_scores=True,
-                     ahp=True, mcda=True, uncertainty=True):
-    if indicator_scores:
-        file_path = os.path.join(results_path, 'indicator_scores.pckl')
-        save_pickle(ind_score_dct, file_path)
-        print(f'\nDict of indicator scores exported to "{file_path}".')
+def run_all_countries(countries):
+    # Global weight scenarios
+    weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
+    file_path = os.path.join(results_path, f'criterion_weights_{wt_scenario_num}.xlsx')
+    weight_df.to_excel(file_path, sheet_name='Criterion weights')
 
-    if ahp:
-        file_path = os.path.join(results_path, 'ahp.pckl')
-        save_pickle(bwaise_ahp, file_path)
-        print(f'\nAHP object exported to "{file_path}".')
+    ahp_dct, mcda_dct = {}, {}
+    for country in countries:
+        ahp_dct[country], mcda_dct[country] = run_analyses(country)
 
-    if mcda:
-        bwaise_mcda.indicator_scores = baseline_indicator_scores
-        file_path = os.path.join(results_path, 'mcda.pckl')
-        save_pickle(bwaise_mcda, file_path)
-        print(f'\nMCDA object exported to "{file_path}".')
-
-    if uncertainty:
-        obj = (score_df_dct, rank_df_dct, winner_df)
-        file_path = os.path.join(results_path, 'uncertainty/performance_uncertainties.pckl')
-        save_pickle(obj, file_path)
-        print(f'\nPerformance score uncertainties exported to "{file_path}".')
-
-
-
-# %%
-
-# =============================================================================
-# MCDA
-# =============================================================================
-
-ind_score_dct = get_uncertainty_data('China')
-
-# Names of the alternative systems
-alt_names = list(ind_score_dct.values())[0].index.to_list()
-
-def run_analyses(save_excel=False):
-    global baseline_indicator_scores
-    baseline_indicator_scores = get_baseline_indicator_scores()
-
-    for country in ('China', 'India', 'Senegal', 'South Africa', 'Uganda'):
-
-        # Set the local weight of indicators that all three systems score the same
-        # to zero (to prevent diluting the scores)
-        eq_ind = baseline_indicator_scores.min() == baseline_indicator_scores.max()
-        eq_inds = [(i[:-1], i[-1]) for i in eq_ind[eq_ind == True].index]
-
-        ahp = AHP(location_name=country, num_alt=len(alt_names),
-                  na_default=0.00001, random_index={})
-        for i in eq_inds:
-            # Need subtract in `int(i[1])-1` because of 0-indexing
-            ahp.init_weights[i[0]][int(i[1]) - 1] = ahp.na_default
-
-        ahp.get_indicator_weights(True)
-
-        global bwaise_mcda
-        bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
-                           indicator_weights=ahp.norm_weights_df,
-                           indicator_scores=baseline_indicator_scores)
-        bwaise_mcda.run_MCDA()
-
-        global weight_df
-        weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
-
-        export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
-                        uncertainty=False, sensitivity=None)
-
-        # Note that empty cells (with nan value) are failed simulations
-        # (i.e., corresponding tech scores are empty)
-        global score_df_dct, rank_df_dct, winner_df
-        score_df_dct, rank_df_dct, winner_df = \
-            bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
-                                              ind_score_dct=ind_score_dct)
-
-        export_to_pickle(ahp=True, mcda=True, uncertainty=True)
+    return weight_df, ahp_dct, mcda_dct
 
 
 if __name__ == '__main__':
-    run_analyses(save_excel=False)
+    #!!! Missing data fro India, Senegal, and South Africa
+    # countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
+    countries = ('China', 'Uganda',)
+    weight_df, ahp_dct, mcda_dct = run_all_countries(countries)

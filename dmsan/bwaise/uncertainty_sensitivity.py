@@ -51,7 +51,6 @@ def check_lca(lca_perspective):
         raise ValueError('`lca_perspective` can only be "I", "H", or "E", '
                          f'not "{lca_perspective}".')
 
-
 # Baseline
 def get_baseline_indicator_scores(lca_perspective='H'):
     check_lca(lca_perspective)
@@ -189,6 +188,7 @@ def get_uncertainty_data(lca_perspective='H', baseline_scores=None,):
 
     return param_dct, ind_score_dct
 
+# Uncertainty
 param_dct, ind_score_dct = get_uncertainty_data()
 sim_num = len(ind_score_dct) # number of system simulations
 
@@ -273,7 +273,7 @@ def generate_weights(criterion_num, wt_scenario_num, savefig=True):
 # %%
 
 # =============================================================================
-# Kolmogorov–Smirnov test for TOPSIS uncertainties
+# Sensitivity
 # =============================================================================
 
 @time_printer
@@ -441,7 +441,7 @@ def run_analyses(save_excel=False):
     for i in eq_inds:
         bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
 
-    bwaise_ahp.get_indicator_weights(return_results=True)
+    bwaise_ahp.get_indicator_weights(return_results=False)
 
     global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,

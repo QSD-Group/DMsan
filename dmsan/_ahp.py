@@ -82,7 +82,7 @@ class AHP:
         self.get_indicator_weights()
 
     def update_init_weights(self, init_weights={}):
-        init_weights = {} if not init_weights else init_weights
+        init_weights = init_weights or {}
         self._init_weights.update(init_weights)
         weights = self._init_weights
         init_weights_df = pd.DataFrame(list(weights.values())).transpose()

@@ -9,4 +9,4 @@ This module is developed by:
 '''
 
 from dmsan import _init_modules
-scores_path, results_path, figures_path = _init_modules('gates')
+scores_path, results_path, figures_path = _init_modules('comparison')
