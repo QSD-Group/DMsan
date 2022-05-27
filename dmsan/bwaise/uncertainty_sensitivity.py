@@ -203,8 +203,6 @@ sim_num = len(ind_score_dct) # number of system simulations
 alt_names = pd.read_excel(indicator_scores_path, sheet_name='user_interface').system
 
 # Baseline
-# `bwaise_ahp.norm_weights_df` is `subcriteria_weights` in the original script,
-# values checked to be the same as the original script
 bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
                  na_default=0.00001, random_index={})
 
@@ -448,6 +446,9 @@ def run_analyses(save_excel=False):
                        indicator_weights=bwaise_ahp.norm_weights_df,
                        indicator_scores=baseline_indicator_scores)
     bwaise_mcda.run_MCDA()
+    breakpoint()
+    #!!! PAUSED ON THE PERFORMANCE SCORE CHECK
+
 
     global weight_df
     weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)

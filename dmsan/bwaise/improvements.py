@@ -72,9 +72,9 @@ best_score_dct = {
     'T2': 3,
     'T3': 5,
     'T4': 7,
-    'T5': 5, #!!! Yalin added this one, need to double-check with Tori
+    'T5': 5,
     'T6': 5,
-    'T7': 2,
+    'T7': 3,
     'T8': 3,
     'T9': 3,
     'RR1': 1,
@@ -86,14 +86,13 @@ best_score_dct = {
     'Env1': None,
     'Env2': None,
     'Env3': None,
-    'Econ1': 0,
+    'Econ1': 0, #!!! we might want to update this value
     'S1': 24, # total job = baseline of 12 + high paying job of 12
     'S2': 12,
-    'S3': 0, #!!! AHP weight for this indicator was set to 0 in `_ahp.py`, did we really mean that?
+    'S3': 0,
     'S4': 5,
     'S5': 1,
     'S6': 5,
-    'S7': 0.1,
     }
 
 

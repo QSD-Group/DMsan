@@ -14,8 +14,8 @@ deployment.
 
 # %%
 
-import numpy as np
-import pandas as pd
+import numpy as np, pandas as pd
+from warnings import warn
 from . import Location
 
 __all__ = ('AHP',)
@@ -26,6 +26,10 @@ class AHP:
     Determine the local weights of indicators in technical, resource recovery,
     economic, environmental, and social criteria using the
     analytic hierarchy process (AHP).
+
+    Consistency of the indicator weights are checked using the
+    random consistency indices according to
+    `Saaty 1987 <https://www.sciencedirect.com/science/article/pii/0270025587904738>`_.
 
     Parameters
     ----------
@@ -50,6 +54,14 @@ class AHP:
     Examples
     --------
     NOT READY YET.
+
+    References
+    ----------
+    [1] Saaty, R. W. The Analytic Hierarchy Process—What It Is and How It Is Used.
+    Mathematical Modelling 1987, 9 (3), 161–176.
+    https://doi.org/10.1016/0270-0255(87)90473-8.
+
+
     '''
 
 
@@ -84,7 +96,9 @@ class AHP:
         self._init_weights.update(init_weights)
         weights = self._init_weights
         init_weights_df = pd.DataFrame(list(weights.values())).transpose()
-        get_ind_range = lambda abbr: range(len([i for i in weights.keys() if i.startswith(abbr)]))
+        get_ind_num = lambda abbr: len([i for i in weights.keys() if i.startswith(abbr)])
+        self._ind_num = {abbr: get_ind_num(abbr) for abbr in ['T', 'RR', 'Env', 'Econ', 'S']}
+        get_ind_range = lambda abbr: range(get_ind_num(abbr))
         init_weights_df.columns = [
             *[f'T{i+1}' for i in get_ind_range('T')],
             *[f'RR{i+1}' for i in get_ind_range('RR')],
@@ -205,33 +219,33 @@ class AHP:
         # if management is responsible for disposal or if the community did not describe
         # this indicator as important, then insert X
         # 0 being low preference to frequency of disposal to 100 being high preference for frequency of disposal
-        # ## Specific to Bwaise example: community did not mention disposal as affecting their acceptability ##
-        weights['S3'] = X
+        # Specific to Bwaise example: community did not mention disposal as affecting their acceptability ##
+        weights['S3'] = 44
 
         # !!! Input community preference
         # Local Weight Indicator S4: Cleaning preference
         # related to the preference for cleaning requirements
         # 0 being low preference to frequency of cleaning to 100 being high preference for frequency of cleaning
-        weights['S4'] = 44
+        weights['S4'] = 47
 
         # !!! Input community preference
         # Local Weight Indicator S5: Privacy preference
         # related to the preference for privacy (# of households sharing a system)
         # 0 being low preference for privacy to 100 being high preference for privacy
-        weights['S5'] = 47
+        weights['S5'] = 22
 
         # !!! Input community preference
         # Local Weight Indicator S6: Odor preference
         # related to the preference of odor with
         # 0 being low preference for odor to 100 being high preference for odor
-        weights['S6'] = 22
+        weights['S6'] = 24
 
         # !!! Input community preference
         # Local Weight Indicator S7: Security preference
         # related to the preference of security with
         # 0 being low preference for security to 100 being high preference for security
         # ## Specific to Bwaise example: community did not mention disposal as affecting their acceptability ##
-        weights['S7'] = 24
+        weights['S7'] = X
 
         # Sub-criteria: Management Acceptability, S8 & S9
         # !!! Input management (i.e., landlord) preference
@@ -256,7 +270,7 @@ class AHP:
 
     def get_indicator_weights(self, init_weights=None, return_results=False):
         '''Analytic hierarchy process (AHP) to determine indicators weights.'''
-        RI = self.random_index
+        RIs = self.random_index
         norm_weights = self.norm_weights = {} # sub-criteria weights
         CRs = self.CRs = {} # consistency ratio
         if not init_weights:
@@ -264,49 +278,60 @@ class AHP:
         if isinstance(init_weights, dict) or init_weights is None:
             self.update_init_weights(init_weights)
             init_weights_df = self.init_weights_df
-        else: # assume to be a dataframe
+        else: # assume to be a DataFrame
             init_weights_df = init_weights
 
-        for indicator, weights in init_weights_df.items():
-            num = len(weights)
-            index = [f'{indicator}{i+1}' for i in range(num)]
+        for cat, num in self._ind_num.items():
+            ##### Step 1: Assign criteria weights in array #####
+            # v_i are the initial weights
+            # (i.e., indicator contextual drivers normalized to a 0-100 scale)
+            v_i = init_weights_df[[f'{cat}{i+1}' for i in range(num)]]
+            v_tiled = pd.DataFrame(np.tile(v_i.transpose(), num))
 
-            if num < 3: # skip ones that does not have random index (RI)
-                norm_weights[indicator] = pd.DataFrame([1], index=index).transpose()
+            # r_ij are the array normalized by the weight of a particular row
+            r_ij = v_tiled/v_tiled.iloc[:,0]
+
+            ##### Step 2: Sum the columns #####
+            R_j = r_ij.sum()
+
+            ##### Step 3: Normalize the array by the column sum #####
+            a_ij = r_ij/R_j
+
+            ##### Step 4: Calculate indicator weights by finding the row averages #####
+            a_i = a_ij.mean(1)
+            a_i.name = cat
+            norm_weights[cat] = a_i
+
+            ##### Step 5 Find the consistency ratio #####
+            # Skip ones that do not have random consistency index (RI)
+            if num < 3: continue
+            RI = RIs.get(num)
+            if not RI:
+                warn(f'No random consistency index available for the number of indicators ({num})'
+                     'for category {cat}, consistency check skipped.')
                 continue
 
-            # Step 1: Assign criteria weights in array
-            # "A" stands for array
-            A1 = [[i]*num for i in weights] # e.g., [[T1, T1], [T2, T2]]
-            A2 = [weights] * num # e.g., [[T1, T2], [T1, T2]]
-            A = np.array(A1) / np.array(A2) # e.g., [[T1/T1, T1/T2], [T2/T1, T2/T2]]
+            # Step 5a: Calculate the weighed array (lambda_max) by multiplying the array by the criteria weight
+            lambda_max = np.matmul(r_ij, a_i)/a_i
 
-            # Step 2: Sum the columns
-            A_col_sum = A.sum(0)
+            # Step 5b: Calculate the average of lambda_max
+            lambda_max_avg = lambda_max.mean()
 
-            # Step 3: Normalize the array
-            A_norm = A / A_col_sum
+            # Step 5c: Find the consistency index (CI) by calculating (lambda_max-n)/(n-1)
+            CI = (lambda_max_avg-num)/(num-1)
 
-            # Step 4: Calculate criteria weights by finding the row averages
-            A_norm_sum = A_norm.sum(1)
-            A_norm_avg = A_norm_sum / num
-            norm_weights[indicator] = \
-                pd.DataFrame(A_norm_avg, index=index).transpose()
-
-            # Step 5 Find the Consistency ratio
-            # Step 5a: Calculate the weighted array by multiplying the array by the criteria weight
-            # Step 5b: Sum the rows of the weighted matrix to find the weighted sum value
-            A_weighted = np.matmul(A.T, A_norm_sum.T)
-            # Step 5c: divide the weighted sum value by the criteria weights
-            ratio = A_weighted / A_norm_sum
-            # Step 5d: Find the consistency index (CI) by calculating (delta_max - n)/(n-1)
-            delta_max = ratio.sum() / num
-            CI = (delta_max - num) / (num - 1)
-            # Step 5e: Find the consistency ratio (CR) by dividing CI by RI,
+            # Step 5d: Find the consistency ratio (CR) by dividing CI by RI,
             # if CR < 0.1 then our matrix is consistent
-            CRs[indicator] = CI / RI[num]
+            CR = CI/RI
+            if not CR <= 0.1:
+                warn(f'The calculated consistency ratio is {CR} '
+                     f'for the category {cat}, please double-check weights assignment.')
+            CRs[cat] = CR
 
-        self._norm_weights_df = pd.concat([i for i in norm_weights.values()], axis=1)
+        norm_weights_df = pd.concat([i for i in norm_weights.values()], axis=1)
+        norm_weights_df.index = pd.Index([i+1 for i in range(max(self._ind_num.values()))], name='Num')
+        # norm_weights_df.columns = sel
+        self._norm_weights_df = norm_weights_df
 
         if return_results:
             return self.norm_weights_df
