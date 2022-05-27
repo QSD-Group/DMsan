@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@author: Yalin Li <zoe.yalin.li@gmail.com>
+@author: Yalin Li <mailto.yalin.li@gmail.com>
 
 Run this module to save the results to the /results folder to avoid repeating
 simulating the system.

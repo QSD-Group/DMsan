@@ -8,9 +8,7 @@
     Stetson Rowles <stetsonsc@gmail.com>
 
 This model is developed to assist sanitation system research, development, and
-deployment. Users of the model need to manually input where exclamation points
-(!) are located in the comments (i.e. location, number of alternatives, etc.,
-end-user and/or management preference scores, etc.).
+deployment.
 """
 
 
@@ -136,15 +134,15 @@ class AHP:
 
         # Local Weight Indicator T7: Population growth trajectory
         # related to the population flexibility
-        weights['T7'] = get_val(location.pop_growth)/4.5*100
+        weights['T7'] = get_val(location.pop_growth)/4.47*100
 
         # Local Weight Indicator T8:
         # related to the grid-electricity flexibility
-        weights['T8'] = 100-(get_val(location.electricity_blackouts)/72.5*100)
+        weights['T8'] = get_val(location.electricity_blackouts)/75.2*100
 
         # Local Weight Indicator T9:
         # related to the drought flexibility
-        weights['T9'] = 100-(get_val(location.water_stress)/4.82*100)
+        weights['T9'] = get_val(location.water_stress)/4.82*100
 
         ##### Resource recovery #####
         # Local Weight Indicator RR1:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@author: Yalin Li <zoe.yalin.li@gmail.com>
+@author: Yalin Li <mailto.yalin.li@gmail.com>
 
 Run this module to make line graphs with X-axis being the different criteria,
 Y-axis being criterion weight, and line color representing the probability of

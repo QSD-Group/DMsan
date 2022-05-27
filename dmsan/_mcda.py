@@ -5,7 +5,7 @@
     Tori Morgan <vlmorgan@illinois.edu>,
     Hannah Lohman <hlohman94@gmail.com>,
     Stetson Rowles <stetsonsc@gmail.com>,
-    Yalin Li <zoe.yalin.li@gmail.com>
+    Yalin Li <mailto.yalin.li@gmail.com>
 
 This module is used to perform calculate performance score and global sensitivity analysis.
 """
