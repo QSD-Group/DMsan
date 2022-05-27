@@ -213,6 +213,7 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
 #                  init_weights={'S1': 1}, # include all the different ones here
 #                  na_default=0.00001, random_index={})
 
+
 # %%
 
 # =============================================================================

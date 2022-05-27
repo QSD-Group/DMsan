@@ -74,7 +74,7 @@ class AHP:
                 }
         if random_index:
             self.random_index.update(random_index)
-        # Set initial weights for different criteria
+        # Set initial weights (i.e., indicator contextual drivers) for different criteria
         self._init_weights = self._get_default_init_weights()
         self.init_weights = init_weights
         self.get_indicator_weights()
@@ -102,8 +102,9 @@ class AHP:
     def _get_default_init_weights(self):
         ''' Set default initial indicator weights.'''
         ##### Technical indicators #####
-        get_val = self._get_val
         location = self.location
+        get_val = lambda df, col='Value': df.loc[location.location_name, col]
+
         weights = {}
 
         # Sub-criteria: Resilience
@@ -126,7 +127,8 @@ class AHP:
 
         # Local Weight Indicator T5: Construction skills available
         # related to the construction expertise available
-        weights['T5'] = 100 - (get_val(location.construction)/40.5*100)
+        max_val = location.construction.Value.max()
+        weights['T5'] = 100 - (get_val(location.construction)/max_val*100)
 
         # Local Weight Indicator T6: O&M expertise available
         # related to the O&M expertise available
@@ -134,15 +136,19 @@ class AHP:
 
         # Local Weight Indicator T7: Population growth trajectory
         # related to the population flexibility
-        weights['T7'] = get_val(location.pop_growth)/4.47*100
+        max_val = location.pop_growth.Value.max()
+        min_val = location.pop_growth.Value.min()
+        weights['T7'] = get_val(location.pop_growth)/(max_val-min_val)*100
 
         # Local Weight Indicator T8:
         # related to the grid-electricity flexibility
-        weights['T8'] = get_val(location.electricity_blackouts)/75.2*100
+        max_val = location.electricity_blackouts.Value.max()
+        weights['T8'] = get_val(location.electricity_blackouts)/max_val*100
 
         # Local Weight Indicator T9:
         # related to the drought flexibility
-        weights['T9'] = get_val(location.water_stress)/4.82*100
+        max_val = location.water_stress.Value.max()
+        weights['T9'] = get_val(location.water_stress)/max_val*100
 
         ##### Resource recovery #####
         # Local Weight Indicator RR1:
@@ -167,7 +173,7 @@ class AHP:
 
         # Local Weight Indicator RR6:
         # related to infrastructure quality (Supply Chain Infrastructure)
-        weights['RR6'] = (1-(get_val(location.infrastructure)/7))*100
+        weights['RR6'] = (1-(get_val(location.infrastructure)/(7-1)))*100
 
         ##### Environmental #####
         # Env1: ecosystem quality (LCA)
@@ -185,14 +191,15 @@ class AHP:
         # Sub-criteria: Job Creation
         # Local Weight Indicator S1: Unemployment
         # related to the unemployment rate
-        weights['S1'] = get_val(location.unemployment_rate)/28.74*100
+        max_val = location.unemployment_rate.Value.max()
+        weights['S1'] = get_val(location.unemployment_rate)/max_val*100
 
         # Local Weight Indicator S2: High paying jobs
         # related to the need for higher paying jobs
-        weights['S2'] = get_val(location.high_pay_jobs)/94.3*100
+        max_val = location.high_pay_jobs.Value.max()
+        weights['S2'] = get_val(location.high_pay_jobs)/max_val*100
 
         # Sub-criteria: End-user acceptability, S3-S7
-        # !!! Input community preference
         # Local Weight Indicator S3: Disposal convenience preference for user
         # related to the preference for disposal requirements on the user end
         # if management is responsible for disposal or if the community did not describe
@@ -234,7 +241,7 @@ class AHP:
         # ## Specific to Bwaise example: the sanitation system is controlled by the end-user, not the landlord ##
         weights['S8'] = X
 
-        # ## Input management preference ##
+        # !!! Input management preference
         # Local Weight Indicator S9: Cleaning preference
         # related to the preference for cleaning requirements
         # 0 being low importance to frequency of cleaning to 100 being high importance for frequency of cleaning

@@ -87,7 +87,7 @@ best_score_dct = {
     'Env2': None,
     'Env3': None,
     'Econ1': 0,
-    'S1': 20,
+    'S1': 24, # total job = baseline of 12 + high paying job of 12
     'S2': 12,
     'S3': 0, #!!! AHP weight for this indicator was set to 0 in `_ahp.py`, did we really mean that?
     'S4': 5,
