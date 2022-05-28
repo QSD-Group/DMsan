@@ -19,72 +19,14 @@ create difficulties in identifying the drivers of the results, thus not included
 """
 
 import os, numpy as np, pandas as pd
-from scipy import stats
-from matplotlib import pyplot as plt
-from qsdsan.utils import save_pickle, colors
+from qsdsan.utils import save_pickle
 from dmsan import AHP, MCDA, path
 from dmsan.comparison import results_path, figures_path
 
-
-# %%
-
-# =============================================================================
-# Utils
-# =============================================================================
-
+# Universal settings
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 criterion_num = 5 # number of criteria
 wt_scenario_num = 100 # number of criterion weights considered
-
-
-def generate_weights(criterion_num, wt_scenario_num, savefig=True):
-    # Use randomly generated criteria weights
-    wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
-    n = int(wt_scenario_num/criterion_num)
-    wt1 = wt_sampler1.random(n=n) # draw from 0 to 1 for one criterion
-
-    wt_sampler4 = stats.qmc.LatinHypercube(d=(criterion_num-1), seed=rng)
-    wt4 = wt_sampler4.random(n=n) # normalize the rest four based on the first criterion
-    tot = wt4.sum(axis=1) / ((np.ones_like(wt1)-wt1).transpose())
-    wt4 = wt4.transpose()/np.tile(tot, (wt4.shape[1], 1))
-
-    combined = np.concatenate((wt1.transpose(), wt4)).transpose()
-
-    wts = [combined]
-    for num in range(criterion_num-1):
-        combined = np.roll(combined, 1, axis=1)
-        wts.append(combined)
-
-    weights = np.concatenate(wts).transpose()
-
-    # Plot all of the criterion weight scenarios
-    if savefig:
-        fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.plot(weights, color=colors.Guest.gray.RGBn, linewidth=0.5, alpha=0.5)
-        ax.set(title='Criterion Weight Scenarios',
-               xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
-               xticks=(0, 1, 2, 3, 4),
-               xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
-        fig.savefig(os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png'),
-                    dpi=300)
-
-    weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
-    colon = np.full(weight_df.shape[0], fill_value=':', dtype='str')
-    comma = np.full(weight_df.shape[0], fill_value=', ', dtype='U2')
-    weight_df['Ratio'] = weight_df['Description'] = ''
-    for i in ['T', 'RR', 'Env', 'Econ', 'S']:
-        ratio = weight_df[i].round(2).astype('str')
-        criteria = comma.astype('U4')
-        criteria.fill(i)
-
-        if i != 'S':
-            weight_df['Ratio'] += ratio + colon
-            weight_df['Description'] += ratio + criteria + comma
-        else:
-            weight_df['Ratio'] += ratio
-            weight_df['Description'] += ratio + criteria
-
-    return weight_df
 
 
 # %%
@@ -335,7 +277,7 @@ def run_analyses(country, weight_df=None):
     file_path = os.path.join(country_folder, 'indicator_scores.pckl')
     save_pickle(ind_score_dct, file_path)
 
-    weight_df = weight_df or generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
+    weight_df = weight_df or mcda.generate_criterion_weights(wt_scenario_num)
     score_df_dct, rank_df_dct, winner_df = mcda.run_MCDA_multi_scores(
         criterion_weights=weight_df, ind_score_dct=ind_score_dct)
 
@@ -360,15 +302,6 @@ def run_analyses(country, weight_df=None):
         winner_df.to_excel(writer, sheet_name='Winner')
         score_df.to_excel(writer, sheet_name='Score')
         rank_df.to_excel(writer, sheet_name='Rank')
-        # Score = writer.book.add_worksheet('Score')
-        # Rank = writer.book.add_worksheet('Rank')
-        # writer.sheets['Rank'] = Rank
-        # writer.sheets['Score'] = Score
-        # col_num = 0
-        # for k, v in score_df_dct.items():
-        #     v.to_excel(writer, sheet_name='Score', startcol=col_num)
-        #     rank_df_dct[k].to_excel(writer, sheet_name='Rank', startcol=col_num)
-        #     col_num += v.shape[1]+2
 
     ##### Performance score sensitivity #####
     #TODO
@@ -377,9 +310,11 @@ def run_analyses(country, weight_df=None):
 
 def run_all_countries(countries):
     # Global weight scenarios
-    weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
+    weight_df = MCDA.generate_criterion_weights(wt_scenario_num=wt_scenario_num)
     file_path = os.path.join(results_path, f'criterion_weights_{wt_scenario_num}.xlsx')
     weight_df.to_excel(file_path, sheet_name='Criterion weights')
+    file_path = os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png')
+    MCDA.plot_criterion_weight_fig(weight_df, path=file_path)
 
     ahp_dct, mcda_dct = {}, {}
     for country in countries:

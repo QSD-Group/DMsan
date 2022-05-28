@@ -23,9 +23,7 @@ Part of this module is based on the QSDsan and BioSTEAM packages:
 """
 
 import os, numpy as np, pandas as pd
-from scipy import stats
-from matplotlib import pyplot as plt
-from qsdsan.utils import time_printer, save_pickle, colors
+from qsdsan.utils import time_printer, save_pickle
 from dmsan import AHP, MCDA
 from dmsan.bwaise import scores_path, results_path, figures_path
 
@@ -211,62 +209,6 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
 # %%
 
 # =============================================================================
-# TOPSIS uncertainties for selected weighing scenarios
-# =============================================================================
-
-def generate_weights(criterion_num, wt_scenario_num, savefig=True):
-    # Use randomly generated criteria weights
-    wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
-    n = int(wt_scenario_num/criterion_num)
-    wt1 = wt_sampler1.random(n=n) # draw from 0 to 1 for one criterion
-
-    wt_sampler4 = stats.qmc.LatinHypercube(d=(criterion_num-1), seed=rng)
-    wt4 = wt_sampler4.random(n=n) # normalize the rest four based on the first criterion
-    tot = wt4.sum(axis=1) / ((np.ones_like(wt1)-wt1).transpose())
-    wt4 = wt4.transpose()/np.tile(tot, (wt4.shape[1], 1))
-
-    combined = np.concatenate((wt1.transpose(), wt4)).transpose()
-
-    wts = [combined]
-    for num in range(criterion_num-1):
-        combined = np.roll(combined, 1, axis=1)
-        wts.append(combined)
-
-    weights = np.concatenate(wts).transpose()
-
-    # Plot all of the criterion weight scenarios
-    if savefig:
-        fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.plot(weights, color=colors.Guest.gray.RGBn, linewidth=0.5, alpha=0.5)
-        ax.set(title='Criterion Weight Scenarios',
-               xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
-               xticks=(0, 1, 2, 3, 4),
-               xticklabels=('T', 'RR', 'Env', 'Econ', 'S'))
-        fig.savefig(os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png'),
-                    dpi=300)
-
-    weight_df = pd.DataFrame(weights.transpose(), columns=['T', 'RR', 'Env', 'Econ', 'S'])
-    colon = np.full(weight_df.shape[0], fill_value=':', dtype='str')
-    comma = np.full(weight_df.shape[0], fill_value=', ', dtype='U2')
-    weight_df['Ratio'] = weight_df['Description'] = ''
-    for i in ['T', 'RR', 'Env', 'Econ', 'S']:
-        ratio = weight_df[i].round(2).astype('str')
-        criteria = comma.astype('U4')
-        criteria.fill(i)
-
-        if i != 'S':
-            weight_df['Ratio'] += ratio + colon
-            weight_df['Description'] += ratio + criteria + comma
-        else:
-            weight_df['Ratio'] += ratio
-            weight_df['Description'] += ratio + criteria
-
-    return weight_df
-
-
-# %%
-
-# =============================================================================
 # Sensitivity
 # =============================================================================
 
@@ -337,6 +279,7 @@ def export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
         with pd.ExcelWriter(file_path) as writer:
             winner_df.to_excel(writer, sheet_name='Winner')
 
+            #!!! This might not work, need to double-check
             Score = writer.book.add_worksheet('Score')
             Rank = writer.book.add_worksheet('Rank')
             writer.sheets['Rank'] = Rank
@@ -366,11 +309,6 @@ def export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
 
 
-# Note that Python pickle files may be version-specific,
-# (e.g., if saved using Python 3.7, cannot open on Python 3.8)
-# and cannot be opened outside of Python,
-# but takes much less time to load/save than Excel files
-# https://stackoverflow.com/questions/9619199/best-way-to-preserve-numpy-arrays-on-disk
 def export_to_pickle(parameters=True, indicator_scores=True,
                      ahp=True, mcda=True,
                      uncertainty=True, sensitivity='KS'):
@@ -436,10 +374,12 @@ def run_analyses(save_excel=False):
                        indicator_weights=bwaise_ahp.norm_weights_df,
                        indicator_scores=baseline_indicator_scores)
     bwaise_mcda.run_MCDA()
-    bwaise_mcda.run_MCDA(criterion_weights=[0.15]*4+[0.4]) # for consistency check
+    # bwaise_mcda.run_MCDA(criterion_weights=[0.15]*4+[0.4]) # for consistency check
 
     global weight_df
-    weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)
+    weight_df = bwaise_mcda.generate_criterion_weights(wt_scenario_num)
+    file_path = os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png')
+    MCDA.plot_criterion_weight_fig(weight_df, path=file_path)
 
     export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
                     uncertainty=False, sensitivity=None)

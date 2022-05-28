@@ -158,8 +158,6 @@ def get_baseline(file_path=''):
         df.to_csv(file_path, sep=sep)
     return df
 
-baseline_path = os.path.join(scores_path, 'sys_baseline.tsv')
-
 
 # %%
 
@@ -215,9 +213,7 @@ def get_uncertainties(N, seed=None, rule='L', lca_perspective='H',
     return uncertainty_dct
 
 
-param_path = os.path.join(scores_path, 'parameters.xlsx')
-pickle_path = os.path.join(scores_path, 'model_data.pckl')
-uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
+
 
 
 # %%
@@ -226,13 +222,22 @@ uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
 # Run all simulations
 # =============================================================================
 
-def run_simulations():
+def run_simulations(baseline=False, uncertainty=False, save=False):
+    if save:
+        baseline_path = os.path.join(scores_path, 'sys_baseline.tsv')
+        param_path = os.path.join(scores_path, 'parameters.xlsx')
+        pickle_path = os.path.join(scores_path, 'model_data.pckl')
+        uncertainty_path = os.path.join(scores_path, 'sys_uncertainties.xlsx')
+    else:
+        baseline_path = param_path = pickle_path = uncertainty_path = ''
     global baseline_df, uncertainty_dct
-    baseline_df = get_baseline(file_path=baseline_path)
-    uncertainty_dct = get_uncertainties(N=1000, seed=3221,
-                                        param_path=param_path,
-                                        pickle_path=pickle_path,
-                                        result_path=uncertainty_path)
+    if baseline: baseline_df = get_baseline(file_path=baseline_path)
+    if uncertainty:
+        uncertainty_dct = get_uncertainties(N=1000, seed=3221,
+                                            param_path=param_path,
+                                            pickle_path=pickle_path,
+                                            result_path=uncertainty_path)
 
 if __name__ == '__main__':
-    run_simulations()
+    run_simulations(baseline=True, uncertainty=False, save=False)
+    # run_simulations(baseline=True, uncertainty=True)

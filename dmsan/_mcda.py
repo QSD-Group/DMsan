@@ -98,8 +98,8 @@ class MCDA:
         weight_df = pd.DataFrame(weight_df).transpose()
         return weight_df
 
-
-    def generate_criterion_weights(self, wt_scenario_num, criterion_num=None, seed=3221):
+    @staticmethod
+    def generate_criterion_weights(wt_scenario_num, criteria=None, seed=3221):
         '''
         Batch-generate criterion weights for uncertainty analysis.
 
@@ -112,8 +112,8 @@ class MCDA:
         seed : int
             Used to create a random number generator for reproducible results.
         '''
-        criteria = self.criteria
-        criterion_num = criterion_num or len(criteria)
+        criteria = criteria or supported_criteria
+        criterion_num = len(criteria)
         rng = np.random.default_rng(seed)
 
         wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
@@ -137,8 +137,8 @@ class MCDA:
 
         return weight_df
 
-
-    def plot_criterion_weight_fig(self, weight_df, path=''):
+    @staticmethod
+    def plot_criterion_weight_fig(weight_df, path=''):
         '''
         Plot all of the criterion weight scenarios.
 
@@ -148,7 +148,7 @@ class MCDA:
             If provided, the generated figure will be saved to this path.
         '''
         fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.plot(weight_df, linewidth=0.5, alpha=0.5)
+        ax.plot(weight_df.transpose(), linewidth=0.5, alpha=0.5)
         ax.set(title='Criterion Weight Scenarios',
                xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
                xticks=(0, 1, 2, 3, 4),
