@@ -22,9 +22,7 @@ Part of this module is based on the QSDsan and BioSTEAM packages:
     - https://github.com/BioSTEAMDevelopmentGroup/biosteam
 """
 
-import os
-import numpy as np
-import pandas as pd
+import os, numpy as np, pandas as pd
 from scipy import stats
 from matplotlib import pyplot as plt
 from qsdsan.utils import time_printer, save_pickle, colors
@@ -119,8 +117,6 @@ def get_baseline_indicator_scores(lca_perspective='H'):
 
     ind_score_S_All.columns = [f'S{i+1}' for i in range(ind_score_S_All.shape[1])]
 
-    # `indicator_scores` is `Tech_Scores_compiled` in the original script,
-    # values checked to be the same as the original script
     indicator_scores = pd.concat([ind_score_T_All, ind_score_RR_All,
                                   ind_score_Env_All, ind_score_Econ_All,
                                   ind_score_S_All], axis=1)
@@ -207,9 +203,9 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
                  na_default=0.00001, random_index={})
 
 # # If want to use initial weights different from the default
-# bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
-#                  init_weights={'S1': 1}, # include all the different ones here
-#                  na_default=0.00001, random_index={})
+# bwaise_ahp2 = AHP(location_name='Uganda', num_alt=len(alt_names),
+#                   init_weights={'S1': 1}, # include all the different ones here
+#                   na_default=0.00001, random_index={})
 
 
 # %%
@@ -423,32 +419,24 @@ def export_to_pickle(parameters=True, indicator_scores=True,
 # =============================================================================
 
 def run_analyses(save_excel=False):
-    # `bwaise_mcda.score` is `performance_score_FINAL` in the original script,
-    # `bwaise_mcda.rank` is `ranking_FINAL` in the original script,
-    # values checked to be the same as the original script
-    # Note that the small discrepancies in scores are due to the rounding error
-    # in the original script (weights of 0.34, 0.33, 0.33 instead of 1/3 for Env)
     global baseline_indicator_scores
     baseline_indicator_scores = get_baseline_indicator_scores()
 
-    # Set the local weight of indicators that all three systems score the same
-    # to zero (to prevent diluting the scores)
-    eq_ind = baseline_indicator_scores.min()==baseline_indicator_scores.max()
-    eq_inds = eq_ind[eq_ind==True].index
-
-    for i in eq_inds:
-        bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
-
-    bwaise_ahp.get_indicator_weights(return_results=False)
+    # #!!! Need this step?
+    # # Set the local weight of indicators that all three systems score the same
+    # # to zero (to prevent diluting the scores)
+    # eq_ind = baseline_indicator_scores.min()==baseline_indicator_scores.max()
+    # eq_inds = eq_ind[eq_ind==True].index
+    # for i in eq_inds:
+    #     bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
+    # bwaise_ahp.get_indicator_weights(return_results=False)
 
     global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
                        indicator_weights=bwaise_ahp.norm_weights_df,
                        indicator_scores=baseline_indicator_scores)
     bwaise_mcda.run_MCDA()
-    breakpoint()
-    #!!! PAUSED ON THE PERFORMANCE SCORE CHECK
-
+    bwaise_mcda.run_MCDA(criterion_weights=[0.15]*4+[0.4]) # for consistency check
 
     global weight_df
     weight_df = generate_weights(criterion_num=criterion_num, wt_scenario_num=wt_scenario_num)

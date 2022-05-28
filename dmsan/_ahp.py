@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 @authors:
-    Tori Morgan <vlmorgan@illinois.edu>,
-    Hannah Lohman <hlohman94@gmail.com>,
-    Yalin Li <mailto.yalin.li@gmail.com>,
+    Yalin Li <mailto.yalin.li@gmail.com>
+    Tori Morgan <vlmorgan@illinois.edu>
+    Hannah Lohman <hlohman94@gmail.com>
     Stetson Rowles <stetsonsc@gmail.com>
 
 This model is developed to assist sanitation system research, development, and
@@ -23,8 +23,8 @@ __all__ = ('AHP',)
 
 class AHP:
     '''
-    Determine the local weights of indicators in technical, resource recovery,
-    economic, environmental, and social criteria using the
+    Determine the local weights of indicators in technical (T), resource recovery (RR),
+    environmental (Env), economic (Econ), and social (S) criteria using the
     analytic hierarchy process (AHP).
 
     Consistency of the indicator weights are checked using the
@@ -92,20 +92,17 @@ class AHP:
         self.get_indicator_weights()
 
     def update_init_weights(self, init_weights={}):
+        criteria = self.criteria
         init_weights = init_weights or {}
         self._init_weights.update(init_weights)
         weights = self._init_weights
         init_weights_df = pd.DataFrame(list(weights.values())).transpose()
         get_ind_num = lambda abbr: len([i for i in weights.keys() if i.startswith(abbr)])
-        self._ind_num = {abbr: get_ind_num(abbr) for abbr in ['T', 'RR', 'Env', 'Econ', 'S']}
+        self._ind_num = {abbr: get_ind_num(abbr) for abbr in criteria}
         get_ind_range = lambda abbr: range(get_ind_num(abbr))
-        init_weights_df.columns = [
-            *[f'T{i+1}' for i in get_ind_range('T')],
-            *[f'RR{i+1}' for i in get_ind_range('RR')],
-            *[f'Env{i+1}' for i in get_ind_range('Env')],
-            *[f'Econ{i+1}' for i in get_ind_range('Econ')],
-            *[f'S{i+1}' for i in get_ind_range('S')],
-            ]
+        init_weights_df.columns = sum([[f'{criterion}{i+1}'
+                                        for i in get_ind_range(criterion)]
+                                       for criterion in criteria], [])
         self._init_weights_df = init_weights_df
 
 
@@ -328,16 +325,22 @@ class AHP:
                      f'for the category {cat}, please double-check weights assignment.')
             CRs[cat] = CR
 
-        norm_weights_df = pd.concat([i for i in norm_weights.values()], axis=1)
-        norm_weights_df.index = pd.Index([i+1 for i in range(max(self._ind_num.values()))], name='Num')
-        # norm_weights_df.columns = sel
-        self._norm_weights_df = norm_weights_df
+        norm_weights_df = pd.concat([i for i in norm_weights.values()])
+        norm_weights_df.index = init_weights_df.columns
+        # norm_weights_df = pd.concat([i for i in norm_weights.values()], axis=1)
+        # norm_weights_df.index = pd.Index([i+1 for i in range(max(self._ind_num.values()))], name='Num')
+        self._norm_weights_df = pd.DataFrame(norm_weights_df).transpose()
 
         if return_results:
             return self.norm_weights_df
 
     def set_location(self, location_name, file_path=''):
         self._location = Location(file_path=file_path, location_name=location_name)
+
+    @property
+    def criteria(self):
+        '''[list] Criteria considered in AHP.'''
+        return ['T', 'RR', 'Env', 'Econ', 'S']
 
     @property
     def location(self):

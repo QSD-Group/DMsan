@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 @authors:
-    Tori Morgan <vlmorgan@illinois.edu>,
-    Hannah Lohman <hlohman94@gmail.com>,
-    Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <mailto.yalin.li@gmail.com>
+    Tori Morgan <vlmorgan@illinois.edu>
+    Hannah Lohman <hlohman94@gmail.com>
+    Stetson Rowles <stetsonsc@gmail.com>
 
 This module is used to import data on indicator contextual drivers from the country-specific database.
 """

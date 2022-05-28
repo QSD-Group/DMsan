@@ -2,20 +2,19 @@
 # -*- coding: utf-8 -*-
 """
 @authors:
-    Tori Morgan <vlmorgan@illinois.edu>,
-    Hannah Lohman <hlohman94@gmail.com>,
-    Stetson Rowles <stetsonsc@gmail.com>,
     Yalin Li <mailto.yalin.li@gmail.com>
+    Tori Morgan <vlmorgan@illinois.edu>
+    Hannah Lohman <hlohman94@gmail.com>
+    Stetson Rowles <stetsonsc@gmail.com>
 
 This module is used to perform calculate performance score and global sensitivity analysis.
 """
 
 # %%
 
-import os
-import numpy as np
-import pandas as pd
+import os, numpy as np, pandas as pd
 from scipy import stats
+from matplotlib import pyplot as plt
 from qsdsan.utils import time_printer
 from . import data_path
 
@@ -25,9 +24,6 @@ supported_criteria = ('T', 'RR', 'Env', 'Econ', 'S')
 single_cr_df = pd.DataFrame(
     data=np.diag([1]*len(supported_criteria)),
     columns=supported_criteria, dtype='float')
-single_cr_df['Ratio'] = [':'.join(single_cr_df.values.astype('int').astype('str')[i])
-                         for i in range(len(single_cr_df))]
-single_cr_df['Description'] = supported_criteria
 
 
 # %%
@@ -84,6 +80,83 @@ class MCDA:
             self._performance_scores = self._ranks = self._winners = None
 
 
+    def update_criterion_weights(self, weights):
+        '''
+        Format and normalize the given criterion weights for MCDA.
+        Note that this is for one set of weights only.
+
+        Parameters
+        ----------
+        weights : dict(str: float) or Iterable[floats]
+            Weights for the different criteria.
+            If provided as an Iterable, the default order ("T", "RR", "Env", "Econ", "S")
+            will be assumed.
+        '''
+        if isinstance(weights, dict): weight_df = pd.Series(weights)
+        else: weight_df = pd.Series(weights, index=supported_criteria)
+        weight_df /= weight_df.sum()
+        weight_df = pd.DataFrame(weight_df).transpose()
+        return weight_df
+
+
+    def generate_criterion_weights(self, wt_scenario_num, criterion_num=None, seed=3221):
+        '''
+        Batch-generate criterion weights for uncertainty analysis.
+
+        Parameters
+        ----------
+        wt_scenario_num : int
+            Number of weight scenarios to generate.
+        criterion_num : int
+            Number of criteria to be considered, default to the number of criteria in MCDA (5).
+        seed : int
+            Used to create a random number generator for reproducible results.
+        '''
+        criteria = self.criteria
+        criterion_num = criterion_num or len(criteria)
+        rng = np.random.default_rng(seed)
+
+        wt_sampler1 = stats.qmc.LatinHypercube(d=1, seed=rng)
+        n = int(wt_scenario_num/criterion_num)
+        wt1 = wt_sampler1.random(n=n) # draw from 0 to 1 for one criterion
+
+        wt_sampler4 = stats.qmc.LatinHypercube(d=(criterion_num-1), seed=rng)
+        wt4 = wt_sampler4.random(n=n) # normalize the rest four based on the first criterion
+        tot = wt4.sum(axis=1) / ((np.ones_like(wt1)-wt1).transpose())
+        wt4 = wt4.transpose()/np.tile(tot, (wt4.shape[1], 1))
+
+        combined = np.concatenate((wt1.transpose(), wt4)).transpose()
+
+        wts = [combined]
+        for num in range(criterion_num-1):
+            combined = np.roll(combined, 1, axis=1)
+            wts.append(combined)
+
+        weights = np.concatenate(wts).transpose()
+        weight_df = pd.DataFrame(weights.transpose(), columns=criteria)
+
+        return weight_df
+
+
+    def plot_criterion_weight_fig(self, weight_df, path=''):
+        '''
+        Plot all of the criterion weight scenarios.
+
+        Parameters
+        ----------
+        path : str
+            If provided, the generated figure will be saved to this path.
+        '''
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        ax.plot(weight_df, linewidth=0.5, alpha=0.5)
+        ax.set(title='Criterion Weight Scenarios',
+               xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
+               xticks=(0, 1, 2, 3, 4),
+               xticklabels=weight_df.columns)
+        if path: fig.savefig(path)
+        return fig
+
+
     def run_MCDA(self, criterion_weights=None, method=None, **kwargs):
         '''
         Calculate performance scores using the selected method,
@@ -118,80 +191,70 @@ class MCDA:
 
     def _run_TOPSIS(self, criterion_weights=None, **kwargs):
         cr_wt = self.criterion_weights if criterion_weights is None else criterion_weights
+        # For indicator types, 0 is non-beneficial (want low value) and 1 is beneficial
         ind_type = self.indicator_type
         rev_ind_type = np.ones_like(ind_type) - ind_type
         ind_wt = self.indicator_weights
 
-        indicator_scores = self.indicator_scores
-        indicator_scores_a = indicator_scores.values # a for array
-        num_ind = indicator_scores.shape[1]
-        num_alt = indicator_scores.shape[0]
-        num_cr = cr_wt.shape[0] if len(cr_wt.shape)==2 else 1 # cr_wt will be a Series if only one criterion
+        ind_scores = self.indicator_scores
+        ##### Step 1: Normalize indicator scores (vector normalization) #####
+        denominator = ((ind_scores**2).sum())**0.5
+        norm_ind_scores = self._normalized_indicator_scores = ind_scores/denominator
 
-        # Step 1: Normalize indicator scores (vector normalization)
-        denominators = np.array([sum(indicator_scores_a[:, i]**2)**0.5
-                                 for i in range(num_ind)])
-        norm_ind_scores = self._normalized_indicator_scores = \
-            np.divide(indicator_scores_a, denominators,
-                      out=np.zeros_like(indicator_scores_a), # fill 0 when denominator is 0
-                      where=denominators!=0)
+        ##### Step 2: Normalize criterion weights #####
+        N = 1
+        if hasattr(cr_wt, 'shape'):
+            if len(cr_wt.shape) == 2: # multiple sets of criterion weights, pd.DataFrame
+                N = cr_wt.shape[0]
+        if N == 1: # only 1 set of criterion weights, iterable/pd.Series
+            cr_wt = self.update_criterion_weights(cr_wt)
+        else:
+            cr_wt = cr_wt[[*supported_criteria]]
+            cr_wt = cr_wt.div(cr_wt.sum(axis=1), 'index') # normalize the criterion weights
 
-        # Step 2: Rank alternatives under criterion weighting scenarios
-        # Find num of indicators within each criterion
+        ##### Step 3: Calculate normalized indicator scores #####
+        # Broadcast the criterion weights to match the number of columns of indicator scores
         criteria = self.criteria
-        num_ind_dct = {k: len([i for i in ind_wt.columns if i.startswith(k)])
-                       for k in criteria}
+        get_ind_num = lambda abbr: len([i for i in ind_wt.columns if i.startswith(abbr)])
+        self._ind_num = ind_num = {abbr: get_ind_num(abbr) for abbr in criteria}
+        cr_wt_arr = np.concatenate([np.tile(cr_wt[i], (ind_num[i], 1)) for i in criteria]).transpose()
+        cr_wt = pd.DataFrame(cr_wt_arr, columns=ind_scores.columns)
 
-        # For all criterion weight scenarios and all indicators
-        norm_indicator_weights = np.concatenate(
-            [np.tile(cr_wt[i], (num_ind_dct[i], 1)) for i in criteria]
-            ).transpose() # the shape is (num_of_weighing_scenarios, num_of_indicators)
-        norm_indicator_weights *= np.tile(ind_wt, (num_cr, 1))
+        # Multiply normalized indicator weights by normalized criterion weights
+        norm_wt = cr_wt * ind_wt.values # multiply by the array for auto-broadcasting
 
-        #!!! Looks like codes from here and above used in both TOPSIS and ELECTRE
-
-        # For each weighing scenario considering all alternatives
+        # Iterate each of the criterion weight scenario
         scores, ranks, winners = [], [], []
         columns = self.alt_names
-        for i in norm_indicator_weights:
-            weighed_ind_scores = i * norm_ind_scores
+        for num, single_wt in norm_wt.iterrows():
+            # Multiply normalized indicator weights by normalized criterion weights
+            norm_scores = norm_ind_scores * single_wt.values
 
+            ##### Step 4: Calculate the performance scores #####
             # Get ideal best and worst values for each indicator,
-            # for indicator types, 0 is non-beneficial (want low value)
-            # and 1 is beneficial
-            min_a = weighed_ind_scores.min(axis=0)
-            max_a = weighed_ind_scores.max(axis=0)
-
-            # Best would be the max for beneficial indicators
-            # and min for non-beneficial indicators
-            best_a = (rev_ind_type.values*min_a) + (ind_type.values*max_a)
-            worst_a = (ind_type.values*min_a) + (rev_ind_type.values*max_a)
+            scores_min = norm_scores.min()
+            scores_max = norm_scores.max()
+            # Best would be the max/min for beneficial/non-beneficial indicators
+            best = (ind_type*scores_max) + (rev_ind_type*scores_min)
+            worst = (rev_ind_type*scores_max) + (ind_type*scores_min)
 
             # Calculate the Euclidean distance from best and worst
-            diff_best = (weighed_ind_scores-np.tile(best_a, (num_alt, 1))) ** 2
-            diff_worst = (weighed_ind_scores-np.tile(worst_a, (num_alt, 1))) ** 2
-            d_best = diff_best.sum(axis=1) ** 0.5
-            d_worst = diff_worst.sum(axis=1) ** 0.5
-
-            # Calculate performance score
+            d_best = ((norm_scores-best.values)**2).sum(axis=1) ** 0.5
+            d_worst = ((norm_scores-worst.values)**2).sum(axis=1) ** 0.5
+            # Performance scores, ranks, and the winner
             score = d_worst / (d_best+d_worst)
-            rank = (num_alt+1) - stats.rankdata(score).astype(int)
+            rank = score.rank(ascending=False)
             winner = columns.loc[np.where(rank==rank.min())]
             scores.append(score)
             ranks.append(rank)
-            if len(winner) == 1:
+            if len(winner) == 1: # only 1 winner
                 winners.append(winner.values.item())
-            else: winners.append(', '.join(winner.values.tolist()))
+            else: # multiple winners
+                winners.append(', '.join(winner.values.tolist()))
 
-        score_df = pd.DataFrame(scores, columns=columns)
-        rank_df = pd.DataFrame(ranks, columns=columns)
+        score_df = pd.concat(scores, axis=1)
+        rank_df = pd.concat(ranks, axis=1)
         winner_df = pd.DataFrame(winners, columns=['Winner'])
-        pre_df = pd.DataFrame({'Ratio': cr_wt.Ratio, 'Description': cr_wt.Description},
-                              index=score_df.index)
-
-        score_df = pd.concat([pre_df, score_df], axis=1).reset_index(drop=True)
-        rank_df = pd.concat([pre_df, rank_df], axis=1).reset_index(drop=True)
-        winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index(drop=True)
 
         if kwargs.get('update_attr') is not False:
             self._performance_scores = score_df
@@ -257,7 +320,8 @@ class MCDA:
                     scores.append(self.performance_scores)
                     ranks.append(self.ranks)
                     winners.append(self.winners.Winner.values.item())
-                name = w.Ratio
+                names = str(w.values.tolist()).strip('[]').split(', ')
+                name = ':'.join(names)
                 score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
                 rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
                 winner_df_dct[name] = winners
@@ -268,7 +332,8 @@ class MCDA:
                     self.indicator_scores = v
                     score_df, rank_df, winner_df = \
                         self.run_MCDA(criterion_weights=w, update_attr=False)
-                name = w.Ratio
+                names = str(w.values.tolist()).strip('[]').split(', ')
+                name = ':'.join(names)
                 score_df_dct[name] = pd.concat(scores).reset_index(drop=True)
                 rank_df_dct[name] = pd.concat(ranks).reset_index(drop=True)
                 winner_df_dct[name] = winners
