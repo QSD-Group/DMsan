@@ -82,7 +82,10 @@ class AHP:
                 9: 1.45,
                 10: 1.49,
                 11: 1.51,
-                12: 1.54
+                12: 1.54,
+                13: 1.56,
+                14: 1.57,
+                15: 1.58,
                 }
         if random_index:
             self.random_index.update(random_index)
