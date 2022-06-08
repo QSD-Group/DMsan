@@ -55,7 +55,8 @@ def get_model(country, N, seed=None, rule='L'):
         samples = model.sample(N, rule)
         model.load_samples(samples)
 
-    copy_samples(models[0], models[1])
+    exclude = [p for p in models[1].parameters if p.name == 'MCF_decay']
+    copy_samples(models[0], models[1], exclude=exclude)
 
     return models
 
