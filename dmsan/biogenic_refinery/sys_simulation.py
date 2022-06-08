@@ -99,14 +99,17 @@ def get_baseline(file_path=''):
     func_dct = br.systems.get_summarizing_functions()
     for sys in (br.sysA, br.sysB):
         data = baseline_dct[sys.ID]
-        for i in ('N', 'P', 'K'):
-            data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
-        data.append(func_dct['get_gas_COD_recovery'](sys, 'COD'))  # energy, only gas
-        data.extend([v for k,v in get_cap_yr_pts(sys.LCA).items() if 'H_' in k]) # exclude GlobalWarming
+        # for i in ('N', 'P', 'K'):
+        #     data.append(func_dct[f'total_{i}_recovery'](sys, i))
+        data.append(func_dct[f'total_N_recovery'](sys))
+        data.append(func_dct[f'total_P_recovery'](sys))
+        data.append(func_dct[f'total_K_recovery'](sys))
+        data.append(0.0)  # !!! assumes no net energy recovery
+        data.extend([v for k,v in get_cap_yr_pts(sys.LCA).items() if 'H_' in k])  # exclude GlobalWarming
 
         tea = sys_dct['TEA'][sys.ID]
         ppl = sys_dct['ppl'][sys.ID]
-        data.append(func_dct['get_annual_net_cost'](tea, ppl))
+        data.append(func_dct['get_annual_net_cost'](tea, ppl, sys))
         df[sys.ID] = data
 
     if file_path:

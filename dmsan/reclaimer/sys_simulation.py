@@ -101,8 +101,12 @@ def get_baseline(file_path=''):
     func_dct = re.systems.get_summarizing_functions()
     for sys in (re.sysB, re.sysC):
         data = baseline_dct[sys.ID]
-        for i in ('N', 'P', 'K', 'COD'):
-            data.append(0.0)  # 0 because no N, P, K, and COD recovery
+        # for i in ('N', 'P', 'K'):
+        #     data.append(func_dct[f'total_{i}_recovery'](sys, i))
+        data.append(func_dct[f'total_N_recovery'](sys))
+        data.append(func_dct[f'total_P_recovery'](sys))
+        data.append(func_dct[f'total_K_recovery'](sys))
+        data.append(0.0)  # !!! assumes no net energy recovery
         data.extend([v for k,v in get_cap_yr_pts(sys.LCA).items() if 'H_' in k]) # exclude GlobalWarming
 
         tea = sys_dct['TEA'][sys.ID]

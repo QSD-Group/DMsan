@@ -99,10 +99,12 @@ def get_baseline(file_path=''):
     for sys in (ng.sysA, ng.sysB):
         data = baseline_dct[sys.ID]
         func_dct = ng.systems.get_summarizing_functions()
-        for i in ('N', 'P', 'K'):
-            # data.append(func_dct[f'get_tot_{i}_recovery'](sys, i))
-            data.append(0.0) #!!! assumes no nutrient recovery
-        data.append(func_dct['get_energy_recovery'](sys)) # energy from biogas
+        # for i in ('N', 'P', 'K'):
+        #     data.append(func_dct[f'total_{i}_recovery'](sys, i))
+        data.append(func_dct[f'total_N_recovery'](sys))
+        data.append(func_dct[f'total_P_recovery'](sys))
+        data.append(func_dct[f'total_K_recovery'](sys))
+        data.append(0.0)  # !!! assumes no net energy recovery
         data.extend([v for k,v in get_cap_yr_pts(sys.LCA).items() if 'H_' in k]) # exclude GlobalWarming
 
         tea = sys_dct['TEA'][sys.ID]
