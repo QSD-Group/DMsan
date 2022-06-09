@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-DMsan: Exposition of sanitation and resource recovery systems
+DMsan: Decision-making of sanitation and resource recovery systems
 
 This module is developed by:
     Hannah Lohman <hlohman94@gmail.com>
@@ -55,8 +55,7 @@ def get_model(country, N, seed=None, rule='L'):
         samples = model.sample(N, rule)
         model.load_samples(samples)
 
-    exclude = [p for p in models[1].parameters if p.name == 'MCF_decay']
-    copy_samples(models[0], models[1], exclude=exclude)
+    copy_samples(models[0], models[1])
 
     return models
 
