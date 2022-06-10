@@ -360,9 +360,9 @@ def run_analyses(save_excel=False):
     global baseline_indicator_scores
     baseline_indicator_scores = get_baseline_indicator_scores()
 
-    # #!!! Need this step?
-    # # Set the local weight of indicators that all three systems score the same
-    # # to zero (to prevent diluting the scores)
+    # # DO NOT DELETE
+    # # Legacy code to set the local weight of indicators
+    # # that all three systems score the same to zero
     # eq_ind = baseline_indicator_scores.min()==baseline_indicator_scores.max()
     # eq_inds = eq_ind[eq_ind==True].index
     # for i in eq_inds:

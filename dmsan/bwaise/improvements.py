@@ -22,7 +22,6 @@ from itertools import combinations, permutations
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 from qsdsan.utils import time_printer, colors, save_pickle
-from dmsan import AHP
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 from dmsan.bwaise.uncertainty_sensitivity import \
     criterion_num, wt_scenario_num as sce_num1, generate_weights
@@ -40,21 +39,19 @@ bwaise_mcda = loaded['mcda']
 baseline_indicator_scores =  bwaise_mcda.indicator_scores.copy()
 baseline_indicator_weights = bwaise_ahp.norm_weights_df.copy()
 
-def update_indicator_weights(ind_scores):
-    ahp = AHP(location_name='Uganda', num_alt=bwaise_ahp.num_alt,
-              na_default=0.00001, random_index={})
-
-    # Set the local weight of indicators that all three systems score the same
-    # to zero (to prevent diluting the scores)
-    eq_ind = ind_scores.min()==ind_scores.max()
-    eq_inds = eq_ind[eq_ind==True].index
-
-    for i in eq_inds:
-        bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
-
-    ahp.get_indicator_weights(return_results=True)
-
-    return ahp.norm_weights_df
+# # DO NOT DELETE
+# # Legacy code to set the local weight of indicators
+# # that all three systems score the same to zero
+# from dmsan import AHP
+# def update_indicator_weights(ind_scores):
+#     ahp = AHP(location_name='Uganda', num_alt=bwaise_ahp.num_alt,
+#               na_default=0.00001, random_index={})
+#     eq_ind = ind_scores.min()==ind_scores.max()
+#     eq_inds = eq_ind[eq_ind==True].index
+#     for i in eq_inds:
+#         bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
+#     ahp.get_indicator_weights(return_results=True)
+#     return ahp.norm_weights_df
 
 
 # %%
@@ -67,31 +64,33 @@ def update_indicator_weights(ind_scores):
 # if None (meaning no absolute scale), will be chosen between the best
 # (min for non-beneficial indicators and max for beneficial ones)
 # among the three systems
+# Ones that were commented out were not included in the paper,
+# but the values nonetheless represent the best possible values
 best_score_dct = {
-    'T1': 5,
-    'T2': 3,
-    'T3': 5,
-    'T4': 7,
-    'T5': 5,
-    'T6': 5,
+    # 'T1': 5,
+    # 'T2': 3,
+    # 'T3': 5,
+    # 'T4': 7,
+    # 'T5': 5,
+    # 'T6': 5,
     'T7': 3,
     'T8': 3,
-    'T9': 3,
+    'T9': 3, # note that T9 and RR1 both represent water stress and should be improved together
     'RR1': 1,
     'RR2': 1,
     'RR3': 1,
     'RR4': 1,
-    'RR5': 1,
-    'RR6': 1,
+    # 'RR5': 1,
+    # 'RR6': 1,
     'Env1': None,
     'Env2': None,
     'Env3': None,
-    'Econ1': 0, #!!! we might want to update this value
+    'Econ1': None,
     'S1': 24, # total job = baseline of 12 + high paying job of 12
     'S2': 12,
-    'S3': 0,
-    'S4': 5,
-    'S5': 1,
+    # 'S3': 0,
+    # 'S4': 5,
+    # 'S5': 1,
     'S6': 5,
     }
 
@@ -139,8 +138,9 @@ def test_oat(mcda, alt, best_score={}):
                  f'Scores for {ind} are:')
             print(mcda.indicator_scores.loc[:, ind])
 
-        # Update local weights
-        mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
+        # # DO NOT DELETE
+        # # Legacy code to update local weights
+        # mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 
         # Run MCDA with multiple global weights
         mcda.run_MCDA(file_path=None)
@@ -225,8 +225,9 @@ def local_optimum_approach(mcda, alt, oat_dct, wt_sce_num, file_path=''):
             mcda.indicator_scores = updated_scores.copy()
             mcda.indicator_scores.loc[alt_idx, ind] = data['updated']
 
-            # Update local weights
-            mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
+            # # DO NOT DELETE
+            # # Legacy code to update local weights
+            # mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
 
             # Run MCDA with multiple global weights
             mcda.run_MCDA(file_path=None)
@@ -337,8 +338,10 @@ def global_optimum_approach(mcda, alt, oat_dct, wt_sce_num,
                     glob_dct[run][n] = winning_chance = \
                         copied_df.loc[ind]['winning chance']
                 else:
-                    # Update local weights
-                    mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
+                    # # DO NOT DELETE
+                    # # Legacy code to update local weights
+                    # mcda.indicator_weights = update_indicator_weights(mcda.indicator_scores)
+
                     # Run MCDA with multiple global weights
                     mcda.run_MCDA(file_path=None)
                     glob_dct[run][n] = winning_chance = \
