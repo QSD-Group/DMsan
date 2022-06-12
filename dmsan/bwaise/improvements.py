@@ -516,7 +516,7 @@ def get_indicator_chances(glob_df_comb, file_path=''):
 
     return include_df, exclude_df
 
-#%%
+
 def plot_indicator_chances(indicator_df, file_path=''):
     sns.set_theme(style='white', rc={'axes.facecolor': (0, 0, 0, 0)})
     df = indicator_df.stack().reset_index().drop('level_0', axis=1)

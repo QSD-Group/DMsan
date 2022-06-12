@@ -35,7 +35,7 @@ read_baseline = lambda name: pd.read_excel(score_file, name).expected
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 
 criterion_num = 5 # number of criteria
-wt_scenario_num = 10 # number of criterion weights considered
+wt_scenario_num = 1000 # number of criterion weights considered
 
 # `lca_perspective` can be "I", "H", or "E" for
 # individualist, hierarchist, or egalitarian
@@ -391,20 +391,21 @@ def run_analyses(save_sensitivity_excel=False):
         bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
                                           ind_score_dct=ind_score_dct)
 
+    #!!! Sensitivity looks weird, might need to rewrite
     kind = 'Spearman'
     global score_corr_dct, rank_corr_dct
-    score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
-    rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    if save_sensitivity_excel: # too large, prefer not to do it
-        export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
-    export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
+    # score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
+    # rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+    # if save_sensitivity_excel: # too large, prefer not to do it
+    #     export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
+    # export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
 
     kind = 'KS'
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    if save_sensitivity_excel: # too large, prefer not to do it
-        export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
+    # if save_sensitivity_excel: # too large, prefer not to do it
+    #     export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
 
-    export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
+    # export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 
 
 if __name__ == '__main__':
