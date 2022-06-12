@@ -24,7 +24,7 @@ from matplotlib.collections import LineCollection
 from qsdsan.utils import time_printer, colors, save_pickle
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 from dmsan.bwaise.uncertainty_sensitivity import \
-    criterion_num, wt_scenario_num as sce_num1, generate_weights
+    criterion_num, wt_scenario_num as sce_num1
 
 
 loaded = import_from_pickle(parameters=False, indicator_scores=True,
@@ -109,6 +109,7 @@ def test_oat(mcda, alt, best_score={}):
 
     oat_dct = {ind: {} for ind in best_score.keys()}
     for ind, data in oat_dct.items():
+        if ind == 'RR1': continue # RR1 and T9 are the same
         # Reset technology scores and refresh results
         mcda.indicator_scores = baseline_indicator_scores.copy()
         series = mcda.indicator_scores.loc[:, ind]
@@ -130,6 +131,8 @@ def test_oat(mcda, alt, best_score={}):
                 updated = series.max()
 
         mcda.indicator_scores.loc[alt_idx, ind] = updated
+        if ind == 'T9': # T9 and RR1 are the same
+            mcda.indicator_scores.loc[alt_idx, ind] = best_score_dct['RR1']
         updated_rank = mcda.indicator_scores.loc[:, ind].rank(
             ascending=bool(not ind_type), method='min').loc[alt_idx]
         if updated_rank != 1:
@@ -168,6 +171,7 @@ def plot_oat(oat_dct, wt_sce_num, file_path=''):
     get_rounded = lambda val: round(val, 2) if len(str(val).split('.')[-1]) >= 2 else val
 
     for ind, data in oat_dct.items():
+        if ind == 'RR1': continue # the same as T9
         if not ind == 'baseline':
             labels.append(f'{ind}: {get_rounded(data["baseline"])}->{get_rounded(data["updated"])}')
             winning.append(data['winning chance'])
@@ -570,46 +574,48 @@ if __name__ == '__main__':
     file_path = os.path.join(results_path, f'criterion_weights_{sce_num1}.xlsx')
     weight_df1 = pd.read_excel(file_path)
     bwaise_mcda.criterion_weights = weight_df1
+
     # One-at-a-time at baseline
     oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
     ax_oat = plot_oat(oat_dct, wt_sce_num=sce_num1)
-    # Local optimum
-    loc_dct, loc_df = local_optimum_approach(
-        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=sce_num1)
-    ax_loc = plot_local_optimum(loc_dct, wt_sce_num=sce_num1)
 
-    # Smaller number of criterion weight scenarios
+    # # Local optimum
+    # loc_dct, loc_df = local_optimum_approach(
+    #     bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=sce_num1)
+    # ax_loc = plot_local_optimum(loc_dct, wt_sce_num=sce_num1)
+
+    # # Smaller number of criterion weight scenarios
     sce_num2 = 100 # use fewer scenarios here
-    weight_df2 = generate_weights(criterion_num=criterion_num, wt_scenario_num=sce_num2)
-    bwaise_mcda.criterion_weights = weight_df2
-    file_path = os.path.join(results_path, f'criterion_weights_{sce_num2}.xlsx')
-    weight_df2.to_excel(file_path, sheet_name='Criterion weights')
-    # One-at-a-time at baseline
-    oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
-    ax_oat2 = plot_oat(oat_dct, wt_sce_num=sce_num2)
-    # Local optimum
-    loc_dct, loc_df = local_optimum_approach(
-        bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=sce_num2, file_path='')
-    ax_loc2 = plot_local_optimum(loc_dct, wt_sce_num=sce_num2)
+    # weight_df2 = bwaise_mcda.generate_weights(criterion_num=criterion_num, wt_scenario_num=sce_num2)
+    # bwaise_mcda.criterion_weights = weight_df2
+    # file_path = os.path.join(results_path, f'criterion_weights_{sce_num2}.xlsx')
+    # weight_df2.to_excel(file_path, sheet_name='Criterion weights')
+    # # One-at-a-time at baseline
+    # oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
+    # ax_oat2 = plot_oat(oat_dct, wt_sce_num=sce_num2)
+    # # Local optimum
+    # loc_dct, loc_df = local_optimum_approach(
+    #     bwaise_mcda, alt='Alternative C', oat_dct=oat_dct, wt_sce_num=sce_num2, file_path='')
+    # ax_loc2 = plot_local_optimum(loc_dct, wt_sce_num=sce_num2)
 
-    # Global optimum
-    glob_dct_comb, glob_df_comb, glob_dct_perm, glob_df_perm = global_optimum_approach(
-        bwaise_mcda, 'Alternative C', oat_dct, wt_sce_num=sce_num2,
-        select_top=None, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
-    # Trajectory plots
-    ax_comb = plot_global_trajectory(
-        glob_dct_comb, wt_sce_num=sce_num2,
-        file_path=os.path.join(figures_path, f'improvements_global_comb_{sce_num2}.png'))
-    ax_perm = plot_global_trajectory(
-        glob_dct_perm, wt_sce_num=sce_num2,
-        file_path=os.path.join(figures_path, f'improvements_global_perm_{sce_num2}.png'))
-    ax_success = plot_global_success(glob_dct_perm, sce_num2)
-    # Ridge plots (overlapping density plots)
-    include_df, exclude_df = get_indicator_chances(glob_df_comb)
-    g_include = plot_indicator_chances(
-        include_df, file_path=os.path.join(figures_path, 'improvements_indicator_chance_include.png'))
-    g_exclude = plot_indicator_chances(
-        exclude_df, file_path=os.path.join(figures_path, 'improvements_indicator_chance_exclude.png'))
+    # # Global optimum
+    # glob_dct_comb, glob_df_comb, glob_dct_perm, glob_df_perm = global_optimum_approach(
+    #     bwaise_mcda, 'Alternative C', oat_dct, wt_sce_num=sce_num2,
+    #     select_top=None, target_chance=1, cutoff_step=len(loc_dct)-1) # subtract 1 for baseline
+    # # Trajectory plots
+    # ax_comb = plot_global_trajectory(
+    #     glob_dct_comb, wt_sce_num=sce_num2,
+    #     file_path=os.path.join(figures_path, f'improvements_global_comb_{sce_num2}.png'))
+    # ax_perm = plot_global_trajectory(
+    #     glob_dct_perm, wt_sce_num=sce_num2,
+    #     file_path=os.path.join(figures_path, f'improvements_global_perm_{sce_num2}.png'))
+    # ax_success = plot_global_success(glob_dct_perm, sce_num2)
+    # # Ridge plots (overlapping density plots)
+    # include_df, exclude_df = get_indicator_chances(glob_df_comb)
+    # g_include = plot_indicator_chances(
+    #     include_df, file_path=os.path.join(figures_path, 'improvements_indicator_chance_include.png'))
+    # g_exclude = plot_indicator_chances(
+    #     exclude_df, file_path=os.path.join(figures_path, 'improvements_indicator_chance_exclude.png'))
 
 
 # %%

@@ -10,6 +10,7 @@ This module is developed by:
 import os
 path = os.path.dirname(__file__)
 data_path = os.path.join(path, 'data')
+from qsdsan.utils import load_pickle
 
 from ._location import *
 from ._ahp import *
@@ -30,7 +31,7 @@ def _init_modules(name):
         if not os.path.isdir(p): os.mkdir(p)
     return scores_path, results_path, figures_path
 
-def _import_from_pickle(results_path, 
+def _import_from_pickle(results_path,
                         parameters=False, indicator_scores=False,
                         ahp=False, mcda=False,
                         uncertainty=False, sensitivity=None):

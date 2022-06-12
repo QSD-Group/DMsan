@@ -31,9 +31,18 @@ from dmsan.bwaise import scores_path, results_path, figures_path
 indicator_scores_path = os.path.join(scores_path, 'other_indicator_scores.xlsx')
 score_file = pd.ExcelFile(indicator_scores_path)
 read_baseline = lambda name: pd.read_excel(score_file, name).expected
+
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
+
 criterion_num = 5 # number of criteria
-wt_scenario_num = 1000 # number of criterion weights considered
+wt_scenario_num = 10 # number of criterion weights considered
+
+# `lca_perspective` can be "I", "H", or "E" for
+# individualist, hierarchist, or egalitarian
+lca_perspective = 'H'
+if not lca_perspective.upper() in ('I', 'H', 'E'):
+    raise ValueError('`lca_perspective` can only be "I", "H", or "E", '
+                     f'not "{lca_perspective}".')
 
 
 # %%
@@ -42,15 +51,8 @@ wt_scenario_num = 1000 # number of criterion weights considered
 # Technology scores
 # =============================================================================
 
-def check_lca(lca_perspective):
-    if not lca_perspective.upper() in ('I', 'H', 'E'):
-        raise ValueError('`lca_perspective` can only be "I", "H", or "E", '
-                         f'not "{lca_perspective}".')
-
 # Baseline
-def get_baseline_indicator_scores(lca_perspective='H'):
-    check_lca(lca_perspective)
-
+def get_baseline_indicator_scores(lca_perspective=lca_perspective):
     # Technical
     ind_score_T_All = pd.DataFrame([
         read_baseline('user_interface'),
@@ -67,24 +69,22 @@ def get_baseline_indicator_scores(lca_perspective='H'):
     ind_score_T_All.columns = [f'T{i+1}' for i in range(ind_score_T_All.shape[1])]
 
     # Resource Recovery
-    # Import simulated results
-    baseline = pd.read_csv(os.path.join(scores_path, 'sys_baseline.tsv'),
-                           index_col=(0, 1), sep='\t')
+    baseline = pd.read_csv(# import simulated results
+        os.path.join(scores_path, 'sys_baseline.csv'), index_col=(0, 1))
 
     ind_score_RR_All = pd.DataFrame([
         read_baseline('water_reuse'),
-        baseline.loc[('Net recovery', 'N')].values,
-        baseline.loc[('Net recovery', 'P')].values,
-        baseline.loc[('Net recovery', 'K')].values,
-        baseline.loc[('Net recovery', 'energy')].values,
+        baseline.loc[('N recovery', 'Total N')].values,
+        baseline.loc[('P recovery', 'Total P')].values,
+        baseline.loc[('K recovery', 'Total K')].values,
+        baseline.loc[('COD recovery', 'Gas COD')].values,
         read_baseline('supply_chain')
         ]).transpose()
 
     ind_score_RR_All.columns = [f'RR{i+1}' for i in range(ind_score_RR_All.shape[1])]
 
-    # Environmental, lca_perspective can be "I", "H", or "E" for
-    # individualist, hierarchist, or egalitarian
-    lca_ind = [ind for ind in baseline.index if ind[1].startswith(f'{lca_perspective.upper()}_')]
+    # Environmental
+    lca_ind = [ind for ind in baseline.index if ind[1].startswith(f'Net emission {lca_perspective.upper()}_')]
     ind_score_Env_All = pd.DataFrame([
         baseline[baseline.index==lca_ind[0]].values[0], # ecosystem quality
         baseline[baseline.index==lca_ind[1]].values[0], # human health
@@ -95,7 +95,7 @@ def get_baseline_indicator_scores(lca_perspective='H'):
 
     # Economic
     ind_score_Econ_All = pd.DataFrame([
-        baseline.loc[('TEA results', 'Net cost')].values
+        baseline.loc[('TEA results', 'Annual net cost [USD/cap/yr]')].values
         ]).transpose()
 
     ind_score_Econ_All.columns = ['Econ1']
@@ -128,9 +128,7 @@ varied_inds = [*[f'RR{i}' for i in range(2, 6)],
                'Econ1'] # user net cost
 
 
-def get_uncertainty_data(lca_perspective='H', baseline_scores=None,):
-    check_lca(lca_perspective)
-
+def get_uncertainty_data(lca_perspective=lca_perspective, baseline_scores=None,):
     if not baseline_scores:
         baseline_scores = get_baseline_indicator_scores()
 
@@ -212,6 +210,7 @@ bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
 # Sensitivity
 # =============================================================================
 
+#!!! Getting a lot of warnings, this doesn't look right...
 @time_printer
 def run_uncertainty_corr(df_dct, kind):
     corr_dct = {}
@@ -280,6 +279,7 @@ def export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
             winner_df.to_excel(writer, sheet_name='Winner')
 
             #!!! This might not work, need to double-check
+            breakpoint()
             Score = writer.book.add_worksheet('Score')
             Rank = writer.book.add_worksheet('Rank')
             writer.sheets['Rank'] = Rank
@@ -356,7 +356,7 @@ def export_to_pickle(parameters=True, indicator_scores=True,
 # Run all analyses
 # =============================================================================
 
-def run_analyses(save_excel=False):
+def run_analyses(save_sensitivity_excel=False):
     global baseline_indicator_scores
     baseline_indicator_scores = get_baseline_indicator_scores()
 
@@ -395,17 +395,17 @@ def run_analyses(save_excel=False):
     global score_corr_dct, rank_corr_dct
     score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    if save_excel: # too large, prefer not to do it
+    if save_sensitivity_excel: # too large, prefer not to do it
         export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
     export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
 
     kind = 'KS'
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    if save_excel: # too large, prefer not to do it
+    if save_sensitivity_excel: # too large, prefer not to do it
         export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
 
     export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 
 
 if __name__ == '__main__':
-    run_analyses(save_excel=False)
+    run_analyses(save_sensitivity_excel=False)
