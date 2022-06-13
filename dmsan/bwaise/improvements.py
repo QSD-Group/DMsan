@@ -132,7 +132,7 @@ def test_oat(mcda, alt, best_score={}):
 
         mcda.indicator_scores.loc[alt_idx, ind] = updated
         if ind == 'T9': # T9 and RR1 are the same
-            mcda.indicator_scores.loc[alt_idx, ind] = best_score_dct['RR1']
+            mcda.indicator_scores.loc[alt_idx, 'RR1'] = best_score_dct['RR1']
         updated_rank = mcda.indicator_scores.loc[:, ind].rank(
             ascending=bool(not ind_type), method='min').loc[alt_idx]
         if updated_rank != 1:

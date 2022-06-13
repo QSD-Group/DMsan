@@ -41,7 +41,7 @@ def descriptive(ks_dct):
         out['95th_pct'] = _D_sig.quantile(q=0.95, axis=1)
         out['left_err'] = out.mean_signf_D - out['5th_pct']
         out['right_err'] = out['95th_pct'] - out.mean_signf_D
-        out = pd.merge(out, pars[alt].loc[:, 'Parameters':'S'], on='Parameters')
+        out = pd.merge(out, pars[f'Alternative {alt}'].loc[:, 'Parameters':'S'], on='Parameters')
         out['No._of_criteria'] = out.loc[:, 'T':'S'].sum(axis=1)
         out_1[alt] = out
 

@@ -394,18 +394,18 @@ def run_analyses(save_sensitivity_excel=False):
     #!!! Sensitivity looks weird, might need to rewrite
     kind = 'Spearman'
     global score_corr_dct, rank_corr_dct
-    # score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
-    # rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    # if save_sensitivity_excel: # too large, prefer not to do it
-    #     export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
-    # export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
+    score_corr_dct = run_uncertainty_corr(score_df_dct, kind)
+    rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
+    if save_sensitivity_excel: # too large, prefer not to do it
+        export_to_excel(indicator_weights=True, mcda=True, uncertainty=False, sensitivity='Spearman')
+    export_to_pickle(ahp=True, mcda=True, uncertainty=True, sensitivity='Spearman')
 
     kind = 'KS'
     rank_corr_dct = run_uncertainty_corr(rank_df_dct, kind)
-    # if save_sensitivity_excel: # too large, prefer not to do it
-    #     export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
+    if save_sensitivity_excel: # too large, prefer not to do it
+        export_to_excel(indicator_weights=False, mcda=False, uncertainty=False, sensitivity='KS')
 
-    # export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
+    export_to_pickle(ahp=False, mcda=False, uncertainty=False, sensitivity='KS')
 
 
 if __name__ == '__main__':
