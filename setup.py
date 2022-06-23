@@ -21,7 +21,7 @@ setup(
     license='UIUC',
     author='Quantitative Sustainable Design Group',
     author_email='quantitative.sustainable.design@gmail.com',
-    description='Leverages MCDA to compare technologies within a context and explore opportunity spaces for RD&D',
+    description='Decision-Making for sanitation and resource recovery systems',
     long_description=open('README.rst', encoding='utf-8').read(),
     url="https://github.com/QSD-Group/DMsan",
     install_requires=['exposan', 'country-converter'],
@@ -48,8 +48,8 @@ setup(
                  'Operating System :: POSIX :: BSD',
                  'Operating System :: POSIX :: Linux',
                  'Operating System :: Unix',
-                 'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
+                 'Programming Language :: Python :: 3.9',
                  ],
     keywords=['multi-criteria decision analysis', 'quantitative sustainable design', 'sanitation', 'resource recovery'],
 )
