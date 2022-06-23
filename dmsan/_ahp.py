@@ -128,7 +128,7 @@ class AHP:
 
         # Local Weight Indicator T2: Population with access to improved sanitation
         # related to how available improved sanitation is in the region in case a system fails
-        weights['T2'] = 100 - get_val(location.sanitation_availability, 'Value - Improved Sanitation')
+        weights['T2'] = 100 - get_val(location.sanitation_availability)
 
         # Sub-criteria: Feasibility
         # Local Weight Indicator T3: Accessibility to technology
