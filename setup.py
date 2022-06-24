@@ -17,7 +17,7 @@ from setuptools import setup
 setup(
     name='dmsan',
     packages=['dmsan'],
-    version='0.0.1',
+    version='0.0.2',
     license='UIUC',
     author='Quantitative Sustainable Design Group',
     author_email='quantitative.sustainable.design@gmail.com',
@@ -27,9 +27,9 @@ setup(
     install_requires=['exposan', 'country-converter'],
     package_data=
         {'dmsan': [
-                    'dmsan/*',
-                    'dmsan/data/*',
-                    ]},
+                   'bwaise/*',
+                   'data/*',
+                   ]},
     platforms=['Windows', 'Mac', 'Linux'],
     classifiers=['License :: OSI Approved :: University of Illinois/NCSA Open Source License',
                  'Environment :: Console',
