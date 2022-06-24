@@ -24,9 +24,9 @@ from dmsan import AHP, MCDA, path
 from dmsan.comparison import results_path, figures_path
 
 # Universal settings
-rng = np.random.default_rng(3221) # set random number generator for reproducible results
-criterion_num = 5 # number of criteria
-wt_scenario_num = 100 # number of criterion weights considered
+rng = np.random.default_rng(3221)  # set random number generator for reproducible results
+criterion_num = 5  # number of criteria
+wt_scenario_num = 100  # number of criterion weights considered
 
 
 # %%
@@ -36,8 +36,7 @@ wt_scenario_num = 100 # number of criterion weights considered
 # =============================================================================
 
 # Alternative systems
-# modules = ('biogenic_refinery', 'newgen', 'reclaimer') #!!! need to add in biogenic_refinery when it's done
-modules = ('newgen', 'reclaimer')
+modules = ('biogenic_refinery', 'newgen', 'reclaimer')
 get_alt_names = lambda module: [f'{module}A', f'{module}B'] if module!='reclaimer' \
     else [f'{module}B', f'{module}C']
 alt_names = sum([get_alt_names(module) for module in modules], [])
@@ -141,10 +140,10 @@ varied_inds = [*[f'RR{i}' for i in range(2, 6)],  # only include indicators that
 
 def get_uncertainty_data(country, baseline_indicator_scores=None):
     col_names = [
-        ('N recovery', 'Total N'),
-        ('P recovery', 'Total P'),
-        ('K recovery', 'Total K'),
-        ('COD recovery', 'Gas COD'),  # energy, only gas
+        ('N recovery', 'Total N [% N]'),
+        ('P recovery', 'Total P [% P]'),
+        ('K recovery', 'Total K [% K]'),
+        ('COD recovery', 'Gas COD [% COD]'),  # energy, only gas
         ('LCA results', 'H_Ecosystems [points]'),
         ('LCA results', 'H_Health [points]'),
         ('LCA results', 'H_Resources [points]'),
@@ -324,7 +323,7 @@ def run_all_countries(countries):
 
 
 if __name__ == '__main__':
-    #!!! Missing data fro India, Senegal, and South Africa
+    #!!! Missing data for India, Senegal, and South Africa
     # countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
-    countries = ('China', 'Uganda',)
+    countries = ('China', 'Senegal', 'Uganda',)
     weight_df, ahp_dct, mcda_dct = run_all_countries(countries)
