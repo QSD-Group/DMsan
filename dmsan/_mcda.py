@@ -39,8 +39,10 @@ class MCDA:
     file_path : str
         Path for the Excel data file containing information related to
         criteria weighing, default path (and file) will be used if not provided.
-    alt_names : Iterable
+    alt_names : Iterable(str)
         Names of the alternatives under consideration.
+    systems : Iterable(obj)
+        Alternative systems to be evaluated in MCDA.
     method : str
         MCDA method, either TOPSIS (technique for order of preference by similarity
         to ideal solution) or ELECTRE (ELimination Et Choice Translating REality).
@@ -63,9 +65,9 @@ class MCDA:
 
     '''
 
-    def __init__(self,  file_path='', alt_names=(), method='TOPSIS',
-                 *, indicator_weights, indicator_scores, indicator_type=None,
-                 criterion_weights=None):
+    def __init__(self,  file_path='', alt_names=(), systems=(), method='TOPSIS',
+                 indicator_type=None, indicator_weights=None, indicator_scores=None,
+                 criteria=supported_criteria, criterion_weights=None):
         path = file_path or os.path.join(
             data_path, 'criteria_and_indicators.xlsx')
         file = pd.ExcelFile(path)
@@ -73,14 +75,22 @@ class MCDA:
             file, name)  # name is sheet name
 
         self.alt_names = alt_names
+        self.systems = systems
         self.indicator_weights = indicator_weights
         self._default_definitions = defs = read_excel('definitions')
-        self.indicator_type = pd.DataFrame({
-            defs.variable[i]: defs.category_binary[i] for i in defs.index
-        }, index=[0])
+        self.indicator_type = indicator_type if indicator_type is not None \
+            else pd.DataFrame({
+                defs.variable[i]: defs.category_binary[i] for i in defs.index
+            }, index=[0])
+        if indicator_weights is not None: self.indicator_weights = indicator_weights
+        else: # assume equal indicator weights if not given
+            ind_wts = self.indicator_type.copy()
+            ind_wts.iloc[0] = 1
+            self.indicator_weights = ind_wts
         self._indicator_scores = indicator_scores
-        self.criterion_weights = criterion_weights or read_excel(
-            'weight_scenarios')
+        self.criteria = criteria
+        self.criterion_weights = criterion_weights if criterion_weights is not None \
+            else read_excel('weight_scenarios')
         self.method = method
         self._normalized_indicator_scores = self._criterion_scores = \
             self._performance_scores = self._ranks = self._winners = None
@@ -94,13 +104,12 @@ class MCDA:
         ----------
         weights : dict(str: float) or Iterable[floats]
             Weights for the different criteria.
-            If provided as an Iterable, the default order ("T", "RR", "Env", "Econ", "S")
-            will be assumed.
+            If provided as an Iterable, the order in the `criteria` attr will be assumed.
         '''
         if isinstance(weights, dict):
             weight_df = pd.Series(weights)
         else:
-            weight_df = pd.Series(weights, index=supported_criteria)
+            weight_df = pd.Series(weights, index=self.criteria)
         weight_df /= weight_df.sum()
         weight_df = pd.DataFrame(weight_df).transpose()
         return weight_df
@@ -119,7 +128,7 @@ class MCDA:
         seed : int
             Used to create a random number generator for reproducible results.
         '''
-        criteria = criteria or supported_criteria
+        criteria = criteria if criteria is not None else supported_criteria
         criterion_num = len(criteria)
         rng = np.random.default_rng(seed)
 
@@ -216,7 +225,7 @@ class MCDA:
         if N == 1:  # only 1 set of criterion weights, iterable/pd.Series
             cr_wt = self.update_criterion_weights(cr_wt)
         else:
-            cr_wt = cr_wt[[*supported_criteria]]
+            cr_wt = cr_wt[[*self.criteria]]
             # normalize the criterion weights
             cr_wt = cr_wt.div(cr_wt.sum(axis=1), 'index')
 
@@ -513,7 +522,18 @@ class MCDA:
     @property
     def criteria(self):
         '''[tuple(str)] All criteria considered in MCDA.'''
-        return supported_criteria
+        return self._criteria
+    @criteria.setter
+    def criteria(self, i):
+        self._criteria = i
+
+    @property
+    def systems(self):
+        '''[list] Alternative systems evaluated by MCDA.'''
+        return self._systems
+    @systems.setter
+    def systems(self, i):
+        self._systems = list(i)
 
     @property
     def indicator_scores(self):
