@@ -379,7 +379,7 @@ def run_analyses(save_sensitivity_excel=False):
     global weight_df
     weight_df = bwaise_mcda.generate_criterion_weights(wt_scenario_num)
     file_path = os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png')
-    MCDA.plot_criterion_weight_fig(weight_df, path=file_path)
+    MCDA.plot_criterion_weight_fig(weight_df, path=file_path, color='gray')
 
     export_to_excel(indicator_weights=True, mcda=True, criterion_weights=True,
                     uncertainty=False, sensitivity=None)
@@ -390,7 +390,7 @@ def run_analyses(save_sensitivity_excel=False):
     score_df_dct, rank_df_dct, winner_df = \
         bwaise_mcda.run_MCDA_multi_scores(criterion_weights=weight_df,
                                           ind_score_dct=ind_score_dct)
-    
+
     #!!! No longer run Spearman with ranks data
     kind = 'Spearman'
     global score_corr_dct

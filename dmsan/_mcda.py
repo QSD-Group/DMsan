@@ -155,23 +155,26 @@ class MCDA:
         return weight_df
 
     @staticmethod
-    def plot_criterion_weight_fig(weight_df, path=''):
+    def plot_criterion_weight_fig(weight_df, path='', **fig_kwargs):
         '''
         Plot all of the criterion weight scenarios.
 
         Parameters
         ----------
+        weight_df : dataframe
+            `pandas.DataFrame` with criterion weights.
         path : str
             If provided, the generated figure will be saved to this path.
+        fig_kwargs : dict
+            Keyword arguments that will be passed to `matplotlib`.
         '''
         fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.plot(weight_df.transpose(), linewidth=0.5, alpha=0.5)
+        ax.plot(weight_df.transpose(), linewidth=0.5, alpha=0.5, **fig_kwargs)
         ax.set(title='Criterion Weight Scenarios',
                xlim=(0, 4), ylim=(0, 1), ylabel='Criterion Weights',
                xticks=(0, 1, 2, 3, 4),
                xticklabels=weight_df.columns)
-        if path:
-            fig.savefig(path)
+        if path: fig.savefig(path)
         return fig
 
     def run_MCDA(self, criterion_weights=None, method=None, **kwargs):

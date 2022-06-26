@@ -17,7 +17,7 @@ from setuptools import setup
 setup(
     name='dmsan',
     packages=['dmsan'],
-    version='0.0.2',
+    version='0.0.3',
     license='UIUC',
     author='Quantitative Sustainable Design Group',
     author_email='quantitative.sustainable.design@gmail.com',
@@ -28,6 +28,7 @@ setup(
     package_data=
         {'dmsan': [
                    'bwaise/*',
+                   'bwaise/scores/other_indicator_scores.xlsx',
                    'data/*',
                    ]},
     platforms=['Windows', 'Mac', 'Linux'],
