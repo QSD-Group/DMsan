@@ -17,7 +17,7 @@ from setuptools import setup
 setup(
     name='dmsan',
     packages=['dmsan'],
-    version='0.0.3',
+    version='0.0.4',
     license='UIUC',
     author='Quantitative Sustainable Design Group',
     author_email='quantitative.sustainable.design@gmail.com',

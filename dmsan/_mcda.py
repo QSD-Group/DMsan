@@ -52,7 +52,7 @@ class MCDA:
         Columns should be the code of the indicators as used in :class:`DMsan.,
         values should by either "1" (beneficial) or "0" (non-beneficial).
         For beneficial indicators, the higher the indicator score is, the better;
-        and vice versa for non-beneficial factors.
+        and vice versa for non-beneficial indicators.
     indicator_scores : :class:`pandas.DataFrame`
         Calculated scores for the alternatives with regard to each indicator.
     criterion_weights : :class:`pandas.DataFrame`
@@ -177,7 +177,7 @@ class MCDA:
         if path: fig.savefig(path)
         return fig
 
-    def run_MCDA(self, criterion_weights=None, method=None, **kwargs):
+    def run_MCDA(self, method=None, **kwargs):
         '''
         Calculate performance scores using the selected method,
         multiple criterion weights can be considered,
@@ -190,26 +190,36 @@ class MCDA:
             associated criteria in the `criterion_weights` property if left as None.
         method : str
             MCDA method, will use value set in the `method` property if not provided.
+        kwargs : dict
+            Can assign `criterion_weights`, `indicator_type`, and `indicator_scores`.
 
         See Also
         --------
         :func:`run_MCDA_multi_scores` for running multiple sets of
         criterion weights and indicator scores.
         '''
+        # Update values
         method = method or self.method
+        criterion_weights = kwargs.pop('criterion_weights', None)
+        if criterion_weights is not None: self.criterion_weights = criterion_weights
+        indicator_type = kwargs.pop('indicator_type', None)
+        if indicator_type is not None: self.indicator_type = indicator_type
+        indicator_scores = kwargs.pop('indicator_scores', None)
+        if indicator_scores is not None: self.indicator_scores = indicator_scores
+
         if method.upper() == 'TOPSIS':
-            returned = self._run_TOPSIS(criterion_weights, **kwargs)
+            returned = self._run_TOPSIS(**kwargs)
         elif method.upper() == 'ELECTRE':
-            returned = self._run_ELECTRE(criterion_weights, **kwargs)
+            returned = self._run_ELECTRE(**kwargs)
         elif method.upper() == 'AHP':
-            returned = self._run_AHP(criterion_weights, **kwargs)
+            returned = self._run_AHP(**kwargs)
         else:
             raise ValueError('`method` can only be "TOPSIS", "ELECTRE", or "AHP", '
                              f'not {method}.')
         return returned
 
-    def _run_TOPSIS(self, criterion_weights=None, **kwargs):
-        cr_wt = self.criterion_weights if criterion_weights is None else criterion_weights
+    def _run_TOPSIS(self, **kwargs):
+        cr_wt = self.criterion_weights
         # For indicator types, 0 is non-beneficial (want low value) and 1 is beneficial
         ind_type = self.indicator_type.values
         rev_ind_type = np.ones_like(ind_type) - ind_type
