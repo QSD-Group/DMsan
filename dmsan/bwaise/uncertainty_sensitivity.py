@@ -340,11 +340,12 @@ def export_to_pickle(parameters=True, indicator_scores=True,
         print(f'\nPerformance score uncertainties exported to "{file_path}".')
 
     if sensitivity:
-        file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
-        save_pickle(rank_corr_dct, file_path)
-        print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
+        if sensitivity == 'KS':
+            file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
+            save_pickle(rank_corr_dct, file_path)
+            print(f'\n{sensitivity} sensitivity results (ranks) exported to "{file_path}".')
 
-        if sensitivity != 'KS':
+        else:
             file_path = os.path.join(results_path, f'sensitivity/performance_{sensitivity}_scores.pckl')
             save_pickle(score_corr_dct, file_path)
             print(f'\n{sensitivity} sensitivity results (scores) exported to "{file_path}".')
