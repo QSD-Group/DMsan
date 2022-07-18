@@ -208,6 +208,8 @@ def test_across_inds(mcda, alt, ind_arr_dct):
     '''
     Evalaute the winning chance of an alternative across two indicators.
     '''
+    # Reset technology scores and refresh results
+    mcda.indicator_scores = baseline_indicator_scores.copy()
     weight_num = mcda.criterion_weights.shape[0]
     alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
     ind1, ind2 = ind_arr_dct.keys()
