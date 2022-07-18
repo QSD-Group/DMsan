@@ -19,12 +19,17 @@ import os
 import numpy as np, pandas as pd, seaborn as sns
 from warnings import warn
 from itertools import combinations, permutations
-from matplotlib import pyplot as plt
+import matplotlib as mpl, matplotlib.pyplot as plt
+mpl.rcParams['font.sans-serif'] = 'arial'
+mpl.rcParams["figure.autolayout"] = True
+
 from matplotlib.collections import LineCollection
 from qsdsan.utils import time_printer, colors, save_pickle
 from dmsan.bwaise import results_path, figures_path, import_from_pickle
 from dmsan.bwaise.uncertainty_sensitivity import \
     criterion_num, wt_scenario_num as sce_num1
+
+
 
 
 loaded = import_from_pickle(parameters=False, indicator_scores=True,
@@ -191,6 +196,60 @@ def plot_oat(oat_dct, wt_sce_num, file_path=''):
         fig.savefig(file_path, dpi=300)
 
     return ax
+
+
+# %%
+
+# =============================================================================
+# Heatmap of select indicators
+# =============================================================================
+
+def test_across_inds(mcda, alt, ind_arr_dct):
+    '''
+    Evalaute the winning chance of an alternative across two indicators.
+    '''
+    weight_num = mcda.criterion_weights.shape[0]
+    alt_idx = mcda.alt_names[mcda.alt_names==alt].index[0]
+    ind1, ind2 = ind_arr_dct.keys()
+    vals1, vals2 = ind_arr_dct.values()
+    # MCDA across indicator scores
+    x, y, z = [], [], []
+    for val2 in vals2:
+        for val1 in vals1:
+            # RR1 and T9 are the same
+            for ind, val in zip((ind1, ind2), (val1, val2)):
+                if ind in ('T9', 'RR1'):
+                    mcda.indicator_scores.loc[alt_idx, 'T9'] = \
+                        mcda.indicator_scores.loc[alt_idx, 'RR1'] = val
+                else: mcda.indicator_scores.loc[alt_idx, ind] = val
+            mcda.run_MCDA(file_path=None)
+            winning_chance = mcda.winners[mcda.winners.Winner==alt].shape[0]/weight_num
+            x.append(val1)
+            y.append(val2)
+            z.append(winning_chance)
+    df = pd.DataFrame({ind1:x, ind2:y, 'Winning Chance':z})
+    return df
+
+
+def plot_across_inds(df, file_path=''):
+    '''
+    Plot the heatmap of winning chances across two indicators.
+    '''
+    vals1 = df.iloc[:, 0].unique()
+    vals2 = df.iloc[:, 1].unique()
+    scores = df.iloc[:, 2].values
+    fig, ax = plt.subplots(figsize=(8, 6))
+    contourf = ax.contourf(vals1, vals2, scores.reshape(len(vals1), len(vals2)))
+    ax.figure.colorbar(contourf)
+    ax.set(xlabel=df.columns[0], ylabel=df.columns[1], xticks=vals1, yticks=vals2)
+    if file_path is not None:
+        file_path = file_path if file_path != '' \
+            else os.path.join(figures_path, 'improvements_heatmap.png')
+        fig.savefig(file_path, dpi=300)
+    return ax
+
+
+
 
 
 # %%
@@ -575,9 +634,44 @@ if __name__ == '__main__':
     weight_df1 = pd.read_excel(file_path)
     bwaise_mcda.criterion_weights = weight_df1
 
-    # One-at-a-time at baseline
-    oat_dct = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
-    ax_oat = plot_oat(oat_dct, wt_sce_num=sce_num1)
+    ##### One-at-a-time at baseline #####
+    # sysA
+    oat_dctA = test_oat(bwaise_mcda, alt='Alternative A', best_score=best_score_dct)
+    file_path = os.path.join(figures_path, f'improvements_oat_{sce_num1}A.png')
+    ax_oat = plot_oat(oat_dctA, wt_sce_num=sce_num1, file_path=file_path)
+
+    # sysC
+    oat_dctC = test_oat(bwaise_mcda, alt='Alternative C', best_score=best_score_dct)
+    file_path = os.path.join(figures_path, f'improvements_oat_{sce_num1}C.png')
+    ax_oat = plot_oat(oat_dctC, wt_sce_num=sce_num1, file_path=file_path)
+
+    ##### Heatmap across two select indicators #####
+    ind_scores =bwaise_mcda.indicator_scores
+    def get_bound(ind, kind, frac=0.1):
+        if kind == 'lower':
+            val = ind_scores[ind].min()
+            val = val*(1+frac) if val<0 else val*(1-frac)
+        elif kind == 'upper':
+            val = ind_scores[ind].max()
+            val = val*(1-frac) if val<0 else val*(1+frac)
+        return val
+    ind_arr_dct = {
+        'Env3': np.linspace(get_bound('Env3', 'lower'), get_bound('Env3', 'upper'), num=15),
+        'Econ1': np.linspace(0, get_bound('Econ1', 'upper'), num=15),
+        'S2': np.linspace(0, 14, num=15, dtype='int'),
+        }
+
+    # sysA
+    ind_arr_dctA = {'Econ1':ind_arr_dct['Econ1'], 'S2': ind_arr_dct['S2']}
+    dfA = test_across_inds(bwaise_mcda, 'Alternative A', ind_arr_dctA)
+    file_path = os.path.join(figures_path, 'improvements_heatmapA.png')
+    ax_hmA = plot_across_inds(dfA, file_path=file_path)
+
+    # sysC
+    ind_arr_dctC = {'Env3': ind_arr_dct['Env3'], 'Econ1':ind_arr_dct['Econ1']}
+    dfC = test_across_inds(bwaise_mcda, 'Alternative C', ind_arr_dctC)
+    file_path = os.path.join(figures_path, 'improvements_heatmapC.png')
+    ax_hmC = plot_across_inds(dfC, file_path=file_path)
 
     # # Local optimum
     # loc_dct, loc_df = local_optimum_approach(

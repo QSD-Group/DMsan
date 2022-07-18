@@ -88,23 +88,17 @@ def plot_solid_color(winner_df):
 # https://stackoverflow.com/questions/38208700/matplotlib-plot-lines-with-colors-through-colormap
 def plot_gradient_color(winner_df, alt, cmap):
     # % of times that the select alternative wins
-    # import pdb
-    # pdb.set_trace()
     percent = winner_df[winner_df==alt].count()/winner_df.shape[0]
 
     # Extract the weighing information
     ratio2float = lambda ratio: np.array(ratio.split(':'), dtype='float')
     wt = np.array([ratio2float(i) for i in percent.index])
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    #
-    # for alt, wt, cmap in zip(alts, wts, ('Reds', 'Greens', 'Blues')):
-    #     fig, ax = plt.subplots(figsize=(8, 4.5))
-    #     ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
-    #             linewidth=0.5)
 
     cm = getattr(pl.cm, cmap)
     for i in range(wt.shape[0]):
         ax.plot(wt[i], color=cm(225),
+                # color=cm(percent[::1])[i], # if also want to change the color
                 linewidth=0.5, alpha=percent[i])
     ax = format_ax(ax, title=alt)
     return fig, ax
