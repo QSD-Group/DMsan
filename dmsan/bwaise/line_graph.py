@@ -11,8 +11,13 @@ an alternative having the highest score among all.
 import os
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 from matplotlib import pyplot as plt, pylab as pl
 from dmsan.bwaise import figures_path, import_from_pickle
+
+# Set font to Arial
+mpl.rcParams['font.sans-serif'] = 'arial'
+mpl.rcParams["figure.autolayout"] = True
 
 loaded = import_from_pickle(uncertainty=True, sensitivity='KS')
 score_df_dct, rank_df_dct, winner_df = loaded['uncertainty']
@@ -48,10 +53,32 @@ def plot_winner(winner_df):
     wts = [np.array([ratio2float(i) for i in wt.index]) for wt in separated]
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    for wt, cmap in zip(wts, ('Reds', 'Greens', 'Blues')):
-        ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
-                linewidth=0.5)
+    colors = ( # for A, B, and C
+        (0.635, 0.502, 0.725, 1), # last one is alpha (1 means no transparency)
+        (0.376, 0.757, 0.812, 1),
+        (0.929, 0.345, 0.435, 1),
+        )
+    for wt, color in zip(wts, colors):
+        ax.plot(wt.transpose(), color=color, linewidth=0.5)
+    # for wt, cmap in zip(wts, ('Reds', 'Greens', 'Blues')):
+    #     ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
+    #             linewidth=0.5)
     ax = format_ax(ax, title='Overall winner')
+    
+    # The following codes are used to update axes, etc.,
+    # might be better to incorporate into the `format_ax` function
+    ax.tick_params(
+        axis='both', # x, y, or both
+        which='both', # major, minor, or both
+        direction='inout', # in, out or inout
+        )
+    ax2 = ax.secondary_xaxis('top') # add top axis
+    ax2.tick_params(axis='x', which='both', direction='in')
+    ax3 = ax.secondary_yaxis('right') # add right axis
+    ax3.tick_params(axis='y', which='both', direction='in')
+    for axis in (ax2, ax3):
+        axis.set(xticklabels='', yticklabels='')
+        
     return fig, ax
 
 
