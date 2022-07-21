@@ -670,7 +670,7 @@ if __name__ == '__main__':
     ax_hmA = plot_across_inds(dfA, file_path=file_path)
 
     # sysC
-    ind_arr_dctC = {'Env3': ind_arr_dct['Env3'], 'Econ1':ind_arr_dct['Econ1']}
+    ind_arr_dctC = {'Econ1':ind_arr_dct['Econ1'], 'Env3': ind_arr_dct['Env3']}
     dfC = test_across_inds(bwaise_mcda, 'Alternative C', ind_arr_dctC)
     file_path = os.path.join(figures_path, 'improvements_heatmapC.png')
     ax_hmC = plot_across_inds(dfC, file_path=file_path)
