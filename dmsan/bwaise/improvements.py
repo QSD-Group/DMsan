@@ -237,12 +237,16 @@ def plot_across_inds(df, file_path=''):
     '''
     Plot the heatmap of winning chances across two indicators.
     '''
+    # Update `vals1`/`vals2` if want to user alternative x/y tick values
     vals1 = df.iloc[:, 0].unique()
     vals2 = df.iloc[:, 1].unique()
     scores = df.iloc[:, 2].values
     fig, ax = plt.subplots(figsize=(8, 6))
-    contourf = ax.contourf(vals1, vals2, scores.reshape(len(vals1), len(vals2)))
-    ax.figure.colorbar(contourf)
+    ticks = np.linspace(0, 1, 11)
+    contourf = ax.contourf(
+        vals1, vals2, scores.reshape(len(vals1), len(vals2)), ticks,
+        vmin=0, vmax=1) # vim/vmax defines the min/max of the colorbar
+    ax.figure.colorbar(contourf, ticks=ticks)
     ax.set(xlabel=df.columns[0], ylabel=df.columns[1], xticks=vals1, yticks=vals2)
     if file_path is not None:
         file_path = file_path if file_path != '' \
