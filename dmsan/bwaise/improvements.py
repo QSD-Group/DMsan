@@ -128,12 +128,17 @@ def test_oat(mcda, alt, best_score={}):
                 updated = best_score[ind]
             else:
                 updated = series.min()
+                if updated < 0:
+                    updated *= 1.1
+                else:
+                    updated *= 0.9
 
         else: # beneficial
             if best_score.get(ind) is not None:
                 updated = best_score[ind]
             else:
                 updated = series.max()
+                updated *= 1.1
 
         mcda.indicator_scores.loc[alt_idx, ind] = updated
         if ind == 'T9': # T9 and RR1 are the same
