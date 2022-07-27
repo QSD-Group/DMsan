@@ -99,13 +99,28 @@ def plot_solid_color(winner_df):
 
     figs = []
     axes = []
-    for alt, wt, cmap in zip(alts, wts, ('Reds', 'Greens', 'Blues')):
+
+    # Include following code if I want all one color
+    colors = ( # for A, B, and C
+        (0.133, 0.165, 0.208, 1),  # last one is alpha (1 means no transparency)
+        (0.133, 0.165, 0.208, 1),  # (34/255, 42/255, 53/255, 1)
+        (0.133, 0.165, 0.208, 1),
+        )
+    for alt, wt, color in zip(alts, wts, colors):
         fig, ax = plt.subplots(figsize=(8, 4.5))
-        ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
-                linewidth=0.5)
+        ax.plot(wt.transpose(), color=color, linewidth=0.5)
         ax = format_ax(ax, title=f'Alternative {alt}')
         figs.append(fig)
         axes.append(ax)
+
+    # Include following code if I want Red, Green, Blue graphs
+    # for alt, wt, cmap in zip(alts, wts, ('Reds', 'Greens', 'Blues')):
+    #     fig, ax = plt.subplots(figsize=(8, 4.5))
+    #     ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
+    #             linewidth=0.5)
+    #     ax = format_ax(ax, title=f'Alternative {alt}')
+    #     figs.append(fig)
+    #     axes.append(ax)
 
     return figs, axes
 
@@ -122,13 +137,22 @@ def plot_gradient_color(winner_df, alt, cmap):
     wt = np.array([ratio2float(i) for i in percent.index])
     fig, ax = plt.subplots(figsize=(8, 4.5))
 
-    cm = getattr(pl.cm, cmap)
+    # Include following code if I want all one color
     for i in range(wt.shape[0]):
-        ax.plot(wt[i], color=cm(225),
+        ax.plot(wt[i], color=(0.133, 0.165, 0.208, 1),  # (34/255, 42/255, 53/255, 1)
                 # color=cm(percent[::1])[i], # if also want to change the color
                 linewidth=0.5, alpha=percent[i])
     ax = format_ax(ax, title=alt)
     return fig, ax
+
+    # Include following code if I want Red, Green, Blue graphs
+    # cm = getattr(pl.cm, cmap)
+    # for i in range(wt.shape[0]):
+    #     ax.plot(wt[i], color=cm(225),
+    #             # color=cm(percent[::1])[i], # if also want to change the color
+    #             linewidth=0.5, alpha=percent[i])
+    # ax = format_ax(ax, title=alt)
+    # return fig, ax
 
 
 # %%
