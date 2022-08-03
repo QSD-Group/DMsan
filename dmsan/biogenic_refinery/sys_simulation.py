@@ -5,7 +5,9 @@
 DMsan: Decision-making of sanitation and resource recovery systems
 
 This module is developed by:
+
     Hannah Lohman <hlohman94@gmail.com>
+
     Yalin Li <mailto.yalin.li@gmail.com>
 
 Run this module to save the results to the /results folder to avoid repeating
