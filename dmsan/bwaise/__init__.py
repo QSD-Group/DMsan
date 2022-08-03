@@ -9,14 +9,25 @@ This module is developed by:
     Hannah Lohman <hlohman94@gmail.com>
 '''
 
-from dmsan import _init_modules, _import_from_pickle
+from dmsan.utils import (
+    import_module_results_from_pickle,
+    init_modules,
+    )
 
-scores_path, results_path, figures_path = _init_modules('bwaise')
+__all__ = (
+    'scores_path',
+    'results_path',
+    'figures_path',
+    'import_results_from_pickle',
+    )
 
-def import_from_pickle(parameters=False, indicator_scores=False,
-                       ahp=False, mcda=False,
-                       uncertainty=False, sensitivity=None):
-    return _import_from_pickle(
+scores_path, results_path, figures_path = init_modules('bwaise')
+
+def import_results_from_pickle(
+    parameters=False, indicator_scores=False,
+    ahp=False, mcda=False,
+    uncertainty=False, sensitivity=None):
+    return import_module_results_from_pickle(
         results_path,
         parameters=parameters,
         indicator_scores=indicator_scores,

@@ -7,7 +7,7 @@
     Hannah Lohman <hlohman94@gmail.com>
     Stetson Rowles <stetsonsc@gmail.com>
 
-This model is developed to assist sanitation system research, development, and
+This module is developed to assist sanitation system research, development, and
 deployment.
 """
 

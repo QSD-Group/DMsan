@@ -25,16 +25,17 @@ mpl.rcParams["figure.autolayout"] = True
 
 from matplotlib.collections import LineCollection
 from qsdsan.utils import time_printer, colors, save_pickle
-from dmsan.bwaise import results_path, figures_path, import_from_pickle
+from dmsan.bwaise import results_path, figures_path, import_mcda_results_from_pickle
 from dmsan.bwaise.uncertainty_sensitivity import \
     criterion_num, wt_scenario_num as sce_num1
 
 
 
 
-loaded = import_from_pickle(parameters=False, indicator_scores=True,
-                            ahp=True, mcda=True,
-                            uncertainty=False, sensitivity=None)
+loaded = import_mcda_results_from_pickle(
+    parameters=False, indicator_scores=True,
+    ahp=True, mcda=True,
+    uncertainty=False, sensitivity=None)
 
 ind_score_dct = loaded['indicator_scores']
 bwaise_ahp = loaded['ahp']

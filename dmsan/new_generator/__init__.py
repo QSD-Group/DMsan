@@ -21,7 +21,7 @@ __all__ = (
     'import_mcda_results_from_pickle',
     )
 
-scores_path, results_path, figures_path = init_modules('reclaimer')
+scores_path, results_path, figures_path = init_modules('new_generator')
 
 def import_mcda_results_from_pickle(
     parameters=False, indicator_scores=False,
