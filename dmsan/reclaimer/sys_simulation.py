@@ -14,7 +14,7 @@ Run this module to save the results to the /results folder to avoid repeating
 simulating the system.
 '''
 
-from dmsan.biogenic_refinery import run_model_simulations
+from dmsan.reclaimer import run_model_simulations
 
 # Comment these out if want to see all warnings
 import warnings
