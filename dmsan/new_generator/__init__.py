@@ -18,7 +18,7 @@ from dmsan.utils import (
     get_module_models,
     import_module_results,
     init_modules,
-    run_module_model_simulations,
+    simulate_module_models,
     )
 
 __all__ = (
@@ -27,19 +27,21 @@ __all__ = (
     'figures_path',
     'get_models',
     'import_results',
+    'simulate_models',
     )
 
 module = os.path.split(os.path.dirname(__file__))[-1]
+sys_IDs = ('A', 'B')
 scores_path, results_path, figures_path = init_modules(module)
 
 
-def get_models(country, load_cached_data=False):
+def get_models(country, module=module, sys_IDs=sys_IDs, load_cached_data=False):
     model_dct = get_module_models(
         module=module,
         create_model_func=create_country_specific_model,
         country=country,
         load_cached_data=load_cached_data,
-        sys_IDs=('A', 'B'))
+        sys_IDs=sys_IDs)
     return model_dct
 
 
@@ -64,9 +66,10 @@ def import_results(
             )
 
 
-def run_model_simulations(country, N, seed=None):
-    model_dct = get_models(country=country, load_cached_data=False)
-    ngA, ngB = model_dct.values()
+def simulate_models(country, N, seed=None, module=module, sys_IDs=sys_IDs):
+    model_dct = get_models(country=country, module=module, sys_IDs=sys_IDs, load_cached_data=False)
+    ngA = model_dct['ngA']
+    ngB = model_dct['ngB']
 
     for model in (ngA, ngB):
         samples = model.sample(N, seed=seed, rule='L')
@@ -74,5 +77,5 @@ def run_model_simulations(country, N, seed=None):
     copy_samples(ngA, ngB)
 
     country_folder = os.path.join(scores_path, country)
-    baseline_df, uncertainty_dct = run_module_model_simulations(country_folder, model_dct)
+    baseline_df, uncertainty_dct = simulate_module_models(country_folder, model_dct)
     return baseline_df, uncertainty_dct

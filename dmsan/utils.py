@@ -9,7 +9,7 @@ This module is developed by:
     Yalin Li <mailto.yalin.li@gmail.com>
 '''
 
-import os, pandas as pd
+import os, pandas as pd, qsdsan as qs
 from qsdsan.utils import load_pickle, save_pickle, time_printer
 from . import path
 
@@ -19,7 +19,7 @@ __all__ = (
     'get_uncertainties',
     'import_module_results',
     'init_modules',
-    'run_module_model_simulations',
+    'simulate_module_models',
     )
 
 
@@ -28,10 +28,16 @@ __all__ = (
 get_model_key = lambda model: model.system.flowsheet.ID # brA, etc.
 get_model_dct = lambda models: {get_model_key(model): model for model in models}
 
+def set_model_components(model):
+    cmps = qs.get_components()
+    if cmps is not model.system.units[0].components:
+        qs.set_thermo(model.system.units[0].components)
+
 def get_baseline(models, file_path=''):
     df = pd.DataFrame()
     model_dct = models if isinstance(models, dict) else get_model_dct(models)
     for key, model in model_dct.items():
+        set_model_components(model)
         df[key] = model.metrics_at_baseline()
 
     if file_path:
@@ -55,7 +61,7 @@ def get_module_models(module, create_model_func, country, load_cached_data=False
         for model in models:
             key = get_model_key(model)
             model._samples = data['samples'][key]
-            model._table = data['tables'][key]
+            model.table = data['tables'][key]
     return get_model_dct(models)
 
 
@@ -71,7 +77,10 @@ def get_uncertainties(models, country, pickle_path='', param_path='', result_pat
         param_col = [col for col in df.columns[0: len(model.parameters)]]
         uncertainty_dct[f'{key}-param'] = model.table[param_col]
 
+        print(f'uncertainties for model: {key}')
+        set_model_components(model)
         model.evaluate()
+
         uncertainty_dct[f'{key}-results'] = \
             model.table.iloc[:, len(model.parameters):]
 
@@ -162,7 +171,7 @@ def init_modules(module_name):
 
 # %%
 
-def run_module_model_simulations(country_folder, model_dct):
+def simulate_module_models(country_folder, model_dct):
     country = os.path.split(country_folder)[-1]
     # Create the folder if there isn't one already
     if not os.path.isdir(country_folder): os.mkdir(country_folder)
@@ -170,6 +179,8 @@ def run_module_model_simulations(country_folder, model_dct):
     param_path = os.path.join(country_folder, 'parameters.xlsx')
     pickle_path = os.path.join(country_folder, 'model_data.pckl')
     uncertainty_path = os.path.join(country_folder, 'sys_uncertainties.xlsx')
+
+    print(f'\n\n Simulating for country: {country}')
     baseline_df = get_baseline(models=model_dct, file_path=baseline_path)
     uncertainty_dct = get_uncertainties(models=model_dct,
                                         country=country,

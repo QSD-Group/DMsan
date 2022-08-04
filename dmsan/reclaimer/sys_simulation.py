@@ -6,15 +6,15 @@ DMsan: Decision-making of sanitation and resource recovery systems
 
 This module is developed by:
 
-    Hannah Lohman <hlohman94@gmail.com>
-
     Yalin Li <mailto.yalin.li@gmail.com>
+
+    Hannah Lohman <hlohman94@gmail.com>
 
 Run this module to save the results to the /results folder to avoid repeating
 simulating the system.
 '''
 
-from dmsan.reclaimer import run_model_simulations
+from dmsan.reclaimer import simulate_models
 
 # Comment these out if want to see all warnings
 import warnings
@@ -25,5 +25,7 @@ N = 20
 seed = 3221
 baseline_dct = dict.fromkeys(countries)
 uncertainty_dct = dict.fromkeys(countries)
-for country in countries:
-    baseline_dct[country], uncertainty_dct[country] = run_model_simulations(country, N=N, seed=seed)
+
+if __name__ == '__main__':
+    for country in countries:
+        baseline_dct[country], uncertainty_dct[country] = simulate_models(country, N=N, seed=seed)
