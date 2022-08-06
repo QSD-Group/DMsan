@@ -14,7 +14,7 @@ Run this module to save the results to the /scores folder to avoid repeating
 simulating the system.
 '''
 
-from dmsan.new_generator import simulate_models
+from dmsan.new_generator import simulate_models, get_models
 
 # Comment these out if want to see all warnings
 import warnings
@@ -30,7 +30,6 @@ if __name__ == '__main__':
         system_IDs=system_IDs, countries=countries, N=N, seed=seed)
 
     # # To reload models
-    # from dmsan.new_generator import get_models
     # model_dct = get_models(
     #         system_IDs=system_IDs,
     #         countries=countries,

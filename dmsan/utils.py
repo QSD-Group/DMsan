@@ -95,7 +95,7 @@ def get_baseline(model_dct, file_path=''):
         df[key] = model.metrics_at_baseline()
 
     if file_path:
-        sep = '\t' if file_path.endswith('.tsv') else ''
+        sep = '\t' if file_path.endswith('.tsv') else ','
         df.to_csv(file_path, sep=sep)
     return df
 
@@ -257,7 +257,7 @@ def init_modules(module_name, include_data_path=False):
 # %%
 
 def simulate_module_models(scores_path, model_dct, N, seed=None, sample_hook_func=None):
-    baseline_path = os.path.join(scores_path, 'simulated_baseline.tsv')
+    baseline_path = os.path.join(scores_path, 'simulated_baseline.csv')
     pickle_path = os.path.join(scores_path, 'model_data.pckl')
     uncertainty_path = os.path.join(scores_path, 'simulated_uncertainties.xlsx')
     baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
