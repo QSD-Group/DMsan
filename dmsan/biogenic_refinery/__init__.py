@@ -30,7 +30,7 @@ __all__ = (
     )
 
 module = os.path.split(os.path.dirname(__file__))[-1]
-system_IDs = ('A', 'B')
+system_IDs = ('A', 'B', 'C', 'D')
 scores_path, results_path, figures_path = init_modules(module)
 
 

@@ -20,12 +20,19 @@ from dmsan.new_generator import simulate_models
 import warnings
 warnings.filterwarnings(action='ignore')
 
+system_IDs = ('A', 'B')
 countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
 N = 20
 seed = 3221
-baseline_dct = dict.fromkeys(countries)
-uncertainty_dct = dict.fromkeys(countries)
 
 if __name__ == '__main__':
-    for country in countries:
-        baseline_dct[country], uncertainty_dct[country] = simulate_models(country, N=N, seed=seed)
+    baseline_df, uncertainty_dct = simulate_models(
+        system_IDs=system_IDs, countries=countries, N=N, seed=seed)
+
+    # # To reload models
+    # from dmsan.new_generator import get_models
+    # model_dct = get_models(
+    #         system_IDs=system_IDs,
+    #         countries=countries,
+    #         load_cached_data=True,
+    #         )

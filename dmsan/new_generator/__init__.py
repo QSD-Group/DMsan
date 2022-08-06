@@ -12,7 +12,6 @@ This module is developed by:
 '''
 
 import os
-from qsdsan.utils import copy_samples
 from exposan.new_generator import create_country_specific_model
 from dmsan.utils import (
     get_module_models,
@@ -31,17 +30,24 @@ __all__ = (
     )
 
 module = os.path.split(os.path.dirname(__file__))[-1]
-sys_IDs = ('A', 'B')
+system_IDs = ('A', 'B')
 scores_path, results_path, figures_path = init_modules(module)
 
 
-def get_models(country, module=module, sys_IDs=sys_IDs, load_cached_data=False):
+def get_models(
+        module=module,
+        system_IDs=system_IDs,
+        countries=(),
+        country_specific_inputs=None,
+        load_cached_data=False,
+        ):
     model_dct = get_module_models(
         module=module,
-        create_model_func=create_country_specific_model,
-        country=country,
-        load_cached_data=load_cached_data,
-        sys_IDs=sys_IDs)
+        create_country_specific_model_func=create_country_specific_model,
+        system_IDs=system_IDs,
+        countries=countries,
+        country_specific_inputs=country_specific_inputs,
+        load_cached_data=load_cached_data,)
     return model_dct
 
 
@@ -66,16 +72,25 @@ def import_results(
             )
 
 
-def simulate_models(country, N, seed=None, module=module, sys_IDs=sys_IDs):
-    model_dct = get_models(country=country, module=module, sys_IDs=sys_IDs, load_cached_data=False)
-    ngA = model_dct['ngA']
-    ngB = model_dct['ngB']
+def simulate_models(
+        countries,
+        N,
+        seed=None,
+        module=module,
+        system_IDs=system_IDs,
+        country_specific_inputs=None
+        ):
+    model_dct = get_models(
+        module=module,
+        system_IDs=system_IDs,
+        countries=countries,
+        country_specific_inputs=country_specific_inputs,
+        load_cached_data=False,
+        )
 
-    for model in (ngA, ngB):
-        samples = model.sample(N, seed=seed, rule='L')
-        model.load_samples(samples)
-    copy_samples(ngA, ngB)
-
-    country_folder = os.path.join(scores_path, country)
-    baseline_df, uncertainty_dct = simulate_module_models(country_folder, model_dct)
+    baseline_df, uncertainty_dct = simulate_module_models(
+        scores_path=scores_path,
+        model_dct=model_dct,
+        N=N,
+        seed=seed)
     return baseline_df, uncertainty_dct

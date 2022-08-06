@@ -20,7 +20,7 @@ from dmsan.biogenic_refinery import simulate_models
 import warnings
 warnings.filterwarnings(action='ignore')
 
-system_IDs = ('A', 'B')
+system_IDs = ('A', 'B',)
 countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
 N = 20
 seed = 3221
@@ -28,3 +28,11 @@ seed = 3221
 if __name__ == '__main__':
     baseline_df, uncertainty_dct = simulate_models(
         system_IDs=system_IDs, countries=countries, N=N, seed=seed)
+
+    # # To reload models
+    # from dmsan.biogenic_refinery import get_models
+    # model_dct = get_models(
+    #         system_IDs=system_IDs,
+    #         countries=countries,
+    #         load_cached_data=True,
+    #         )
