@@ -10,10 +10,19 @@ This module is developed by:
 '''
 
 import os, pandas as pd, qsdsan as qs
-from qsdsan.utils import load_pickle, save_pickle, time_printer
+from qsdsan.utils import (
+    copy_samples,
+    load_data,
+    load_pickle,
+    save_pickle,
+    time_printer,
+    )
+
 from . import path
 
 __all__ = (
+    'copy_samples_across_models',
+    'copy_samples_wthin_country',
     'get_baseline',
     'get_module_models',
     'get_uncertainties',
@@ -21,6 +30,52 @@ __all__ = (
     'init_modules',
     'simulate_module_models',
     )
+
+
+# %%
+
+def copy_samples_across_models(models):
+    '''
+    Ensure consistent values for the same parameter across models.
+
+    The idea is basically:
+
+        .. code::
+
+            copy_samples(modelA, modelB)
+
+            copy_samples(modelA, modelC)
+            copy_samples(modelB, modelC, exclude=modelA.parameters)
+
+            copy_samples(modelA, modelD)
+            copy_samples(modelB, modelD, exclude=modelA.parameters)
+            copy_samples(modelC, modelD, exclude=(*modelA.parameters, *modelB.parameters))
+
+            ...
+    '''
+    for i, model in enumerate(models[1:]):
+        copied = models[:i+1]
+        for j, original in enumerate(copied):
+            exclude = copied[:j]
+            copy_samples(original, model,
+                         exclude=sum([list(m.parameters) for m in exclude], []),
+                         only_same_baseline=True)
+
+            # # To see what's being copied and what's being excluded
+            # print('new: ', model.system.flowsheet.ID)
+            # print('original: ', original.system.flowsheet.ID)
+            # print('exclude: ', [m.system.flowsheet.ID for m in exclude], '\n\n')
+
+
+def copy_samples_wthin_country(model_dct):
+    '''Ensure consistent values for the same parameter across models for the same country.'''
+    country_model_dct = {}
+    for key, model in model_dct.items():
+        flowsheet_ID, country = key.split('-')
+        if not country in country_model_dct: country_model_dct[country] = {flowsheet_ID: model}
+        else: country_model_dct[country][flowsheet_ID] = model
+    for models in country_model_dct.values():
+        copy_samples_across_models(list(models.values()))
 
 
 # %%
@@ -33,9 +88,8 @@ def set_model_components(model):
     if cmps is not model.system.units[0].components:
         qs.set_thermo(model.system.units[0].components)
 
-def get_baseline(models, file_path=''):
+def get_baseline(model_dct, file_path=''):
     df = pd.DataFrame()
-    model_dct = models if isinstance(models, dict) else get_model_dct(models)
     for key, model in model_dct.items():
         set_model_components(model)
         df[key] = model.metrics_at_baseline()
@@ -48,31 +102,57 @@ def get_baseline(models, file_path=''):
 
 # %%
 
-def get_module_models(module, create_model_func, country, load_cached_data=False, sys_IDs=()):
+def get_module_models(module, create_country_specific_model_func,
+                      system_IDs=(),
+                      countries=(),
+                      country_specific_inputs=None,
+                      load_cached_data=False,):
     scores_path = os.path.join(path, f'{module}/scores')
-    model_path = os.path.join(scores_path, f'{country}/model_data.pckl')
-    models = [create_model_func(ID, country) for ID in sys_IDs]
+    model_data_path = os.path.join(scores_path, 'model_data.pckl')
+    model_dct = {}
+    for sys_ID in system_IDs:
+        for n, country in enumerate(countries):
+            try: country_data = country_specific_inputs.get(country)
+            except: country_data = None
+            kwargs = {
+                'ID': sys_ID,
+                'country': country,
+                'country_data': country_data,
+                }
+            if n == 0: # create the model
+                model = create_country_specific_model_func(**kwargs)
+            else: # reuse the model, just update parameters
+                kwargs['model'] = model
+                model = create_country_specific_model_func(**kwargs)
+            model_dct[f'{get_model_key(model)}-{country}'] = model
+
     if load_cached_data:
-        if not os.path.isfile(model_path):
+        if not os.path.isfile(model_data_path):
             raise FileNotFoundError(f'No existing model data found for module "{module}" '
                                     f'and country "{country}", '
                                     'please run the model and save the data first.')
-        data = load_pickle(model_path)
-        for model in models:
-            key = get_model_key(model)
-            model._samples = data['samples'][key]
-            model.table = data['tables'][key]
-    return get_model_dct(models)
+        data = load_pickle(model_data_path)
+        for key, model in model_dct.items():
+            model._samples, model.table = data[key].values()
+    return model_dct
 
 
 # %%
 
 @time_printer
-def get_uncertainties(models, country, pickle_path='', param_path='', result_path=''):
-    model_dct = models if isinstance(models, dict) else get_model_dct(models)
+def get_uncertainties(model_dct, N, seed=None,
+                      sample_hook_func=None, # function for sample processing
+                      pickle_path='', result_path=''):
+    for model in model_dct.values():
+        samples = model.sample(N=N, seed=seed, rule='L')
+        model.load_samples(samples)
+    if sample_hook_func: sample_hook_func(model_dct)
 
     uncertainty_dct = {}
     for key, model in model_dct.items():
+        flowsheet_ID, country = key.split('-')
+        key = f'{get_model_key(model)}-{country}'
+
         df = model.table
         param_col = [col for col in df.columns[0: len(model.parameters)]]
         uncertainty_dct[f'{key}-param'] = model.table[param_col]
@@ -84,38 +164,41 @@ def get_uncertainties(models, country, pickle_path='', param_path='', result_pat
         uncertainty_dct[f'{key}-results'] = \
             model.table.iloc[:, len(model.parameters):]
 
-    if param_path:
-        dfs = dict.fromkeys(model_dct.keys())
-        for key, model in model_dct.items():
-            df = pd.DataFrame()
-            parameters = [i for i in model.table.columns[:len(model.parameters)]]
-            parameters.sort(key=lambda i: i[0][-2:])
-            df['Parameters'] = parameters
-            df['DV'] = df['T'] = df['RR'] = df['Env'] = df['Econ'] = df['S'] = ''
-            dfs[key] = df
-
-        writer = pd.ExcelWriter(param_path)
-        for sys_ID, df in dfs.items():
-            df.to_excel(writer, sheet_name=sys_ID)
-        writer.save()
-
     if pickle_path:
         # Cannot just save the `Model` object as a pickle file
         # because it contains local functions
-        data = {
-            'country': country,
-            'samples': {get_model_key(model): model._samples for model in model_dct.values()},
-            'tables': {get_model_key(model): model.table for model in model_dct.values()},
-            }
+        data = {}
+        for key in uncertainty_dct.keys(): # brA-China-param, brA-China-results, etc.
+            model_dct_key, kind = '-'.join(key.split('-')[:-1]), key.split('-')[-1] # brA-China, param
+            if kind == 'param': continue # each model will appear twice, just need to save once
+            model = model_dct[model_dct_key]
+            data[model_dct_key] = {
+                'samples': model._samples,
+                'table': model.table
+                }
         save_pickle(data, pickle_path)
 
     if result_path:
         writer = pd.ExcelWriter(result_path)
-        for sys_ID, df in uncertainty_dct.items():
-            df.to_excel(writer, sheet_name=sys_ID)
+        for name, df in uncertainty_dct.items():
+            df.to_excel(writer, sheet_name=name)
         writer.save()
 
     return uncertainty_dct
+
+
+# %%
+
+def import_country_specifc_inputs(file_path, return_as_dct=True):
+    df = load_data(file_path)
+    if not return_as_dct: return df
+
+    data_dct = {}
+    for country in df.columns:
+        series = getattr(df, country)
+        data_dct[country] = {k: series[k] for k in series.index}
+
+    return data_dct
 
 
 # %%
@@ -159,32 +242,29 @@ def import_module_results(
 
 # %%
 
-def init_modules(module_name):
+def init_modules(module_name, include_data_path=False):
     module_path = os.path.join(path, module_name)
-    scores_path = os.path.join(module_path, 'scores')
-    results_path = os.path.join(module_path, 'results')
-    figures_path = os.path.join(module_path, 'figures')
-    for p in (scores_path, results_path, figures_path):
+    dirnames = ['scores', 'results', 'figures']
+    if include_data_path: dirnames.insert(0, 'data')
+    paths = []
+    for dirname in dirnames:
+        p = os.path.join(module_path, dirname)
+        paths.append(p)
         if not os.path.isdir(p): os.mkdir(p)
-    return scores_path, results_path, figures_path
+    return paths
 
 
 # %%
 
-def simulate_module_models(country_folder, model_dct):
-    country = os.path.split(country_folder)[-1]
-    # Create the folder if there isn't one already
-    if not os.path.isdir(country_folder): os.mkdir(country_folder)
-    baseline_path = os.path.join(country_folder, 'sys_baseline.tsv')
-    param_path = os.path.join(country_folder, 'parameters.xlsx')
-    pickle_path = os.path.join(country_folder, 'model_data.pckl')
-    uncertainty_path = os.path.join(country_folder, 'sys_uncertainties.xlsx')
-
-    print(f'\n\n Simulating for country: {country}')
-    baseline_df = get_baseline(models=model_dct, file_path=baseline_path)
-    uncertainty_dct = get_uncertainties(models=model_dct,
-                                        country=country,
-                                        param_path=param_path,
+def simulate_module_models(scores_path, model_dct, N, seed=None, sample_hook_func=None):
+    baseline_path = os.path.join(scores_path, 'simulated_baseline.tsv')
+    pickle_path = os.path.join(scores_path, 'model_data.pckl')
+    uncertainty_path = os.path.join(scores_path, 'simulated_uncertainties.xlsx')
+    baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
+    uncertainty_dct = get_uncertainties(model_dct=model_dct,
+                                        N=N,
+                                        seed=seed,
+                                        sample_hook_func=copy_samples_wthin_country,
                                         pickle_path=pickle_path,
                                         result_path=uncertainty_path)
     return baseline_df, uncertainty_dct

@@ -10,7 +10,7 @@ This module is developed by:
 
     Hannah Lohman <hlohman94@gmail.com>
 
-Run this module to save the results to the /results folder to avoid repeating
+Run this module to save the results to the /scores folder to avoid repeating
 simulating the system.
 '''
 

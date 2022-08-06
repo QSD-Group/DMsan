@@ -10,7 +10,7 @@ This module is developed by:
 
     Hannah Lohman <hlohman94@gmail.com>
 
-Run this module to save the results to the /results folder to avoid repeating
+Run this module to save the results to the /scores folder to avoid repeating
 simulating the system.
 '''
 
@@ -20,12 +20,11 @@ from dmsan.biogenic_refinery import simulate_models
 import warnings
 warnings.filterwarnings(action='ignore')
 
+system_IDs = ('A', 'B')
 countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
 N = 20
 seed = 3221
-baseline_dct = dict.fromkeys(countries)
-uncertainty_dct = dict.fromkeys(countries)
 
 if __name__ == '__main__':
-    for country in countries:
-        baseline_dct[country], uncertainty_dct[country] = simulate_models(country, N=N, seed=seed)
+    baseline_df, uncertainty_dct = simulate_models(
+        system_IDs=system_IDs, countries=countries, N=N, seed=seed)

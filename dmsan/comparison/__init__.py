@@ -37,7 +37,7 @@ __all__ = (
     )
 
 module = os.path.split(os.path.dirname(__file__))[-1]
-scores_path, results_path, figures_path = init_modules(module)
+data_path, scores_path, results_path, figures_path = init_modules(module, include_data_path=True)
 
 
 def get_models(country, module=module, load_cached_data=False):
@@ -98,7 +98,7 @@ def simulate_models(country, N, seed=None, module=module):
                          exclude=sum([list(m.parameters) for m in exclude], []),
                          only_same_baseline=True)
 
-            # # To see what's being copied and what's being exclded
+            # # To see what's being copied and what's being excluded
             # print('new: ', model.system.flowsheet.ID)
             # print('original: ', original.system.flowsheet.ID)
             # print('exclude: ', [m.system.flowsheet.ID for m in exclude], '\n\n')
