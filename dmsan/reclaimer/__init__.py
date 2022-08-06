@@ -78,7 +78,7 @@ def simulate_models(
         seed=None,
         module=module,
         system_IDs=system_IDs,
-        country_specific_inputs=None
+        country_specific_inputs=None,
         ):
     model_dct = get_models(
         module=module,

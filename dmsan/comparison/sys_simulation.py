@@ -21,14 +21,13 @@ warnings.filterwarnings(action='ignore')
 countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
 N = 20
 seed = 3221
-baseline_dct = dict.fromkeys(countries)
-uncertainty_dct = dict.fromkeys(countries)
-
-# # If want to ensure consistent parameter values across the different systems
-# # for a particular country
-# from dmsan.biogenic_refinery import get_models
-# model_dct = get_models(system_IDs=system_IDs, countries=countries,load_cached_data=False,)
 
 if __name__ == '__main__':
-    for country in countries:
-        baseline_dct[country], uncertainty_dct[country] = simulate_models(country, N=N, seed=seed)
+    baseline_df, uncertainty_dct = simulate_models(countries=countries, N=N, seed=seed)
+
+    # # To reload models
+    # from dmsan.comparison import get_models
+    # model_dct = get_models(
+    #         countries=countries,
+    #         load_cached_data=True,
+    #         )
