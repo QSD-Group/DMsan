@@ -100,7 +100,7 @@ def plot_solid_color(winner_df):
     figs = []
     axes = []
 
-    # Include following code if I want all one color
+    # Include the following codes if want to use one color
     colors = ( # for A, B, and C
         (0.133, 0.165, 0.208, 1),  # last one is alpha (1 means no transparency)
         (0.133, 0.165, 0.208, 1),  # (34/255, 42/255, 53/255, 1)
@@ -113,7 +113,8 @@ def plot_solid_color(winner_df):
         figs.append(fig)
         axes.append(ax)
 
-    # Include following code if I want Red, Green, Blue graphs
+    # # Include the following code if want to have different colors
+    # # for different alternatives
     # for alt, wt, cmap in zip(alts, wts, ('Reds', 'Greens', 'Blues')):
     #     fig, ax = plt.subplots(figsize=(8, 4.5))
     #     ax.plot(wt.transpose(), color=getattr(pl.cm, cmap)(225),
@@ -185,6 +186,7 @@ if __name__ == '__main__':
 # %%
 
 # # =============================================================================
+# # DO NOT DELETE
 # # Legacy code to use different colors for winning chance below different cutoffs
 # # =============================================================================
 

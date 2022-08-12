@@ -87,8 +87,8 @@ class AHP:
                 14: 1.57,
                 15: 1.58,
                 }
-        if random_index:
-            self.random_index.update(random_index)
+        else: self.random_index.update(random_index)
+
         # Set initial weights (i.e., indicator contextual drivers) for different criteria
         self._init_weights = self._get_default_init_weights()
         self.init_weights = init_weights
@@ -273,11 +273,11 @@ class AHP:
         RIs = self.random_index
         norm_weights = self.norm_weights = {} # sub-criteria weights
         CRs = self.CRs = {} # consistency ratio
-        if not init_weights:
-            init_weights_df = self.init_weights_df
-        if isinstance(init_weights, dict) or init_weights is None:
-            self.update_init_weights(init_weights)
-            init_weights_df = self.init_weights_df
+
+        if not init_weights: init_weights_df = self.init_weights_df
+        elif (isinstance(init_weights, dict) or init_weights is None):
+                self.update_init_weights(init_weights)
+                init_weights_df = self.init_weights_df
         else: # assume to be a DataFrame
             init_weights_df = init_weights
 
@@ -323,7 +323,7 @@ class AHP:
             # Step 5d: Find the consistency ratio (CR) by dividing CI by RI,
             # if CR < 0.1 then our matrix is consistent
             CR = CI/RI
-            if not CR <= 0.1:
+            if not CR <= 0.1 and not np.isnan(CR): # if weight is 0, then it returns nan
                 warn(f'The calculated consistency ratio is {CR} '
                      f'for the category {cat}, please double-check weights assignment.')
             CRs[cat] = CR

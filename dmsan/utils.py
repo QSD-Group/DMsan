@@ -71,7 +71,7 @@ def copy_samples_wthin_country(model_dct):
     '''Ensure consistent values for the same parameter across models for the same country.'''
     country_model_dct = {}
     for key, model in model_dct.items():
-        flowsheet_ID, country = key.split('-')
+        flowsheet_ID, country = key.split('_')
         if not country in country_model_dct: country_model_dct[country] = {flowsheet_ID: model}
         else: country_model_dct[country][flowsheet_ID] = model
     for models in country_model_dct.values():
@@ -124,7 +124,7 @@ def get_module_models(module, create_country_specific_model_func,
             else: # reuse the model, just update parameters
                 kwargs['model'] = model
                 model = create_country_specific_model_func(**kwargs)
-            model_dct[f'{get_model_key(model)}-{country}'] = model
+            model_dct[f'{get_model_key(model)}_{country}'] = model
 
     if load_cached_data:
         if not os.path.isfile(model_data_path):
@@ -150,27 +150,27 @@ def get_uncertainties(model_dct, N, seed=None,
 
     uncertainty_dct = {}
     for key, model in model_dct.items():
-        flowsheet_ID, country = key.split('-')
-        key = f'{get_model_key(model)}-{country}'
+        flowsheet_ID, country = key.split('_')
+        key = f'{get_model_key(model)}_{country}'
 
         df = model.table
         param_col = [col for col in df.columns[0: len(model.parameters)]]
-        uncertainty_dct[f'{key}-param'] = model.table[param_col]
+        uncertainty_dct[f'{key}_params'] = model.table[param_col]
 
         print(f'uncertainties for model: {key}')
         set_model_components(model)
         model.evaluate()
 
-        uncertainty_dct[f'{key}-results'] = \
+        uncertainty_dct[f'{key}_results'] = \
             model.table.iloc[:, len(model.parameters):]
 
     if pickle_path:
         # Cannot just save the `Model` object as a pickle file
         # because it contains local functions
         data = {}
-        for key in uncertainty_dct.keys(): # brA-China-param, brA-China-results, etc.
-            model_dct_key, kind = '-'.join(key.split('-')[:-1]), key.split('-')[-1] # brA-China, param
-            if kind == 'param': continue # each model will appear twice, just need to save once
+        for key in uncertainty_dct.keys(): # brA_China_param, brA_China_results, etc.
+            model_dct_key, kind = '_'.join(key.split('_')[:-1]), key.split('_')[-1] # brA_China, params
+            if kind == 'params': continue # each model will appear twice, just need to save once
             model = model_dct[model_dct_key]
             data[model_dct_key] = {
                 'samples': model._samples,
@@ -206,7 +206,7 @@ def import_country_specifc_inputs(file_path, return_as_dct=True):
 def import_module_results(
         path, parameters=False, indicator_scores=False,
         ahp=False, mcda=False, uncertainty=False, sensitivity=None):
-    loaded = dict.fromkeys(('param', 'tech_score', 'ahp', 'mcda',
+    loaded = dict.fromkeys(('params', 'tech_score', 'ahp', 'mcda',
                             'uncertainty', 'sensitivity'))
 
     if parameters:
