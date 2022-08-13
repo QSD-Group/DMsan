@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-@authors:
+
+'''
+DMsan: Decision-making for sanitation and resource recovery systems
+
+This module is developed by:
+
     Yalin Li <mailto.yalin.li@gmail.com>
+
     Tori Morgan <vlmorgan@illinois.edu>
+
     Hannah Lohman <hlohman94@gmail.com>
+
     Stetson Rowles <stetsonsc@gmail.com>
 
-This module is used to import data on indicator contextual drivers from the country-specific database.
-"""
+This module is under the University of Illinois/NCSA Open Source License.
+Please refer to https://github.com/QSD-Group/DMsan/blob/main/LICENSE.txt
+for license details.
+'''
 
 
 # %%

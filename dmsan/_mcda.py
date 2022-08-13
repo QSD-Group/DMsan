@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-@authors:
+
+'''
+DMsan: Decision-making for sanitation and resource recovery systems
+
+This module is developed by:
+
     Yalin Li <mailto.yalin.li@gmail.com>
+
     Tori Morgan <vlmorgan@illinois.edu>
+
     Hannah Lohman <hlohman94@gmail.com>
+
     Stetson Rowles <stetsonsc@gmail.com>
 
-This module is used to perform calculate performance score and global sensitivity analysis.
-"""
+This module is under the University of Illinois/NCSA Open Source License.
+Please refer to https://github.com/QSD-Group/DMsan/blob/main/LICENSE.txt
+for license details.
+'''
+
 
 # %%
 
-import os
-import numpy as np
-import pandas as pd
+import os, numpy as np, pandas as pd
 from scipy import stats
 from matplotlib import pyplot as plt
 from qsdsan.utils import time_printer
@@ -439,7 +447,7 @@ class MCDA:
             .. note::
                 If running KS test, then input_y should be the ranks (i.e., not scores),
                 the x inputs will be divided into two groups - ones that results in
-                a given alternative to be ranked first vs. the rest.
+                a given alternative to be ranked first vs. not the first.
 
         nan_policy : str
             - "propagate": returns nan.
@@ -457,7 +465,7 @@ class MCDA:
 
         Returns
         -------
-        Two :class:`pandas.DataFrame` containing the test statistics and p-values.
+        :class:`pandas.DataFrame` containing the sensitivity indices and p-values.
 
         See Also
         --------
@@ -469,10 +477,6 @@ class MCDA:
 
         :func:`scipy.stats.kstest`
         '''
-        df = pd.DataFrame(input_x.columns,
-                          columns=pd.MultiIndex.from_arrays([('',), ('Parameter',)],
-                                                            names=('Y', 'Stats')))
-
         name = kind.lower()
         if name == 'spearman':
             func = stats.spearmanr
@@ -499,28 +503,49 @@ class MCDA:
             raise ValueError('kind can only be "Spearman", "Pearson", '
                              f'or "Kendall", not "{kind}".')
 
-        for col_y in input_y.columns:
-            if name == 'ks':
-                y = input_y[col_y]
-                i_win, i_lose = input_x.loc[y == 1], input_x.loc[y != 1]
+        X = np.array(input_x)
+        X = X.reshape((X.shape[0], 1)) if len(X.shape) == 1 else X
+        XT = X.T
+        cols_x = input_x.columns if hasattr(input_x, 'columns') else range(X.shape[1])
+        Y = np.array(input_y)
+        Y = Y.reshape((Y.shape[0], 1)) if len(Y.shape) == 1 else Y
+        YT = Y.T
+        cols_y = input_y.columns if hasattr(input_y, 'columns') else range(Y.shape[1])
 
+        # Results, the shape is
+        # the num of parameters, 2 (indices & p)*num of y inputs
+        if name != 'ks':
+            results = np.concatenate([
+                np.array([func(x, y, **kwargs) for x in XT])
+                for y in YT
+                ])
+        else:
+            num_param = X.shape[1]
+            results = []
+            for y in YT:
+                i_win, i_lose = X[y==1], X[y!=1]
                 if len(i_win) == 0 or len(i_lose) == 0:
-                    df[(col_y, stats_name)] = df[(col_y, 'p-value')] = None
-                    continue
-
+                    result = np.full((num_param, 2), None)
                 else:
-                    data = np.array([func(i_win.loc[:, col_x], i_lose.loc[:, col_x],
-                                          alternative=alternative, mode=mode, **kwargs)
-                                     for col_x in input_x.columns])
-            else:
-                data = np.array([func(input_x[col_x], input_y[col_y], **kwargs)
-                                 for col_x in input_x.columns])
+                    i_winT = i_win.T
+                    i_loseT = i_lose.T
+                    result = np.array([
+                        func(i_winT[n], i_loseT[n], alternative=alternative, mode=mode, **kwargs)
+                        for n in range(i_winT.shape[0])
+                        ])
+                results.append(result)
+            results = np.concatenate(results, axis=1)
 
-            df[(col_y, stats_name)] = data[:, 0]
-            df[(col_y, 'p-value')] = data[:, 1]
+        # Parameter names
+        columns0 = pd.MultiIndex.from_arrays([('',), ('Parameter',)], names=('Y', 'Stats'))
+        df0 = pd.DataFrame(data=cols_x, columns=columns0)
+        # Result header
+        columns1 = pd.MultiIndex.from_product((cols_y, (stats_name, 'p-value')))
+        df1 = pd.DataFrame(data=results, columns=columns1)
+        df = pd.concat((df0, df1), axis=1)
 
-        if file_path:
-            df.to_csv(file_path, sep='\t')
+        if file_path: df.to_csv(file_path)
+
         return df
 
     @property
@@ -558,15 +583,12 @@ class MCDA:
         self._indicator_scores = i
         self.run_MCDA()
 
-    #!!! This needs double-checking to consider indicator types and negatives
     @property
     def normalized_indicator_scores(self):
         '''[:class:`pandas.DataFrame`] Indicator scores normalized based on their scales.'''
         if self._normalized_indicator_scores is None:
-            try:
-                self.run_MCDA()
-            except:
-                pass
+            try: self.run_MCDA()
+            except: pass
         return self._normalized_indicator_scores
 
     @property

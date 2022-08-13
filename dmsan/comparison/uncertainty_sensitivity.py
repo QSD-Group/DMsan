@@ -10,6 +10,10 @@ This module is developed by:
 
     Hannah Lohman <hlohman94@gmail.com>
 
+This module is under the University of Illinois/NCSA Open Source License.
+Please refer to https://github.com/QSD-Group/DMsan/blob/main/LICENSE.txt
+for license details.
+
 Run this module for uncertainty and sensitivity analyses.
 
 Two layers of uncertainties are considered in the final performance score:
@@ -185,7 +189,7 @@ def run_analyses(weight_df=None):
     weight_path = os.path.join(results_path, f'criterion_weights_{wt_scenario_num}.xlsx')
     weight_df.to_excel(weight_path, sheet_name='Criterion weights')
     file_path = os.path.join(figures_path, f'criterion_weights_{wt_scenario_num}.png')
-    MCDA.plot_criterion_weight_fig(weight_df, path=file_path)
+    MCDA.plot_criterion_weight_fig(weight_df, path=file_path, color='k')
 
     for country in countries:
         print(f'\nRunning analyses for country: {country}.')
@@ -237,18 +241,27 @@ def run_analyses(weight_df=None):
         mcda_uncertainty['winner_df'] = winner_df
 
         # #!!! TO BE DISCUSSED - DOES THIS SENSITIVITY MAKE SENSE?
-        # ##### Performance score sensitivity #####
-        # uncertainty_params = compile_uncertainty_data(country, 'params')
-        # spearman_dct = {}
-        # for wt, scores in score_df_dct.items():
-        #     spearman_dct[wt] = {}
-        #     for alt in alt_names:
-        #         spearman_dct[wt][alt] = mcda.correlation_test(
-        #             input_x=uncertainty_params.filter(regex=alt),
-        #             input_y=getattr(scores, alt).to_frame(),
-        #             kind='Spearman',
-        #             )
-        # mcda_uncertainty['spearman_dct'] = spearman_dct
+        ##### Performance score sensitivity #####
+        uncertainty_params = compile_uncertainty_data(country, 'params')
+        spearman_dct = {}
+
+        for alt in alt_names:
+            lst = []
+            for wt, scores in score_df_dct.items():
+                lst.append(
+                    mcda.correlation_test(
+                        input_x=uncertainty_params.filter(regex=alt),
+                        input_y=getattr(scores, alt),
+                        kind='Spearman',
+                    ))
+            params = lst[0].loc[:, ('', 'Parameter')]
+            df0 = params.to_frame(name='Parameter')
+            rhos = [df.loc[:, (0, 'rho')] for df in lst]
+            df1 = pd.concat(rhos, axis=1)
+            df1.columns = weight_df.Names
+            df = pd.concat(([df0, df1]), axis=1)
+            spearman_dct[alt] = df
+        mcda_uncertainty['spearman_dct'] = spearman_dct
 
         ##### Cache results #####
         data[country] = {'baseline': mcda_baseline, 'uncertainty': mcda_uncertainty}
@@ -268,9 +281,9 @@ def run_analyses(weight_df=None):
             mcda_baseline['performance scores'].to_excel(writer, sheet_name=f'{country}_score')
             mcda_baseline['performance ranks'].to_excel(writer, sheet_name=f'{country}_rank')
 
-        weight_df = pd.concat(weights)
-        weight_df.index = countries
-        weight_df.to_csv(os.path.join(results_path, 'baseline_indicator_weights.csv'))
+        compiled_df = pd.concat(weights)
+        compiled_df.index = countries
+        compiled_df.to_csv(os.path.join(results_path, 'baseline_indicator_weights.csv'))
 
     uncertainty_winner_path = os.path.join(results_path, 'uncertainty_winners.xlsx')
     with pd.ExcelWriter(uncertainty_winner_path) as writer:
@@ -278,14 +291,13 @@ def run_analyses(weight_df=None):
             data[country]['uncertainty']['winner_df'].to_excel(writer, sheet_name=f'{country}')
 
     # #!!! TO BE DISCUSSED - DOES THIS SENSITIVITY MAKE SENSE?
-    # for alt in alt_names:
-    #     df = weight_df.Names.to_frame()
-    #     df.columns = ['Weights']
-    #     for wt in df.Weights:
-    #         df = pd.concat([data[country]['spearman_dct'][wt][alt] for country in countries])
-
-    # spearman_path = os.path.join(results_path, 'spearman.xlsx')
-    # with pd.ExcelWriter(spearman_path) as writer:
+    spearman_path = os.path.join(results_path, 'spearman.xlsx')
+    with pd.ExcelWriter(spearman_path) as writer:
+        for country, country_data in data.items():
+            uncertainty_data = country_data['uncertainty']
+            spearman_dct = uncertainty_data['spearman_dct']
+            for alt, df in spearman_dct.items():
+                df.to_excel(writer, sheet_name=f'{alt}_{country}')
 
     save_pickle(data, os.path.join(results_path, 'data.pckl'))
 

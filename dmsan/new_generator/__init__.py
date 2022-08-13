@@ -9,6 +9,10 @@ This module is developed by:
     Yalin Li <mailto.yalin.li@gmail.com>
 
     Hannah Lohman <hlohman94@gmail.com>
+
+This module is under the University of Illinois/NCSA Open Source License.
+Please refer to https://github.com/QSD-Group/DMsan/blob/main/LICENSE.txt
+for license details.
 '''
 
 import os
