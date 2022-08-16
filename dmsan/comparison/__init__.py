@@ -55,7 +55,7 @@ def get_models(
         load_cached_data=load_cached_data,
         )
 
-    try:
+    try: # check if has access to the private repository
         from exposan.new_generator import create_country_specific_model as create_ng_model
         model_dct.update(get_module_models(
             module=module,
