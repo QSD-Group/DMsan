@@ -68,7 +68,7 @@ def get_models(
     except ModuleNotFoundError:
         from warnings import warn
         warn('Simulation for the NEWgenerator system (under non-disclosure agreement) is skipped, '
-             'please set path to use the EXPOsan-private if you have access.')
+             'please set path to use the EXPOsan-private repository if you have access.')
 
     from exposan.reclaimer import create_country_specific_model as create_re_model
     model_dct.update(get_module_models(
