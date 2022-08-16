@@ -21,9 +21,6 @@ from dmsan.utils import (
     init_modules,
     simulate_module_models,
     )
-from exposan.biogenic_refinery import create_country_specific_model as create_br_model
-from exposan.new_generator import create_country_specific_model as create_ng_model
-from exposan.reclaimer import create_country_specific_model as create_re_model
 
 __all__ = (
     'scores_path',
@@ -47,6 +44,8 @@ def get_models(
         country_specific_inputs=country_specific_inputs,
         load_cached_data=False,
         ):
+
+    from exposan.biogenic_refinery import create_country_specific_model as create_br_model
     model_dct = get_module_models(
         module=module,
         create_country_specific_model_func=create_br_model,
@@ -55,14 +54,23 @@ def get_models(
         country_specific_inputs=country_specific_inputs,
         load_cached_data=load_cached_data,
         )
-    model_dct.update(get_module_models(
-        module=module,
-        create_country_specific_model_func=create_ng_model,
-        system_IDs=('A', 'B'),
-        countries=countries,
-        country_specific_inputs=country_specific_inputs,
-        load_cached_data=load_cached_data,
-        ))
+
+    try:
+        from exposan.new_generator import create_country_specific_model as create_ng_model
+        model_dct.update(get_module_models(
+            module=module,
+            create_country_specific_model_func=create_ng_model,
+            system_IDs=('A', 'B'),
+            countries=countries,
+            country_specific_inputs=country_specific_inputs,
+            load_cached_data=load_cached_data,
+            ))
+    except ModuleNotFoundError:
+        from warnings import warn
+        warn('Simulation for the NEWgenerator system (under non-disclosure agreement) is skipped, '
+             'please set path to use the EXPOsan-private if you have access.')
+
+    from exposan.reclaimer import create_country_specific_model as create_re_model
     model_dct.update(get_module_models(
         module=module,
         create_country_specific_model_func=create_re_model,
