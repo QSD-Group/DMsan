@@ -54,7 +54,7 @@ def plot_winner(winner_df):
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
     colors = ( # for A, B, and C
-        (0.635, 0.502, 0.725, 1), # last one is alpha (1 means no transparency)
+        (0.635, 0.502, 0.725, 1), # the last one is alpha (1 means no transparency)
         (0.376, 0.757, 0.812, 1),
         (0.929, 0.345, 0.435, 1),
         )
