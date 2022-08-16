@@ -227,7 +227,7 @@ class MCDA:
         return returned
 
     def _run_TOPSIS(self, **kwargs):
-        cr_wt = self.criterion_weights
+        cr_wt = self.criterion_weights.copy() # make a copy to avoid modifying the original
         # For indicator types, 0 is non-beneficial (want low value) and 1 is beneficial
         ind_type = self.indicator_type.values
         rev_ind_type = np.ones_like(ind_type) - ind_type
@@ -373,15 +373,14 @@ class MCDA:
             ranks.append(rank_df)
             winners.append(winner_df)
 
-        cr_wt['Names'] = cr_wt.values.tolist()
-        cr_wt.Names = cr_wt.Names.apply(
-            lambda i: ':'.join(str(i).strip('[]').split(', ')))
+        weights = cr_wt.values.tolist()
+        weights = [':'.join(str(weight).strip('[]').split(', ')) for weight in weights]
 
         num_ind = len(ind_score_dct)
         score_df_dct, rank_df_dct, winner_df_dct = {}, {}, {}
         num_range = range(num_ind)
         idx = pd.MultiIndex.from_product((num_range, self.alt_names.values))
-        for n, name in cr_wt.Names.iteritems():
+        for n, name in enumerate(weights):
             score_df = pd.concat([scores[i].iloc[n] for i in num_range])
             score_df.index = idx
             score_df = score_df.unstack()

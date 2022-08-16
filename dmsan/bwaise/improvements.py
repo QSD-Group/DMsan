@@ -26,8 +26,7 @@ mpl.rcParams["figure.autolayout"] = True
 from matplotlib.collections import LineCollection
 from qsdsan.utils import time_printer, colors, save_pickle
 from dmsan.bwaise import results_path, figures_path, import_mcda_results_from_pickle
-from dmsan.bwaise.uncertainty_sensitivity import \
-    criterion_num, wt_scenario_num as sce_num1
+from dmsan.bwaise.mcda import criterion_num, wt_scenario_num as sce_num1
 
 
 
