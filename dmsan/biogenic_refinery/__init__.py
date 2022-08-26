@@ -19,7 +19,6 @@ import os
 from exposan.biogenic_refinery import create_country_specific_model
 from dmsan.utils import (
     get_module_models,
-    import_module_results,
     init_modules,
     simulate_module_models,
     )
@@ -55,27 +54,6 @@ def get_models(
     return model_dct
 
 
-def import_results(
-        country,
-        parameters=False,
-        indicator_scores=False,
-        ahp=False,
-        mcda=False,
-        uncertainty=False,
-        sensitivity=None
-        ):
-    path = os.path.join(results_path, country)
-    return import_module_results(
-            path,
-            parameters=parameters,
-            indicator_scores=indicator_scores,
-            ahp=ahp,
-            mcda=mcda,
-            uncertainty=uncertainty,
-            sensitivity=sensitivity,
-            )
-
-
 def simulate_models(
         countries,
         N,
@@ -91,10 +69,9 @@ def simulate_models(
         country_specific_inputs=country_specific_inputs,
         load_cached_data=False,
         )
-
-    baseline_df, uncertainty_dct = simulate_module_models(
+    return simulate_module_models(
         scores_path=scores_path,
         model_dct=model_dct,
         N=N,
-        seed=seed)
-    return baseline_df, uncertainty_dct
+        seed=seed
+        )

@@ -30,7 +30,7 @@ N = 20
 seed = 3221
 
 if __name__ == '__main__':
-    baseline_df, uncertainty_dct = simulate_models(
+    baseline_df, uncertainty_dct, spearman_dct = simulate_models(
         system_IDs=system_IDs, countries=countries, N=N, seed=seed)
 
     # # To reload models

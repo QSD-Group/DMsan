@@ -29,8 +29,8 @@ __all__ = (
     'copy_samples_wthin_country',
     'get_baseline',
     'get_module_models',
+    'get_spearman',
     'get_uncertainties',
-    'import_module_results',
     'init_modules',
     'simulate_module_models',
     )
@@ -143,10 +143,33 @@ def get_module_models(module, create_country_specific_model_func,
 
 # %%
 
+# Not in the pickle file as it's easy to reproduce once have the model
+@time_printer
+def get_spearman(model_dct, spearman_path=''):
+    spearman_dct = {}
+    for key, model in model_dct.items():
+        flowsheet_ID, country = key.split('_')
+        rho, p = model.spearman_r()
+        spearman_dct[key] = rho
+
+    if spearman_path:
+        writer = pd.ExcelWriter(spearman_path)
+        for name, df in spearman_dct.items():
+            df.to_excel(writer, sheet_name=name)
+        writer.save()
+
+    return spearman_path
+
+
+# %%
+
 @time_printer
 def get_uncertainties(model_dct, N, seed=None,
                       sample_hook_func=None, # function for sample processing
-                      pickle_path='', result_path=''):
+                      pickle_path='',
+                      uncertainty_path='',
+                      return_model_dct=False,
+                      ):
     for model in model_dct.values():
         samples = model.sample(N=N, seed=seed, rule='L')
         model.load_samples(samples)
@@ -182,12 +205,13 @@ def get_uncertainties(model_dct, N, seed=None,
                 }
         save_pickle(data, pickle_path)
 
-    if result_path:
-        writer = pd.ExcelWriter(result_path)
+    if uncertainty_path:
+        writer = pd.ExcelWriter(uncertainty_path)
         for name, df in uncertainty_dct.items():
             df.to_excel(writer, sheet_name=name)
         writer.save()
 
+    if return_model_dct: return uncertainty_dct, model_dct
     return uncertainty_dct
 
 
@@ -203,45 +227,6 @@ def import_country_specifc_inputs(file_path, return_as_dct=True):
         data_dct[country] = {k: series[k] for k in series.index}
 
     return data_dct
-
-
-# %%
-
-def import_module_results(
-        path, parameters=False, indicator_scores=False,
-        ahp=False, mcda=False, uncertainty=False, sensitivity=None):
-    loaded = dict.fromkeys(('params', 'tech_score', 'ahp', 'mcda',
-                            'uncertainty', 'sensitivity'))
-
-    if parameters:
-        file_path = os.path.join(path, 'parameters.pckl')
-        loaded['parameters'] = load_pickle(file_path)
-
-    if indicator_scores:
-        file_path = os.path.join(path, 'indicator_scores.pckl')
-        loaded['indicator_scores'] = load_pickle(file_path)
-
-    if ahp:
-        file_path = os.path.join(path, 'ahp.pckl')
-        loaded['ahp'] = load_pickle(file_path)
-
-    if mcda:
-        file_path = os.path.join(path, 'mcda.pckl')
-        loaded['mcda'] = load_pickle(file_path)
-
-    if uncertainty:
-        file_path = os.path.join(path, 'uncertainty/performance_uncertainties.pckl')
-        loaded['uncertainty'] = load_pickle(file_path)
-
-    if sensitivity:
-        file_path = os.path.join(path, f'sensitivity/performance_{sensitivity}_ranks.pckl')
-        loaded['sensitivity'] = [load_pickle(file_path)]
-
-        if sensitivity != 'KS':
-            file_path = os.path.join(path, f'sensitivity/AHP_TOPSIS_{sensitivity}_scores.xlsx')
-            loaded['sensitivity'].append(load_pickle(file_path))
-
-    return loaded
 
 
 # %%
@@ -262,13 +247,20 @@ def init_modules(module_name, include_data_path=False):
 
 def simulate_module_models(scores_path, model_dct, N, seed=None, sample_hook_func=None):
     baseline_path = os.path.join(scores_path, 'simulated_baseline.csv')
+    baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
+
     pickle_path = os.path.join(scores_path, 'model_data.pckl')
     uncertainty_path = os.path.join(scores_path, 'simulated_uncertainties.xlsx')
-    baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
-    uncertainty_dct = get_uncertainties(model_dct=model_dct,
-                                        N=N,
-                                        seed=seed,
-                                        sample_hook_func=copy_samples_wthin_country,
-                                        pickle_path=pickle_path,
-                                        result_path=uncertainty_path)
-    return baseline_df, uncertainty_dct
+    uncertainty_dct, model_dct = get_uncertainties(
+        model_dct=model_dct,
+        N=N,
+        seed=seed,
+        sample_hook_func=copy_samples_wthin_country,
+        pickle_path=pickle_path,
+        uncertainty_path=uncertainty_path,
+        return_model_dct=True,
+        )
+
+    spearman_path = os.path.join(scores_path, 'spearman.xlsx')
+    spearman_dct = get_spearman(model_dct, spearman_path=spearman_path)
+    return baseline_df, uncertainty_dct, spearman_dct

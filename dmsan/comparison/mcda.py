@@ -249,28 +249,28 @@ def run_analyses(weight_df=None):
         winner_df.index = uncertainty_ind_scores.index
         mcda_uncertainty['winner_df'] = winner_df
 
-        # #!!! TO BE DISCUSSED - DOES THIS SENSITIVITY MAKE SENSE?
-        ##### Performance score sensitivity #####
-        uncertainty_params = compile_uncertainty_data(country, 'params')
-        spearman_dct = {}
+        # # DO NOT DELETE
+        # ##### Performance score sensitivity #####
+        # uncertainty_params = compile_uncertainty_data(country, 'params')
+        # spearman_dct = {}
 
-        for alt in alt_names:
-            lst = []
-            for wt, scores in score_df_dct.items():
-                lst.append(
-                    mcda.correlation_test(
-                        input_x=uncertainty_params.filter(regex=alt),
-                        input_y=getattr(scores, alt),
-                        kind='Spearman',
-                    ))
-            params = lst[0].loc[:, ('', 'Parameter')]
-            df0 = params.to_frame(name='Parameter')
-            rhos = [df.loc[:, (0, 'rho')] for df in lst]
-            df1 = pd.concat(rhos, axis=1)
-            df1.columns = cr_weights
-            df = pd.concat(([df0, df1]), axis=1)
-            spearman_dct[alt] = df
-        mcda_uncertainty['spearman_dct'] = spearman_dct
+        # for alt in alt_names:
+        #     lst = []
+        #     for wt, scores in score_df_dct.items():
+        #         lst.append(
+        #             mcda.correlation_test(
+        #                 input_x=uncertainty_params.filter(regex=alt),
+        #                 input_y=getattr(scores, alt),
+        #                 kind='Spearman',
+        #             ))
+        #     params = lst[0].loc[:, ('', 'Parameter')]
+        #     df0 = params.to_frame(name='Parameter')
+        #     rhos = [df.loc[:, (0, 'rho')] for df in lst]
+        #     df1 = pd.concat(rhos, axis=1)
+        #     df1.columns = cr_weights
+        #     df = pd.concat(([df0, df1]), axis=1)
+        #     spearman_dct[alt] = df
+        # mcda_uncertainty['spearman_dct'] = spearman_dct
 
         ##### Cache results #####
         data[country] = {'baseline': mcda_baseline, 'uncertainty': mcda_uncertainty}
@@ -299,14 +299,14 @@ def run_analyses(weight_df=None):
         for country in countries:
             data[country]['uncertainty']['winner_df'].to_excel(writer, sheet_name=f'{country}')
 
-    # #!!! TO BE DISCUSSED - DOES THIS SENSITIVITY MAKE SENSE?
-    spearman_path = os.path.join(results_path, 'spearman.xlsx')
-    with pd.ExcelWriter(spearman_path) as writer:
-        for country, country_data in data.items():
-            uncertainty_data = country_data['uncertainty']
-            spearman_dct = uncertainty_data['spearman_dct']
-            for alt, df in spearman_dct.items():
-                df.to_excel(writer, sheet_name=f'{alt}_{country}')
+    # # DO NOT DELETE
+    # spearman_path = os.path.join(results_path, 'spearman.xlsx')
+    # with pd.ExcelWriter(spearman_path) as writer:
+    #     for country, country_data in data.items():
+    #         uncertainty_data = country_data['uncertainty']
+    #         spearman_dct = uncertainty_data['spearman_dct']
+    #         for alt, df in spearman_dct.items():
+    #             df.to_excel(writer, sheet_name=f'{alt}_{country}')
 
     save_pickle(data, os.path.join(results_path, 'data.pckl'))
 
