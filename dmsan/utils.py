@@ -53,7 +53,7 @@ def copy_samples_across_models(models):
 
             copy_samples(modelA, modelD)
             copy_samples(modelB, modelD, exclude=modelA.parameters)
-            copy_samples(modelC, modelD, exclude=(*modelA.parameters, *modelB.parameters))
+            copy_samples(modelC, modelD, exclude=(*modelA.parameters, *modelB.parameters)
 
             ...
     '''

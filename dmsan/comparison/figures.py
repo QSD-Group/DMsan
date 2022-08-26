@@ -82,7 +82,7 @@ def make_linegraphs(data, save=True):
     for country, country_data in data.items():
         uncertainty_data = country_data['uncertainty']
         winner_dfT = uncertainty_data['winner_df'].T.copy() # columns are the global weight scenarios
-        modules = uncertainty_data['spearman_dct'].keys()
+        modules = uncertainty_data['ind_score_dct'][0].index
         for module in modules:
             winner_dfT[module] = winner_dfT[winner_dfT==module].count(axis=1)
 

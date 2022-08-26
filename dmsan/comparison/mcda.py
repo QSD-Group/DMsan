@@ -38,6 +38,8 @@ rng = np.random.default_rng(3221)  # set random number generator for reproducibl
 criterion_num = 5  # number of criteria
 wt_scenario_num = 100  # number of criterion weights considered
 
+mcda_countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
+
 
 # %%
 
@@ -49,7 +51,7 @@ col_names = {
     'N': ('N recovery', 'Total N [% N]'),
     'P': ('P recovery', 'Total P [% P]'),
     'K': ('K recovery', 'Total K [% K]'),
-    'Energy': ('N recovery', 'Total N [% N]'), #!!! placeholder for now
+    # 'Energy': (), # no system can recovery energy for external usage
     'Ecosystems': ('LCA results', 'H_Ecosystems [points/cap/yr]'),
     'Health': ('LCA results', 'H_Health [points/cap/yr]'),
     'Resources': ('LCA results', 'H_Resources [points/cap/yr]'),
@@ -58,7 +60,7 @@ col_names = {
 num_simulated_ind = len(col_names)
 
 alt_col_names = [
-    *[f'RR{i}' for i in range(2, 6)],
+    *[f'RR{i}' for i in range(2, 5)],
     *[f'Env{i}' for i in range(1, 4)],
     'Econ1',
     ]
@@ -112,7 +114,8 @@ def get_baseline_indicator_scores():
             get_simulated_data(df, 'N'),
             get_simulated_data(df, 'P'),
             get_simulated_data(df, 'K'),
-            get_simulated_data(df, 'Energy'),
+            np.zeros(T.shape[0]),
+            # get_simulated_data(df, 'Energy'),
             read_baseline('supply_chain')
             ]).transpose()
         RR.columns = [f'RR{i+1}' for i in range(RR.shape[1])]
@@ -180,6 +183,8 @@ def run_analyses(weight_df=None):
                               f'{alt}_{country}_{kind}',
                               index_col=0, header=(0,1),)
                 for alt in alt_names]
+        for df in data:
+            df.drop(columns=[('LCA results', 'GlobalWarming [kg CO2-eq/cap/yr]')], inplace=True)
         compiled = pd.concat(data, axis=1, keys=alt_names)
         return compiled
 
@@ -235,7 +240,10 @@ def run_analyses(weight_df=None):
         ind_score_dct = {}
         for n in uncertainty_ind_scores.index:
             scores = baseline_scores.copy()
-            scores.loc[:, alt_col_names] = uncertainty_ind_scores.iloc[n].values.reshape(result_shape)
+            # Adjust the order (put TEA cost to the last as Econ1)
+            df = uncertainty_ind_scores.iloc[n].values.reshape(result_shape)
+            reshaped = np.concatenate((df[:, :3], df[:, 4:], df[:, 3].reshape(df.shape[0], 1)), axis=1)
+            scores.loc[:, alt_col_names] = reshaped
             ind_score_dct[n] = scores
         mcda_uncertainty['ind_score_dct'] = ind_score_dct
 
