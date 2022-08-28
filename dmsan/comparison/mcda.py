@@ -171,7 +171,7 @@ def run_analyses(weight_df=None):
 
     # Baseline
     baseline_dct = get_baseline_indicator_scores()
-    countries = baseline_dct.keys()
+    countries = list(baseline_dct.keys())
 
     # Uncertainties
     #!!! This might take a long time if the Excel is big, consider better alternatives
@@ -202,7 +202,12 @@ def run_analyses(weight_df=None):
     cr_weights = weight_df.values.tolist()
     cr_weights =[':'.join(str(weight).strip('[]').split(', ')) for weight in cr_weights]
 
-    for country in countries:
+    for country in mcda_countries:
+        if country not in countries:
+            raise ValueError(f'No simulated scores for country {country}, '
+                             'please run simulation.')
+        else: countries.remove(country)
+
         print(f'\nRunning analyses for country: {country}.')
         mcda_baseline, mcda_uncertainty = {}, {}
 
