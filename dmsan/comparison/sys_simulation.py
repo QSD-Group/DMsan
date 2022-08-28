@@ -28,7 +28,7 @@ warnings.filterwarnings(action='ignore')
 countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
 N = 20
 N_price_factor = 10
-N_fertilizer = 10
+N_no_fertilizer = 10
 seed = 3221
 
 
@@ -100,7 +100,7 @@ def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed)
         for p in fertilizer_params: p.setter(0)
         dct[key] = model_new
 
-    uncertinty_dct = get_uncertainties(model_dct=dct, N=N_fertilizer, print_time=False)
+    uncertinty_dct = get_uncertainties(model_dct=dct, N=N_no_fertilizer, print_time=False)
     path = os.path.join(scores_path, 'no_fertilizer_percentiles.xlsx')
     df = export_percentiles(uncertinty_dct, path=path)
 
