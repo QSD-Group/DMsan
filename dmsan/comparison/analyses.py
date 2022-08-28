@@ -14,3 +14,8 @@ for license details.
 
 Run this module to generate the data needed for figures.
 '''
+
+import os
+from qsdsan.utils import save_pickle, load_pickle, time_printer
+from dmsan.comparison import  results_path, figures_path
+data = load_pickle(os.path.join(results_path, 'data.pckl'))

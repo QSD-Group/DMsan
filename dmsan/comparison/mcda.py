@@ -322,7 +322,7 @@ def run_analyses(weight_df=None):
     #         for alt, df in spearman_dct.items():
     #             df.to_excel(writer, sheet_name=f'{alt}_{country}')
 
-    save_pickle(data, os.path.join(results_path, 'data.pckl'))
+    save_pickle(data, os.path.join(results_path, 'mcda_data.pckl'))
 
     return data
 
@@ -331,4 +331,4 @@ if __name__ == '__main__':
     data = run_analyses()
 
     # # To load saved data
-    # data = load_pickle(os.path.join(results_path, 'data.pckl'))
+    # data = load_pickle(os.path.join(results_path, 'mcda_data.pckl'))

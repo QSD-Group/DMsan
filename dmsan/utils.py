@@ -177,6 +177,7 @@ def get_uncertainties(model_dct, N, seed=None,
                       pickle_path='',
                       uncertainty_path='',
                       return_model_dct=False,
+                      **kwargs,
                       ):
     for model in model_dct.values():
         samples = model.sample(N=N, seed=seed, rule='L')
@@ -253,7 +254,9 @@ def init_modules(module_name, include_data_path=False):
 
 # %%
 
-def simulate_module_models(scores_path, model_dct, N, seed=None, sample_hook_func=None):
+def simulate_module_models(scores_path, model_dct, N,
+                           seed=None, sample_hook_func=None,
+                           return_model_dct=True):
     baseline_path = os.path.join(scores_path, 'simulated_baseline.csv')
     baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
 
@@ -271,4 +274,6 @@ def simulate_module_models(scores_path, model_dct, N, seed=None, sample_hook_fun
 
     spearman_path = os.path.join(scores_path, 'spearman.xlsx')
     spearman_dct = get_spearman(model_dct, spearman_path=spearman_path)
+
+    if return_model_dct: return baseline_df, uncertainty_dct, spearman_dct, model_dct
     return baseline_df, uncertainty_dct, spearman_dct
