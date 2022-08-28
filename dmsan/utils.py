@@ -87,7 +87,11 @@ def copy_samples_wthin_country(model_dct):
 get_model_key = lambda model: model.system.flowsheet.ID # brA, etc.
 get_model_dct = lambda models: {get_model_key(model): model for model in models}
 
-def set_flowsheet(model):
+def update_settings(model):
+    cmps = qs.get_components()
+    if cmps is not model.system.units[0].components:
+        qs.set_thermo(model.system.units[0].components)
+
     if qs.main_flowsheet is not model.system.flowsheet:
         qs.main_flowsheet.set_flowsheet(model.system.flowsheet)
 
@@ -95,7 +99,7 @@ def set_flowsheet(model):
 def get_baseline(model_dct, file_path=''):
     df = pd.DataFrame()
     for key, model in model_dct.items():
-        set_flowsheet(model)
+        update_settings(model)
         df[key] = model.metrics_at_baseline()
 
     if file_path:
@@ -189,7 +193,7 @@ def get_uncertainties(model_dct, N, seed=None,
         uncertainty_dct[f'{key}_params'] = model.table[param_col]
 
         print(f'uncertainties for model: {key}')
-        set_flowsheet(model)
+        update_settings(model)
         model.evaluate()
 
         uncertainty_dct[f'{key}_results'] = \

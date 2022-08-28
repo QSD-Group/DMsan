@@ -44,10 +44,14 @@ def get_models(
         load_cached_data=False,
         ):
 
-    from exposan.biogenic_refinery import create_country_specific_model as create_br_model
+    from exposan.biogenic_refinery import (
+        create_model as create_br_model,
+        create_country_specific_model as create_br_country_model,
+        )
     model_dct = get_module_models(
         module=module,
-        create_country_specific_model_func=create_br_model,
+        create_general_model_func=create_br_model,
+        create_country_specific_model_func=create_br_country_model,
         system_IDs=('A', 'B'),
         countries=countries,
         country_specific_inputs=country_specific_inputs,
@@ -55,10 +59,14 @@ def get_models(
         )
 
     try: # check if has access to the private repository
-        from exposan.new_generator import create_country_specific_model as create_ng_model
+        from exposan.new_generator import (
+            create_model as create_ng_model,
+            create_country_specific_model as create_ng_country_model,
+            )
         model_dct.update(get_module_models(
             module=module,
-            create_country_specific_model_func=create_ng_model,
+            create_general_model_func=create_ng_model,
+            create_country_specific_model_func=create_ng_country_model,
             system_IDs=('A', 'B'),
             countries=countries,
             country_specific_inputs=country_specific_inputs,
@@ -69,10 +77,14 @@ def get_models(
         warn('Simulation for the NEWgenerator system (under non-disclosure agreement) is skipped, '
              'please set path to use the EXPOsan-private repository if you have access.')
 
-    from exposan.reclaimer import create_country_specific_model as create_re_model
+    from exposan.reclaimer import (
+        create_model as create_re_model,
+        create_country_specific_model as create_re_country_model,
+        )
     model_dct.update(get_module_models(
         module=module,
-        create_country_specific_model_func=create_re_model,
+        create_general_model_func=create_re_model,
+        create_country_specific_model_func=create_re_country_model,
         system_IDs=('B', 'C'),
         countries=countries,
         country_specific_inputs=country_specific_inputs,
