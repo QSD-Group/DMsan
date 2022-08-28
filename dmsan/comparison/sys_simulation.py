@@ -54,7 +54,7 @@ def export_percentiles(uncertainty_dct, q=[0.05, 0.25, 0.5, 0.75, 0.95], path=''
 
 # %%
 
-factor_vals = np.linspace(0, 1, 3) # start, stop, number of steps (including start & stop)
+factor_vals = np.arange(0, 1.1, 0.5) # start, stop, step (stop is excluded)
 @time_printer
 def evaluate_across_price_factor(model_dct, N=N_price_factor, seed=seed, vals=factor_vals):
     dct = {}
