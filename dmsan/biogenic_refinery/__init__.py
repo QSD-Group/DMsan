@@ -16,7 +16,7 @@ for license details.
 '''
 
 import os
-from exposan.biogenic_refinery import create_country_specific_model
+from exposan.biogenic_refinery import create_model, create_country_specific_model
 from dmsan.utils import (
     get_module_models,
     init_modules,
@@ -46,6 +46,7 @@ def get_models(
         ):
     model_dct = get_module_models(
         module=module,
+        create_general_model_func=create_model,
         create_country_specific_model_func=create_country_specific_model,
         system_IDs=system_IDs,
         countries=countries,

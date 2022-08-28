@@ -73,6 +73,7 @@ def split_df_by_country(df):
     cols = df.columns
     global countries
     countries = sorted(set((col.split('_')[-1] for col in cols)))
+    countries = ['general', *(i for i in countries if i!='general')]
     dct = OrderedDict.fromkeys(countries)
     for country in countries:
         filtered = df.filter(regex=f'_{country}').copy()
@@ -204,7 +205,7 @@ def run_analyses(weight_df=None):
 
     for country in mcda_countries:
         if country not in countries:
-            raise ValueError(f'No simulated scores for country {country}, '
+            raise ValueError(f'No simulated scores for country "{country}", '
                              'please run simulation.')
         else: countries.remove(country)
 

@@ -87,15 +87,15 @@ def copy_samples_wthin_country(model_dct):
 get_model_key = lambda model: model.system.flowsheet.ID # brA, etc.
 get_model_dct = lambda models: {get_model_key(model): model for model in models}
 
-def set_model_components(model):
-    cmps = qs.get_components()
-    if cmps is not model.system.units[0].components:
-        qs.set_thermo(model.system.units[0].components)
+def set_flowsheet(model):
+    if qs.main_flowsheet is not model.system.flowsheet:
+        qs.main_flowsheet.set_flowsheet(model.system.flowsheet)
+
 
 def get_baseline(model_dct, file_path=''):
     df = pd.DataFrame()
     for key, model in model_dct.items():
-        set_model_components(model)
+        set_flowsheet(model)
         df[key] = model.metrics_at_baseline()
 
     if file_path:
@@ -106,7 +106,9 @@ def get_baseline(model_dct, file_path=''):
 
 # %%
 
-def get_module_models(module, create_country_specific_model_func,
+def get_module_models(module,
+                      create_general_model_func,
+                      create_country_specific_model_func,
                       system_IDs=(),
                       countries=(),
                       country_specific_inputs=None,
@@ -115,6 +117,10 @@ def get_module_models(module, create_country_specific_model_func,
     model_data_path = os.path.join(scores_path, 'model_data.pckl')
     model_dct = {}
     for sys_ID in system_IDs:
+        # Non-country-specific model
+        model = create_general_model_func(sys_ID)
+        model_key = get_model_key(model)
+        model_dct[f'{model_key}_general'] = model
         for n, country in enumerate(countries):
             try: country_data = country_specific_inputs.get(country)
             except: country_data = None
@@ -123,12 +129,10 @@ def get_module_models(module, create_country_specific_model_func,
                 'country': country,
                 'country_data': country_data,
                 }
-            if n == 0: # create the model
-                model = create_country_specific_model_func(**kwargs)
-            else: # reuse the model, just update parameters
-                kwargs['model'] = model
-                model = create_country_specific_model_func(**kwargs)
-            model_dct[f'{get_model_key(model)}_{country}'] = model
+            # Reuse the model, just update parameters
+            kwargs['model'] = model
+            model = create_country_specific_model_func(**kwargs)
+            model_dct[f'{model_key}_{country}'] = model
 
     if load_cached_data:
         if not os.path.isfile(model_data_path):
@@ -185,7 +189,7 @@ def get_uncertainties(model_dct, N, seed=None,
         uncertainty_dct[f'{key}_params'] = model.table[param_col]
 
         print(f'uncertainties for model: {key}')
-        set_model_components(model)
+        set_flowsheet(model)
         model.evaluate()
 
         uncertainty_dct[f'{key}_results'] = \
