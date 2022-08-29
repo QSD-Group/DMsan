@@ -73,7 +73,7 @@ def split_df_by_country(df):
     cols = df.columns
     global countries
     countries = sorted(set((col.split('_')[-1] for col in cols)))
-    countries = ['general', *(i for i in countries if i!='general')]
+    # countries = ['general', *(i for i in countries if i!='general')]
     dct = OrderedDict.fromkeys(countries)
     for country in countries:
         filtered = df.filter(regex=f'_{country}').copy()
@@ -204,6 +204,7 @@ def run_analyses(weight_df=None):
     cr_weights =[':'.join(str(weight).strip('[]').split(', ')) for weight in cr_weights]
 
     for country in mcda_countries:
+    # for country in ['general', *mcda_countries]:
         if country not in countries:
             raise ValueError(f'No simulated scores for country "{country}", '
                              'please run simulation.')
@@ -293,24 +294,24 @@ def run_analyses(weight_df=None):
     with pd.ExcelWriter(baseline_performance_path) as writer:
         ind_weights = []
 
-        for n, country in enumerate(countries):
+        for n, country in enumerate(mcda_countries):
             mcda_baseline = data[country]['baseline']
             if n == 0:
                 winner_df = pd.concat([data[country]['baseline']['winners']
-                                       for country in countries], axis=1)
-                winner_df.columns = countries
+                                       for country in mcda_countries], axis=1)
+                winner_df.columns = mcda_countries
                 winner_df.to_excel(writer, sheet_name='Winner')
             ind_weights.append(mcda_baseline['indicator weights'])
             mcda_baseline['performance scores'].to_excel(writer, sheet_name=f'{country}_score')
             mcda_baseline['performance ranks'].to_excel(writer, sheet_name=f'{country}_rank')
 
         compiled_df = pd.concat(ind_weights)
-        compiled_df.index = countries
+        compiled_df.index = mcda_countries
         compiled_df.to_csv(os.path.join(results_path, 'baseline_indicator_weights.csv'))
 
     uncertainty_winner_path = os.path.join(results_path, 'uncertainty_winners.xlsx')
     with pd.ExcelWriter(uncertainty_winner_path) as writer:
-        for country in countries:
+        for country in mcda_countries:
             data[country]['uncertainty']['winner_df'].to_excel(writer, sheet_name=f'{country}')
 
     # # DO NOT DELETE
