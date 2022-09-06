@@ -25,10 +25,11 @@ from dmsan.comparison import scores_path, simulate_models
 import warnings
 warnings.filterwarnings(action='ignore')
 
-countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
+# countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
+countries = 'Beijing_China'
 N = 20
 N_price_factor = 10
-N_no_fertilizer = 10
+N_no_fertilizer = 20
 seed = 3221
 
 
@@ -112,5 +113,5 @@ if __name__ == '__main__':
     outs = simulate_models(countries=countries, N=N, seed=seed)
     baseline_df, uncertainty_dct, spearman_dct, model_dct = outs
     percentile_df = export_percentiles(uncertainty_dct)
-    price_factor_dct = evaluate_across_price_factor(model_dct)
+    # price_factor_dct = evaluate_across_price_factor(model_dct)
     fertilizer_df = evaluate_without_fertilizer_recovery(model_dct)
