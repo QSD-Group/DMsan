@@ -26,7 +26,7 @@ import warnings
 warnings.filterwarnings(action='ignore')
 
 # countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
-countries = 'Beijing_China'
+countries = ('BeijingChina',)
 N = 20
 N_price_factor = 10
 N_no_fertilizer = 20
