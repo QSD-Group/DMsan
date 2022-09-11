@@ -110,7 +110,7 @@ def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed)
 # %%
 
 if __name__ == '__main__':
-    outs = simulate_models(countries=countries, N=N, seed=seed)
+    outs = simulate_models(countries=countries, N=N, seed=seed, include_resource_recovery=True)
     baseline_df, uncertainty_dct, spearman_dct, model_dct = outs
     percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)

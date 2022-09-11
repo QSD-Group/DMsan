@@ -16,6 +16,7 @@ for license details.
 '''
 
 import os
+from exposan import reclaimer as re
 from exposan.reclaimer import create_model, create_country_specific_model
 from dmsan.utils import (
     get_module_models,
@@ -42,8 +43,10 @@ def get_models(
         system_IDs=system_IDs,
         countries=(),
         country_specific_inputs=None,
+        include_resource_recovery=False,
         load_cached_data=False,
         ):
+    re.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
     model_dct = get_module_models(
         module=module,
         create_general_model_func=create_model,
@@ -51,7 +54,8 @@ def get_models(
         system_IDs=system_IDs,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
-        load_cached_data=load_cached_data,)
+        load_cached_data=load_cached_data,
+        )
     return model_dct
 
 
@@ -62,12 +66,14 @@ def simulate_models(
         module=module,
         system_IDs=system_IDs,
         country_specific_inputs=None,
+        include_resource_recovery=False,
         ):
     model_dct = get_models(
         module=module,
         system_IDs=system_IDs,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
+        include_resource_recovery=include_resource_recovery,
         load_cached_data=False,
         )
     return simulate_module_models(

@@ -41,9 +41,11 @@ def get_models(
         module=module,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
+        include_resource_recovery=False,
         load_cached_data=False,
         ):
-
+    from exposan import biogenic_refinery as br
+    br.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
     from exposan.biogenic_refinery import (
         create_model as create_br_model,
         create_country_specific_model as create_br_country_model,
@@ -59,6 +61,8 @@ def get_models(
         )
 
     try: # check if has access to the private repository
+        from exposan import new_generator as ng
+        ng.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
         from exposan.new_generator import (
             create_model as create_ng_model,
             create_country_specific_model as create_ng_country_model,
@@ -72,11 +76,13 @@ def get_models(
             country_specific_inputs=country_specific_inputs,
             load_cached_data=load_cached_data,
             ))
-    except ModuleNotFoundError:
+    except ImportError:
         from warnings import warn
         warn('Simulation for the NEWgenerator system (under non-disclosure agreement) is skipped, '
              'please set path to use the EXPOsan-private repository if you have access.')
 
+    from exposan import reclaimer as re
+    re.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
     from exposan.reclaimer import (
         create_model as create_re_model,
         create_country_specific_model as create_re_country_model,
@@ -99,11 +105,13 @@ def simulate_models(
         seed=None,
         module=module,
         country_specific_inputs=country_specific_inputs,
+        include_resource_recovery=False,
         ):
     model_dct = get_models(
         module=module,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
+        include_resource_recovery=False,
         load_cached_data=False,
         )
     return simulate_module_models(

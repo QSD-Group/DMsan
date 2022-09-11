@@ -69,5 +69,5 @@ surfaces
 # Others #
 ##########
 *.sh
-**/*temp*
+**/*tmp*
 **/*superseded*
