@@ -111,7 +111,7 @@ def simulate_models(
         module=module,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
-        include_resource_recovery=False,
+        include_resource_recovery=include_resource_recovery,
         load_cached_data=False,
         )
     return simulate_module_models(
