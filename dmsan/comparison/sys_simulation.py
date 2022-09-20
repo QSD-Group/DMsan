@@ -26,8 +26,8 @@ import warnings
 warnings.filterwarnings(action='ignore')
 
 # countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
-countries = ('BeijingChina',)
-N = 100
+countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
+N = 10
 N_price_factor = 10
 N_no_fertilizer = 20
 seed = 3221
@@ -110,7 +110,7 @@ def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed)
 # %%
 
 if __name__ == '__main__':
-    outs = simulate_models(countries=countries, N=N, seed=seed, include_resource_recovery=True)
+    outs = simulate_models(countries=countries, N=N, seed=seed, include_resource_recovery=False)
     baseline_df, uncertainty_dct, spearman_dct, model_dct = outs
     percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)
