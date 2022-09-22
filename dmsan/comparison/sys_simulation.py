@@ -25,9 +25,36 @@ from dmsan.comparison import scores_path, simulate_models
 import warnings
 warnings.filterwarnings(action='ignore')
 
-# countries = ('China', 'India', 'Senegal', 'South Africa', 'Uganda')
-countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
-N = 10
+# 77 countries broken down into groups of 5
+# countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
+# countries = ('Belarus', 'Belgium', 'Belize', 'Bolivia', 'Botswana')
+# countries = ('Bulgaria', 'Cambodia', 'Cameroon', 'Chile', 'China')
+# countries = ('Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Dominican Republic')
+# countries = ('Ecuador', 'Egypt', 'El Salvador', 'Estonia', 'Finland')
+# countries = ('France', 'Georgia', 'Germany', 'Ghana', 'Greece')
+# countries = ('Guatemala', 'Guyana', 'Honduras', 'Hungary', 'India')
+# countries = ('Israel', 'Italy', 'Jordan', 'Kazakhstan', 'Kenya')
+# countries = ('South Korea', 'Kyrgyzstan', 'Latvia', 'Lebanon', 'Lithuania')
+# countries = ('Luxembourg', 'Malaysia', 'Mauritius', 'Moldova', 'Mongolia')
+# countries = ('Montenegro', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway')
+# countries = ('Pakistan', 'Philippines', 'Poland', 'Portugal', 'Romania')
+# countries = ('Russia', 'Rwanda', 'Saudi Arabia', 'Slovakia', 'Slovenia')
+# countries = ('Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Tanzania')
+# countries = ('Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Kingdom', 'United States', 'Uruguay')
+
+# All 77 countries
+countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Bolivia',
+             'Botswana', 'Bulgaria', 'Cambodia', 'Cameroon', 'Chile', 'China', 'Croatia', 'Cyprus', 'Czech Republic',
+             'Denmark', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Estonia', 'Finland', 'France',
+             'Georgia', 'Germany', 'Ghana', 'Greece', 'Guatemala', 'Guyana', 'Honduras', 'Hungary', 'India', 'Israel',
+             'Italy', 'Jordan', 'Kazakhstan', 'Kenya', 'South Korea', 'Kyrgyzstan', 'Latvia', 'Lebanon', 'Lithuania',
+             'Luxembourg', 'Malaysia', 'Mauritius', 'Moldova', 'Mongolia', 'Montenegro', 'Netherlands', 'New Zealand',
+             'Nigeria', 'Norway', 'Pakistan', 'Philippines', 'Poland', 'Portugal', 'Romania', 'Russia', 'Rwanda',
+             'Saudi Arabia', 'Slovakia', 'Slovenia', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Tanzania',
+             'Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Kingdom', 'United States', 'Uruguay')
+
+
+N = 100
 N_price_factor = 10
 N_no_fertilizer = 20
 seed = 3221
