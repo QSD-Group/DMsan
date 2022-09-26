@@ -38,7 +38,7 @@ __all__ = (
 
 # %%
 
-def copy_samples_across_models(models):
+def copy_samples_across_models(models, exclude=()):
     '''
     Ensure consistent values for the same parameter across models.
 
@@ -56,13 +56,22 @@ def copy_samples_across_models(models):
             copy_samples(modelC, modelD, exclude=(*modelA.parameters, *modelB.parameters)
 
             ...
+    Parameters
+    ----------
+    models : iterable(obj)
+        List of models where samples will be copied across.
+    exlude : list(str)
+        Name of the parameters to be excluded from sample copying
+        (e.g., country-specific parameters that should be different for each model).
     '''
     for i, model in enumerate(models[1:]):
         copied = models[:i+1]
         for j, original in enumerate(copied):
-            exclude = copied[:j]
+            copied_models = copied[:j]
+            exclude_params = sum([list(m.parameters) for m in copied_models], [])
+            exclude_params.extend([p for p in original.parameters if p.name in exclude])
             copy_samples(original, model,
-                         exclude=sum([list(m.parameters) for m in exclude], []),
+                         exclude=exclude_params,
                          only_same_baseline=True)
 
             # # To see what's being copied and what's being excluded
