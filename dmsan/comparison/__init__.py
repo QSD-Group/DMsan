@@ -42,6 +42,7 @@ def get_models(
         countries=countries,
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=False,
+        include_general_model=True,
         load_cached_data=False,
         ):
     from exposan import biogenic_refinery as br
@@ -57,6 +58,7 @@ def get_models(
         system_IDs=('A', 'B'),
         countries=countries,
         country_specific_inputs=country_specific_inputs,
+        include_general_model=include_general_model,
         load_cached_data=load_cached_data,
         )
 
@@ -106,12 +108,14 @@ def simulate_models(
         module=module,
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=False,
+        include_general_model=True,
         ):
     model_dct = get_models(
         module=module,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=include_resource_recovery,
+        include_general_model=include_general_model,
         load_cached_data=False,
         )
     return simulate_module_models(

@@ -125,15 +125,14 @@ def get_module_models(module,
                       system_IDs=(),
                       countries=(),
                       country_specific_inputs=None,
+                      include_general_model=True,
                       load_cached_data=False,):
     scores_path = os.path.join(path, f'{module}/scores')
     model_data_path = os.path.join(scores_path, 'model_data.pckl')
     model_dct = {}
     for sys_ID in system_IDs:
-        # Non-country-specific model
-        model = create_general_model_func(sys_ID)
-        model_key = get_model_key(model)
-        model_dct[f'{model_key}_general'] = model
+        # Country-specific ones
+        model = None
         for n, country in enumerate(countries):
             try: country_data = country_specific_inputs.get(country)
             except: country_data = None
@@ -141,11 +140,16 @@ def get_module_models(module,
                 'ID': sys_ID,
                 'country': country,
                 'country_data': country_data,
+                'model': model
                 }
             # Reuse the model, just update parameters
-            kwargs['model'] = model
             model = create_country_specific_model_func(**kwargs)
+            model_key = get_model_key(model)
             model_dct[f'{model_key}_{country}'] = model
+        # A non-country-specific general model
+        if include_general_model:
+            model = create_general_model_func(sys_ID, flowsheet=model.system.flowsheet)
+            model_dct[f'{model_key}_general'] = model
 
     if load_cached_data:
         if not os.path.isfile(model_data_path):

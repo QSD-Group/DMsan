@@ -26,7 +26,7 @@ import warnings
 warnings.filterwarnings(action='ignore')
 
 # 77 countries broken down into groups of 5
-# countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
+countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
 # countries = ('Belarus', 'Belgium', 'Belize', 'Bolivia', 'Botswana')
 # countries = ('Bulgaria', 'Cambodia', 'Cameroon', 'Chile', 'China')
 # countries = ('Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Dominican Republic')
@@ -43,15 +43,15 @@ warnings.filterwarnings(action='ignore')
 # countries = ('Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Kingdom', 'United States', 'Uruguay')
 
 # All 77 countries
-countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Bolivia',
-             'Botswana', 'Bulgaria', 'Cambodia', 'Cameroon', 'Chile', 'China', 'Croatia', 'Cyprus', 'Czech Republic',
-             'Denmark', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Estonia', 'Finland', 'France',
-             'Georgia', 'Germany', 'Ghana', 'Greece', 'Guatemala', 'Guyana', 'Honduras', 'Hungary', 'India', 'Israel',
-             'Italy', 'Jordan', 'Kazakhstan', 'Kenya', 'South Korea', 'Kyrgyzstan', 'Latvia', 'Lebanon', 'Lithuania',
-             'Luxembourg', 'Malaysia', 'Mauritius', 'Moldova', 'Mongolia', 'Montenegro', 'Netherlands', 'New Zealand',
-             'Nigeria', 'Norway', 'Pakistan', 'Philippines', 'Poland', 'Portugal', 'Romania', 'Russia', 'Rwanda',
-             'Saudi Arabia', 'Slovakia', 'Slovenia', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Tanzania',
-             'Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Kingdom', 'United States', 'Uruguay')
+# countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Bolivia',
+#              'Botswana', 'Bulgaria', 'Cambodia', 'Cameroon', 'Chile', 'China', 'Croatia', 'Cyprus', 'Czech Republic',
+#              'Denmark', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Estonia', 'Finland', 'France',
+#              'Georgia', 'Germany', 'Ghana', 'Greece', 'Guatemala', 'Guyana', 'Honduras', 'Hungary', 'India', 'Israel',
+#              'Italy', 'Jordan', 'Kazakhstan', 'Kenya', 'South Korea', 'Kyrgyzstan', 'Latvia', 'Lebanon', 'Lithuania',
+#              'Luxembourg', 'Malaysia', 'Mauritius', 'Moldova', 'Mongolia', 'Montenegro', 'Netherlands', 'New Zealand',
+#              'Nigeria', 'Norway', 'Pakistan', 'Philippines', 'Poland', 'Portugal', 'Romania', 'Russia', 'Rwanda',
+#              'Saudi Arabia', 'Slovakia', 'Slovenia', 'Spain', 'Sri Lanka', 'Sweden', 'Switzerland', 'Tanzania',
+#              'Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Kingdom', 'United States', 'Uruguay')
 
 
 N = 100
@@ -137,7 +137,10 @@ def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed)
 # %%
 
 if __name__ == '__main__':
-    outs = simulate_models(countries=countries, N=N, seed=seed, include_resource_recovery=False)
+    outs = simulate_models(countries=countries, N=N, seed=seed, 
+                           include_resource_recovery=False,
+                           include_general_model=True,
+                           )
     baseline_df, uncertainty_dct, spearman_dct, model_dct = outs
     percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)

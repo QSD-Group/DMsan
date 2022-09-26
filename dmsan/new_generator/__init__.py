@@ -44,6 +44,7 @@ def get_models(
         countries=(),
         country_specific_inputs=None,
         include_resource_recovery=False,
+        include_general_model=True,
         load_cached_data=False,
         ):
     ng.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
@@ -54,6 +55,7 @@ def get_models(
         system_IDs=system_IDs,
         countries=countries,
         country_specific_inputs=country_specific_inputs,
+        include_general_model=include_general_model,
         load_cached_data=load_cached_data,
         )
     return model_dct
@@ -67,6 +69,7 @@ def simulate_models(
         system_IDs=system_IDs,
         country_specific_inputs=None,
         include_resource_recovery=False,
+        include_general_model=True,
         ):
     model_dct = get_models(
         module=module,
@@ -74,6 +77,7 @@ def simulate_models(
         countries=countries,
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=include_resource_recovery,
+        include_general_model=include_general_model,
         load_cached_data=False,
         )
     return simulate_module_models(

@@ -30,13 +30,17 @@ N = 20
 seed = 3221
 
 if __name__ == '__main__':
-    outs = simulate_models(countries=countries, N=N, seed=seed, include_resource_recovery=True)
+    outs = simulate_models(countries=countries, N=N, seed=seed, 
+                           include_resource_recovery=True,
+                           include_general_model=True,
+                           )
     baseline_df, uncertainty_dct, spearman_dct, model_dct = outs
 
     # # To reload models
     # model_dct = get_models(
     #         system_IDs=system_IDs,
     #         countries=countries,
+    #         include_resource_recovery=True,
     #         include_resource_recovery=True,
     #         load_cached_data=True,
     #         )
