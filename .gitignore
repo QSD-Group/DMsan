@@ -1,73 +1,24 @@
-# General ones#
-###############
-build
-dist
-*.egg-info
-__pycache__
+**/*superseded*
+**/*tmp*
+**/figures/*
+**/results/*
+**/scores/*
+**/.DS_Store*
+**/.ipynb_checkpoints
 **/__pycache__
+*.egg-info
+*.prof
 *.pyc
 *.pyo
-.pypirc
-MANIFEST
+*.Rhistory
+*.sh
 .coverage
 .coveralls.yml
-htmlcov
+.pypirc
 _build
-.cache
-prof
-*Pyreverse*
-monkeytype.sqlite3
-*.spyproject*
-
-# Docs #
-########
-# No need to save these files
-**/.ipynb_checkpoints
-**/.pylint.d
+build
+# conftest is used for local testing only
+conftest.py
+dist
 docs/build/*
-
-# Compiled source #
-###################
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.so
-*.idea
-
- # Packages #
-#############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.dmg
-#*.gz
-*.iso
-*.jar
-*.rar
-#*.tar
-#*.zip
- 
-# Logs and databases #
-######################
-*.log
-*.sql
-*.sqlite
- 
-# mac OS generated files #
-##########################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-surfaces
-
-# Others #
-##########
-*.sh
-**/*tmp*
-**/*superseded*
+htmlcov
