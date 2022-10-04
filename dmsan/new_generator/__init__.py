@@ -19,8 +19,8 @@ import os
 from exposan import new_generator as ng
 from exposan.new_generator import create_model, create_country_specific_model
 from dmsan.utils import (
+    _init_modules,
     get_module_models,
-    init_modules,
     simulate_module_models,
     )
 
@@ -35,7 +35,7 @@ __all__ = (
 
 module = os.path.split(os.path.dirname(__file__))[-1]
 system_IDs = ('A', 'B')
-scores_path, results_path, figures_path = init_modules(module)
+scores_path, results_path, figures_path = _init_modules(module)
 
 
 def get_models(

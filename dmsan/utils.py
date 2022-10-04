@@ -25,15 +25,29 @@ from qsdsan.utils import (
 from . import path
 
 __all__ = (
+    '_init_modules',
     'copy_samples_across_models',
     'copy_samples_wthin_country',
     'get_baseline',
     'get_module_models',
     'get_spearman',
     'get_uncertainties',
-    'init_modules',
     'simulate_module_models',
     )
+
+
+# %%
+
+def _init_modules(module_name, include_data_path=False):
+    module_path = os.path.join(path, module_name)
+    dirnames = ['scores', 'results', 'figures']
+    if include_data_path: dirnames.insert(0, 'data')
+    paths = []
+    for dirname in dirnames:
+        p = os.path.join(module_path, dirname)
+        paths.append(p)
+        if not os.path.isdir(p): os.mkdir(p)
+    return paths
 
 
 # %%
@@ -249,20 +263,6 @@ def import_country_specifc_inputs(file_path, return_as_dct=True):
         data_dct[country] = {k: series[k] for k in series.index}
 
     return data_dct
-
-
-# %%
-
-def init_modules(module_name, include_data_path=False):
-    module_path = os.path.join(path, module_name)
-    dirnames = ['scores', 'results', 'figures']
-    if include_data_path: dirnames.insert(0, 'data')
-    paths = []
-    for dirname in dirnames:
-        p = os.path.join(module_path, dirname)
-        paths.append(p)
-        if not os.path.isdir(p): os.mkdir(p)
-    return paths
 
 
 # %%

@@ -12,7 +12,7 @@ This module is developed by:
 import os
 from qsdsan.utils import load_pickle
 from dmsan.utils import (
-    init_modules,
+    _init_modules,
     )
 
 __all__ = (
@@ -22,7 +22,7 @@ __all__ = (
     'import_from_pickle',
     )
 
-scores_path, results_path, figures_path = init_modules('bwaise')
+scores_path, results_path, figures_path = _init_modules('bwaise')
 
 
 def import_module_results(

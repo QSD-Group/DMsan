@@ -15,9 +15,9 @@ for license details.
 
 import os
 from dmsan.utils import (
+    _init_modules,
     get_module_models,
     import_country_specifc_inputs,
-    init_modules,
     simulate_module_models,
     )
 
@@ -31,7 +31,7 @@ __all__ = (
     )
 
 module = os.path.split(os.path.dirname(__file__))[-1]
-data_path, scores_path, results_path, figures_path = init_modules(module, include_data_path=True)
+data_path, scores_path, results_path, figures_path = _init_modules(module, include_data_path=True)
 
 file_path = os.path.join(data_path, 'country_specific_inputs.csv')
 country_specific_inputs  = import_country_specifc_inputs(file_path=file_path)
