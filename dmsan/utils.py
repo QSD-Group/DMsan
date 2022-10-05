@@ -74,7 +74,7 @@ def copy_samples_across_models(models, exclude=()):
     ----------
     models : iterable(obj)
         List of models where samples will be copied across.
-    exlude : list(str)
+    exclude : list(str)
         Name of the parameters to be excluded from sample copying
         (e.g., country-specific parameters that should be different for each model).
     '''
@@ -133,14 +133,18 @@ def get_baseline(model_dct, file_path=''):
 
 # %%
 
-def get_module_models(module,
-                      create_general_model_func,
-                      create_country_specific_model_func,
-                      system_IDs=(),
-                      countries=(),
-                      country_specific_inputs=None,
-                      include_general_model=True,
-                      load_cached_data=False,):
+def get_module_models(
+        module,
+        create_general_model_func,
+        create_country_specific_model_func,
+        system_IDs=(),
+        countries=(),
+        country_specific_inputs=None,
+        include_general_model=True,
+        load_cached_data=False,
+        general_model_kwargs={},
+        country_specific_model_kwargs={},
+        ):
     scores_path = os.path.join(path, f'{module}/scores')
     model_data_path = os.path.join(scores_path, 'model_data.pckl')
     model_dct = {}
@@ -156,15 +160,19 @@ def get_module_models(module,
                 'country_data': country_data,
                 'model': model
                 }
+            kwargs.update(country_specific_model_kwargs)
             # Reuse the model, just update parameters
             model = create_country_specific_model_func(**kwargs)
             model_key = get_model_key(model)
             model_dct[f'{model_key}_{country}'] = model
         # A non-country-specific general model
         if include_general_model:
-            model = create_general_model_func(sys_ID, flowsheet=model.system.flowsheet)
+            model = create_general_model_func(
+                sys_ID,
+                flowsheet=model.system.flowsheet,
+                **general_model_kwargs,
+                )
             model_dct[f'{model_key}_general'] = model
-
     if load_cached_data:
         if not os.path.isfile(model_data_path):
             raise FileNotFoundError(f'No existing model data found for module "{module}" '
@@ -180,32 +188,48 @@ def get_module_models(module,
 
 # Not in the pickle file as it's easy to reproduce once have the model
 @time_printer
-def get_spearman(model_dct, spearman_path=''):
-    spearman_dct = {}
+def get_spearman(model_dct, spearman_path_prefix=''):
+    spearman_rho_dct = {}
+    spearman_rho_sig_dct = {}
+    spearman_p_dct = {}
     for key, model in model_dct.items():
         flowsheet_ID, country = key.split('_')
         rho, p = model.spearman_r()
-        spearman_dct[key] = rho
+        spearman_rho_dct[key] = rho
+        rho_sig = rho.where(p<0.05, other='')
+        spearman_rho_sig_dct[key] = rho_sig
+        spearman_p_dct[key] = p
 
-    if spearman_path:
-        writer = pd.ExcelWriter(spearman_path)
-        for name, df in spearman_dct.items():
-            df.to_excel(writer, sheet_name=name)
-        writer.save()
+    if spearman_path_prefix:
+        writer_rho = pd.ExcelWriter(f'{spearman_path_prefix}_rho.xlsx')
+        writer_rho_sig = pd.ExcelWriter(f'{spearman_path_prefix}_rho_sig.xlsx')
+        writer_p = pd.ExcelWriter(f'{spearman_path_prefix}_p.xlsx')
+        for name, df in spearman_rho_dct.items():
+            df.to_excel(writer_rho, sheet_name=name)
+            spearman_rho_sig_dct[name].to_excel(writer_rho_sig, sheet_name=name)
+            spearman_p_dct[name].to_excel(writer_p, sheet_name=name)
+        writer_rho.save()
+        writer_rho_sig.save()
+        writer_p.save()
 
-    return spearman_path
+    spearman_dct = {
+        'rho': spearman_rho_dct,
+        'rho_sig': spearman_rho_sig_dct,
+        'p': spearman_p_dct,
+        }
+    return spearman_dct
 
 
 # %%
 
 @time_printer
-def get_uncertainties(model_dct, N, seed=None,
-                      sample_hook_func=None, # function for sample processing
-                      pickle_path='',
-                      uncertainty_path='',
-                      return_model_dct=False,
-                      **kwargs,
-                      ):
+def get_uncertainties(
+        model_dct, N, seed=None,
+        sample_hook_func=None, # function for sample processing
+        pickle_path='',
+        uncertainty_path='',
+        return_model_dct=False,
+        **kwargs):
     for model in model_dct.values():
         samples = model.sample(N=N, seed=seed, rule='L')
         model.load_samples(samples)
@@ -267,14 +291,28 @@ def import_country_specifc_inputs(file_path, return_as_dct=True):
 
 # %%
 
-def simulate_module_models(scores_path, model_dct, N,
-                           seed=None, sample_hook_func=None,
-                           return_model_dct=True):
-    baseline_path = os.path.join(scores_path, 'simulated_baseline.csv')
-    baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
+def simulate_module_models(
+        scores_path, model_dct, N,
+        seed=None, sample_hook_func=None,
+        return_model_dct=True,
+        include_baseline=True,
+        include_spearman=True,
+        baseline_path='default',
+        pickle_path='default',
+        uncertainty_path='default',
+        spearman_path_prefix='default',
+        ):
+    outs = []
+    if include_baseline:
+        if baseline_path=='default':
+            baseline_path = os.path.join(scores_path, 'simulated_baseline.csv')
+        baseline_df = get_baseline(model_dct=model_dct, file_path=baseline_path)
+        outs.append(baseline_df)
 
-    pickle_path = os.path.join(scores_path, 'model_data.pckl')
-    uncertainty_path = os.path.join(scores_path, 'simulated_uncertainties.xlsx')
+    if pickle_path == 'default':
+        pickle_path = os.path.join(scores_path, 'model_data.pckl')
+    if uncertainty_path == 'default':
+        uncertainty_path = os.path.join(scores_path, 'simulated_uncertainties.xlsx')
     uncertainty_dct, model_dct = get_uncertainties(
         model_dct=model_dct,
         N=N,
@@ -284,9 +322,13 @@ def simulate_module_models(scores_path, model_dct, N,
         uncertainty_path=uncertainty_path,
         return_model_dct=True,
         )
+    outs.append(uncertainty_dct)
 
-    spearman_path = os.path.join(scores_path, 'spearman.xlsx')
-    spearman_dct = get_spearman(model_dct, spearman_path=spearman_path)
+    if include_spearman:
+        if spearman_path_prefix == 'default':
+            spearman_path_prefix = os.path.join(scores_path, 'spearman')
+        spearman_dct = get_spearman(model_dct, spearman_path_prefix=spearman_path_prefix)
+        outs.append(spearman_dct)
 
-    if return_model_dct: return baseline_df, uncertainty_dct, spearman_dct, model_dct
-    return baseline_df, uncertainty_dct, spearman_dct
+    if return_model_dct: outs.append(model_dct)
+    return outs

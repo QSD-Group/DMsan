@@ -26,7 +26,8 @@ import warnings
 warnings.filterwarnings(action='ignore')
 
 # 77 countries broken down into groups of 5
-countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
+countries = ('Albania',)
+# countries = ('Albania', 'Armenia', 'Austria', 'Bangladesh', 'Barbados')
 # countries = ('Belarus', 'Belgium', 'Belize', 'Bolivia', 'Botswana')
 # countries = ('Bulgaria', 'Cambodia', 'Cameroon', 'Chile', 'China')
 # countries = ('Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Dominican Republic')
@@ -137,11 +138,16 @@ def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed)
 # %%
 
 if __name__ == '__main__':
-    outs = simulate_models(countries=countries, N=N, seed=seed, 
-                           include_resource_recovery=False,
-                           include_general_model=True,
-                           )
-    baseline_df, uncertainty_dct, spearman_dct, model_dct = outs
+    outs = simulate_models(
+        countries=countries, N=N, seed=seed, 
+        include_resource_recovery=False,
+        include_general_model=True,
+        return_model_dct=True,
+        include_baseline=True,
+        include_spearman=False,
+        pickle_path='',
+        )
+    baseline_df, uncertainty_dct, model_dct = outs
     percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)
     # fertilizer_df = evaluate_without_fertilizer_recovery(model_dct)

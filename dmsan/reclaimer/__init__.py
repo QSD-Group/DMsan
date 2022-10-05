@@ -46,6 +46,8 @@ def get_models(
         include_resource_recovery=False,
         include_general_model=True,
         load_cached_data=False,
+        general_model_kwargs={},
+        country_specific_model_kwargs={},
         ):
     re.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
     model_dct = get_module_models(
@@ -57,6 +59,8 @@ def get_models(
         country_specific_inputs=country_specific_inputs,
         include_general_model=include_general_model,
         load_cached_data=load_cached_data,
+        general_model_kwargs=general_model_kwargs,
+        country_specific_model_kwargs=country_specific_model_kwargs,
         )
     return model_dct
 
@@ -70,6 +74,14 @@ def simulate_models(
         country_specific_inputs=None,
         include_resource_recovery=False,
         include_general_model=True,
+        general_model_kwargs={},
+        country_specific_model_kwargs={},
+        include_baseline=True,
+        include_spearman=True,
+        baseline_path='default',
+        pickle_path='default',
+        uncertainty_path='default',
+        spearman_path_prefix='default',        
         ):
     model_dct = get_models(
         module=module,
@@ -78,11 +90,19 @@ def simulate_models(
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=include_resource_recovery,
         include_general_model=include_general_model,
+        general_model_kwargs=general_model_kwargs,
+        country_specific_model_kwargs=country_specific_model_kwargs,
         load_cached_data=False,
         )
     return simulate_module_models(
         scores_path=scores_path,
         model_dct=model_dct,
         N=N,
-        seed=seed
+        seed=seed,
+        include_baseline=include_baseline,
+        include_spearman=include_spearman,
+        baseline_path=baseline_path,
+        pickle_path=pickle_path,
+        uncertainty_path=uncertainty_path,
+        spearman_path_prefix=spearman_path_prefix,
         )

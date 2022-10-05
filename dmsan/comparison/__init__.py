@@ -44,7 +44,17 @@ def get_models(
         include_resource_recovery=False,
         include_general_model=True,
         load_cached_data=False,
+        general_model_kwargs={},
+        country_specific_model_kwargs={},
         ):
+    kwargs = {
+        'countries': countries,
+        'country_specific_inputs': country_specific_inputs,
+        'include_general_model': include_general_model,
+        'load_cached_data': load_cached_data,
+        'general_model_kwargs': general_model_kwargs,
+        'country_specific_model_kwargs': country_specific_model_kwargs,
+        }
     from exposan import biogenic_refinery as br
     br.INCLUDE_RESOURCE_RECOVERY = include_resource_recovery
     from exposan.biogenic_refinery import (
@@ -56,11 +66,7 @@ def get_models(
         create_general_model_func=create_br_model,
         create_country_specific_model_func=create_br_country_model,
         system_IDs=('A', 'B'),
-        countries=countries,
-        country_specific_inputs=country_specific_inputs,
-        include_general_model=include_general_model,
-        load_cached_data=load_cached_data,
-        )
+        **kwargs)
 
     try: # check if has access to the private repository
         from exposan import new_generator as ng
@@ -74,10 +80,7 @@ def get_models(
             create_general_model_func=create_ng_model,
             create_country_specific_model_func=create_ng_country_model,
             system_IDs=('A', 'B'),
-            countries=countries,
-            country_specific_inputs=country_specific_inputs,
-            load_cached_data=load_cached_data,
-            ))
+            **kwargs))
     except ImportError:
         from warnings import warn
         warn('Simulation for the NEWgenerator system (under non-disclosure agreement) is skipped, '
@@ -94,10 +97,7 @@ def get_models(
         create_general_model_func=create_re_model,
         create_country_specific_model_func=create_re_country_model,
         system_IDs=('B', 'C'),
-        countries=countries,
-        country_specific_inputs=country_specific_inputs,
-        load_cached_data=load_cached_data,
-        ))
+        **kwargs))
     return model_dct
 
 
@@ -109,6 +109,14 @@ def simulate_models(
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=False,
         include_general_model=True,
+        general_model_kwargs={},
+        country_specific_model_kwargs={},
+        include_baseline=True,
+        include_spearman=True,
+        baseline_path='default',
+        pickle_path='default',
+        uncertainty_path='default',
+        spearman_path_prefix='default',
         ):
     model_dct = get_models(
         module=module,
@@ -116,11 +124,19 @@ def simulate_models(
         country_specific_inputs=country_specific_inputs,
         include_resource_recovery=include_resource_recovery,
         include_general_model=include_general_model,
+        general_model_kwargs=general_model_kwargs,
+        country_specific_model_kwargs=country_specific_model_kwargs,
         load_cached_data=False,
         )
     return simulate_module_models(
         scores_path=scores_path,
         model_dct=model_dct,
         N=N,
-        seed=seed
+        seed=seed,
+        include_baseline=include_baseline,
+        include_spearman=include_spearman,
+        baseline_path=baseline_path,
+        pickle_path=pickle_path,
+        uncertainty_path=uncertainty_path,
+        spearman_path_prefix=spearman_path_prefix,
         )
