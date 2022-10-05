@@ -67,4 +67,4 @@ outs = simulate_models(
     uncertainty_path=os.path.join(scores_path, 'simulated_uncertainties_sensitivity.xlsx'),
     spearman_path_prefix=os.path.join(scores_path, 'simulated_spearman'),
     )
-baseline_df, uncertainty_dct, model_dct = outs
+baseline_df, uncertainty_dct, spearman_dct, model_dct = outs

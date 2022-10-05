@@ -142,7 +142,6 @@ if __name__ == '__main__':
         countries=countries, N=N, seed=seed, 
         include_resource_recovery=False,
         include_general_model=True,
-        return_model_dct=True,
         include_baseline=True,
         include_spearman=False,
         pickle_path='',
