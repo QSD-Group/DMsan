@@ -188,7 +188,7 @@ def get_module_models(
 
 # Not in the pickle file as it's easy to reproduce once have the model
 @time_printer
-def get_spearman(model_dct, spearman_path_prefix=''):
+def get_spearman(model_dct, p_sig=0.05, spearman_path_prefix=''):
     spearman_rho_dct = {}
     spearman_rho_sig_dct = {}
     spearman_p_dct = {}
@@ -196,7 +196,7 @@ def get_spearman(model_dct, spearman_path_prefix=''):
         flowsheet_ID, country = key.split('_')
         rho, p = model.spearman_r()
         spearman_rho_dct[key] = rho
-        rho_sig = rho.where(p<0.05, other='')
+        rho_sig = rho.where(p<=p_sig, other='')
         spearman_rho_sig_dct[key] = rho_sig
         spearman_p_dct[key] = p
 
