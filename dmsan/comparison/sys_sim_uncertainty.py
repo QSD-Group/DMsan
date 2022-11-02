@@ -91,33 +91,7 @@ def export_percentiles(uncertainty_dct, q=[0.05, 0.25, 0.5, 0.75, 0.95], path=''
 
 # %%
 
-factor_vals = np.arange(0, 1.1, 0.5) # start, stop, step (stop is excluded)
-@time_printer
-def evaluate_across_price_factor(model_dct, N=N_across, seed=seed, vals=factor_vals):
-    dct = {}
-    for val in vals:
-        print(f'\n\nprice factor: {val}')
-        model_dct_new = {}
-        for key, model_original in model_dct.items():
-            price_factor = get_param(model_original, 'Price factor')
-            model_new = model_original.copy()
-            model_new.parameters = [p for p in model_original.parameters if p is not price_factor]
-            price_factor.setter(val)
-            model_dct_new[key] = model_new
-
-        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
-        dct[val] = export_percentiles(uncertinty_dct, path=None)
-    price_factor_path = os.path.join(scores_path, 'price_factor_percentiles.xlsx')
-    writer = pd.ExcelWriter(price_factor_path)
-    for name, df in dct.items():
-        df.to_excel(writer, sheet_name=str(name))
-    writer.save()
-
-    return dct
-
-
-# %%
-
+# Wages and Operator daily wages
 br_wage_vals = np.linspace(1.0015, 336.9715, num=N_step+2)
 ngre_wage_vals = np.linspace(0.125188, 42.12144, num=N_step+2)
 
@@ -145,6 +119,206 @@ def evaluate_across_wages(model_dct, N=N_across, seed=seed):
         dct[n] = export_percentiles(uncertinty_dct, path=None)
     wages_path = os.path.join(scores_path, 'wages_percentiles.xlsx')
     writer = pd.ExcelWriter(wages_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+# Price level ratio
+price_ratio_vals = np.linspace(0.174, 1.370785956, num=N_step+2)
+@time_printer
+def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=price_ratio_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\nprice ratio: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            price_ratio = get_param(model_original, 'Price ratio')
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not price_ratio]
+            price_ratio.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    price_ratio_path = os.path.join(scores_path, 'price_ratio_percentiles.xlsx')
+    writer = pd.ExcelWriter(price_ratio_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+# Electricity price
+electricity_price_vals = np.linspace(0.003, 0.378, num=N_step+2)
+@time_printer
+def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=electricity_price_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\nelectricity price: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            electricity_price_param_name = ('Energy price', 'Electricity price')
+            electricity_price_param = get_param(model_original, electricity_price_param_name)
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not electricity_price_param]
+            electricity_price_param.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    electricity_price_path = os.path.join(scores_path, 'electricity_price_percentiles.xlsx')
+    writer = pd.ExcelWriter(electricity_price_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+# Electricity GWP
+electricity_gwp_vals = np.linspace(0.012, 1.046968, num=N_step+2)
+@time_printer
+def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=electricity_gwp_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\nelectricity gwp: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            electricity_gwp_param_name = ('Electricity CF', 'Energy gwp')
+            electricity_gwp_param = get_param(model_original, electricity_gwp_param_name)
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not electricity_gwp_param]
+            electricity_gwp_param.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    electricity_gwp_path = os.path.join(scores_path, 'electricity_gwp_percentiles.xlsx')
+    writer = pd.ExcelWriter(electricity_gwp_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+# E cal
+e_cal_vals = np.linspace(1786, 3885, num=N_step+2)
+@time_printer
+def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=e_cal_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\ne cal: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            e_cal_param_name = ('Excretion e cal', 'E cal')
+            e_cal_param = get_param(model_original, e_cal_param_name)
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not e_cal_param]
+            e_cal_param.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    e_cal_path = os.path.join(scores_path, 'e_cal_percentiles.xlsx')
+    writer = pd.ExcelWriter(e_cal_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+# P anim
+p_anim_vals = np.linspace(1786, 3885, num=N_step+2)
+@time_printer
+def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=p_anim_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\np anim: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            p_anim_param_name = ('Excretion p anim', 'P anim')
+            p_anim_param = get_param(model_original, p_anim_param_name)
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not p_anim_param]
+            p_anim_param.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    p_anim_path = os.path.join(scores_path, 'p_anim_percentiles.xlsx')
+    writer = pd.ExcelWriter(p_anim_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+# P veg
+p_veg_vals = np.linspace(1786, 3885, num=N_step+2)
+@time_printer
+def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=p_veg_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\np_veg: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            p_veg_param_name = ('Excretion p veg', 'P veg')
+            p_veg_param = get_param(model_original, p_veg_param_name)
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not p_veg_param]
+            p_veg_param.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    p_veg_path = os.path.join(scores_path, 'p_veg_percentiles.xlsx')
+    writer = pd.ExcelWriter(p_veg_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+factor_vals = np.arange(0, 1.1, 0.5) # start, stop, step (stop is excluded)
+@time_printer
+def evaluate_across_price_factor(model_dct, N=N_across, seed=seed, vals=factor_vals):
+    dct = {}
+    for val in vals:
+        print(f'\n\nprice factor: {val}')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            price_factor = get_param(model_original, 'Price factor')
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not price_factor]
+            price_factor.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[val] = export_percentiles(uncertinty_dct, path=None)
+    price_factor_path = os.path.join(scores_path, 'price_factor_percentiles.xlsx')
+    writer = pd.ExcelWriter(price_factor_path)
     for name, df in dct.items():
         df.to_excel(writer, sheet_name=str(name))
     writer.save()
