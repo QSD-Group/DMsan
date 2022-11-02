@@ -117,6 +117,7 @@ def simulate_models(
         pickle_path='default',
         uncertainty_path='default',
         spearman_path_prefix='default',
+        skip_evaluation=False,
         ):
     model_dct = get_models(
         module=module,
@@ -128,6 +129,7 @@ def simulate_models(
         country_specific_model_kwargs=country_specific_model_kwargs,
         load_cached_data=False,
         )
+    if skip_evaluation: return model_dct
     return simulate_module_models(
         scores_path=scores_path,
         model_dct=model_dct,

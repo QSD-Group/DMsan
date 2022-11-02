@@ -19,7 +19,7 @@ simulating the system.
 import os, numpy as np, pandas as pd
 from qsdsan.utils import time_printer
 from dmsan.utils import get_uncertainties
-from dmsan.comparison import scores_path, simulate_models
+from dmsan.comparison import scores_path, simulate_models, get_models
 
 # Comment these out if want to see all warnings
 import warnings
@@ -56,9 +56,17 @@ countries = ('Albania',)
 
 
 N = 100
-N_price_factor = 10
+N_across = 10
+N_step = 1
 N_no_fertilizer = 20
 seed = 3221
+
+def get_param(model, name):
+    names = (name,) if isinstance(name, str) else name
+    for name in names: # just for the sake of operator daily wage(s)
+        for i in model.parameters:
+            if i.name == name: return i
+    raise ValueError(f'Cannot find parameter "{name}".')
 
 
 # %%
@@ -85,20 +93,19 @@ def export_percentiles(uncertainty_dct, q=[0.05, 0.25, 0.5, 0.75, 0.95], path=''
 
 factor_vals = np.arange(0, 1.1, 0.5) # start, stop, step (stop is excluded)
 @time_printer
-def evaluate_across_price_factor(model_dct, N=N_price_factor, seed=seed, vals=factor_vals):
+def evaluate_across_price_factor(model_dct, N=N_across, seed=seed, vals=factor_vals):
     dct = {}
     for val in vals:
         print(f'\n\nprice factor: {val}')
         model_dct_new = {}
         for key, model_original in model_dct.items():
-            for price_factor in model_original.parameters:
-                if price_factor.name == 'Price factor': break
+            price_factor = get_param(model_original, 'Price factor')
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not price_factor]
             price_factor.setter(val)
             model_dct_new[key] = model_new
 
-        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_price_factor, print_time=False)
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
         dct[val] = export_percentiles(uncertinty_dct, path=None)
     price_factor_path = os.path.join(scores_path, 'price_factor_percentiles.xlsx')
     writer = pd.ExcelWriter(price_factor_path)
@@ -111,8 +118,44 @@ def evaluate_across_price_factor(model_dct, N=N_price_factor, seed=seed, vals=fa
 
 # %%
 
+br_wage_vals = np.linspace(1.0015, 336.9715, num=N_step+2)
+ngre_wage_vals = np.linspace(0.125188, 42.12144, num=N_step+2)
+
 @time_printer
-def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed):
+def evaluate_across_wages(model_dct, N=N_across, seed=seed):
+    dct = {}
+    
+    for n in range(N_step+2):
+        print(f'\n\n{n} step in wage list')
+        model_dct_new = {}
+        for key, model_original in model_dct.items():
+            if key[:2] == 'br':
+                wage_param_name = ('Operator daily wages', 'Operator daily wage')
+                val = br_wage_vals[n]
+            else:
+                wage_param_name = ('Wages', 'Labor wages')
+                val = ngre_wage_vals[n]
+            wage_param = get_param(model_original, wage_param_name)
+            model_new = model_original.copy()
+            model_new.parameters = [p for p in model_original.parameters if p is not wage_param]
+            wage_param.setter(val)
+            model_dct_new[key] = model_new
+
+        uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
+        dct[n] = export_percentiles(uncertinty_dct, path=None)
+    wages_path = os.path.join(scores_path, 'wages_percentiles.xlsx')
+    writer = pd.ExcelWriter(wages_path)
+    for name, df in dct.items():
+        df.to_excel(writer, sheet_name=str(name))
+    writer.save()
+
+    return dct
+
+
+# %%
+
+@time_printer
+def evaluate_without_fertilizer_recovery(model_dct, N=N_across, seed=seed):
     dct = {}
     print('\n\nno fertilizer recovery')
     for key, model_original in model_dct.items():
@@ -138,15 +181,27 @@ def evaluate_without_fertilizer_recovery(model_dct, N=N_price_factor, seed=seed)
 # %%
 
 if __name__ == '__main__':
-    outs = simulate_models(
+    # outs = simulate_models(
+    #     countries=countries, N=N, seed=seed, 
+    #     include_resource_recovery=False,
+    #     include_general_model=True,
+    #     include_baseline=True,
+    #     include_spearman=False,
+    #     pickle_path='',
+    #     )
+    # baseline_df, uncertainty_dct, model_dct = outs
+    
+    model_dct = simulate_models(
         countries=countries, N=N, seed=seed, 
         include_resource_recovery=False,
         include_general_model=True,
         include_baseline=True,
         include_spearman=False,
         pickle_path='',
+        skip_evaluation=True
         )
-    baseline_df, uncertainty_dct, model_dct = outs
-    percentile_df = export_percentiles(uncertainty_dct)
+    wage_dct = evaluate_across_wages(model_dct)
+    
+    # percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)
     # fertilizer_df = evaluate_without_fertilizer_recovery(model_dct)
