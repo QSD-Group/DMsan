@@ -159,7 +159,7 @@ def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=price_rat
 # Electricity price
 electricity_price_vals = np.linspace(0.003, 0.378, num=N_step+2)
 @time_printer
-def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=electricity_price_vals):
+def evaluate_across_electricity_price(model_dct, N=N_across, seed=seed, vals=electricity_price_vals):
     dct = {}
     for val in vals:
         print(f'\n\nelectricity price: {val}')
@@ -188,7 +188,7 @@ def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=electrici
 # Electricity GWP
 electricity_gwp_vals = np.linspace(0.012, 1.046968, num=N_step+2)
 @time_printer
-def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=electricity_gwp_vals):
+def evaluate_across_electricity_gwp(model_dct, N=N_across, seed=seed, vals=electricity_gwp_vals):
     dct = {}
     for val in vals:
         print(f'\n\nelectricity gwp: {val}')
@@ -217,7 +217,7 @@ def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=electrici
 # E cal
 e_cal_vals = np.linspace(1786, 3885, num=N_step+2)
 @time_printer
-def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=e_cal_vals):
+def evaluate_across_e_cal(model_dct, N=N_across, seed=seed, vals=e_cal_vals):
     dct = {}
     for val in vals:
         print(f'\n\ne cal: {val}')
@@ -246,7 +246,7 @@ def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=e_cal_val
 # P anim
 p_anim_vals = np.linspace(1786, 3885, num=N_step+2)
 @time_printer
-def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=p_anim_vals):
+def evaluate_across_p_anim(model_dct, N=N_across, seed=seed, vals=p_anim_vals):
     dct = {}
     for val in vals:
         print(f'\n\np anim: {val}')
@@ -275,7 +275,7 @@ def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=p_anim_va
 # P veg
 p_veg_vals = np.linspace(1786, 3885, num=N_step+2)
 @time_printer
-def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=p_veg_vals):
+def evaluate_across_p_veg(model_dct, N=N_across, seed=seed, vals=p_veg_vals):
     dct = {}
     for val in vals:
         print(f'\n\np_veg: {val}')
@@ -374,7 +374,13 @@ if __name__ == '__main__':
         pickle_path='',
         skip_evaluation=True
         )
-    wage_dct = evaluate_across_wages(model_dct)
+    # wage_dct = evaluate_across_wages(model_dct)
+    price_ratio_dct = evaluate_across_price_ratio(model_dct)
+    # electricity_price_dct = evaluate_across_electricity_price(model_dct)
+    # electricity_gwp_dct = evaluate_across_electricity_gwp(model_dct)
+    # e_cal_dct = evaluate_across_e_cal(model_dct)
+    # p_anim_dct = evaluate_across_p_anim(model_dct)
+    # p_veg_dct = evaluate_across_p_veg(model_dct)
     
     # percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)
