@@ -55,9 +55,9 @@ countries = ('Albania',)
 #              'Thailand', 'Turkey', 'Uganda', 'Ukraine', 'United Kingdom', 'United States', 'Uruguay')
 
 
-N = 100
-N_across = 10
-N_step = 1
+N = 10
+N_across = 1000
+N_step = 5
 N_no_fertilizer = 20
 seed = 3221
 
@@ -187,22 +187,36 @@ def evaluate_across_electricity_price(model_dct, N=N_across, seed=seed, vals=ele
 
 # Electricity GWP
 electricity_gwp_vals = np.linspace(0.012, 1.046968, num=N_step+2)
+ngre_solar_gwp_vals = np.linspace(0.0, 0.0, num=N_step+2)
 @time_printer
-def evaluate_across_electricity_gwp(model_dct, N=N_across, seed=seed, vals=electricity_gwp_vals):
+def evaluate_across_electricity_gwp(model_dct, N=N_across, seed=seed):
     dct = {}
-    for val in vals:
-        print(f'\n\nelectricity gwp: {val}')
+    for n in range(N_step+2):
+        print(f'\n\n{n} step in electricity gwp list')
         model_dct_new = {}
         for key, model_original in model_dct.items():
             electricity_gwp_param_name = ('Electricity CF', 'Energy gwp')
             electricity_gwp_param = get_param(model_original, electricity_gwp_param_name)
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not electricity_gwp_param]
+
+            if key[:3] == 'ngA':
+                print(key[:3])
+                val = ngre_solar_gwp_vals[n]
+                print(val)
+            elif key[:3] == 'reC':
+                print(key[:3])
+                val = ngre_solar_gwp_vals[n]
+                print(val)
+            else:
+                print(key[:3])
+                val = electricity_gwp_vals[n]
+                print(val)
             electricity_gwp_param.setter(val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
-        dct[val] = export_percentiles(uncertinty_dct, path=None)
+        dct[n] = export_percentiles(uncertinty_dct, path=None)
     electricity_gwp_path = os.path.join(scores_path, 'electricity_gwp_percentiles.xlsx')
     writer = pd.ExcelWriter(electricity_gwp_path)
     for name, df in dct.items():
@@ -375,9 +389,9 @@ if __name__ == '__main__':
         skip_evaluation=True
         )
     # wage_dct = evaluate_across_wages(model_dct)
-    price_ratio_dct = evaluate_across_price_ratio(model_dct)
+    # price_ratio_dct = evaluate_across_price_ratio(model_dct)
     # electricity_price_dct = evaluate_across_electricity_price(model_dct)
-    # electricity_gwp_dct = evaluate_across_electricity_gwp(model_dct)
+    electricity_gwp_dct = evaluate_across_electricity_gwp(model_dct)
     # e_cal_dct = evaluate_across_e_cal(model_dct)
     # p_anim_dct = evaluate_across_p_anim(model_dct)
     # p_veg_dct = evaluate_across_p_veg(model_dct)
