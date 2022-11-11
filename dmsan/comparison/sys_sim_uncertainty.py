@@ -57,7 +57,7 @@ countries = ('Albania',)
 
 N = 10
 N_across = 1000
-N_step = 5
+N_step = 5  #5
 N_no_fertilizer = 20
 seed = 3221
 
@@ -258,7 +258,7 @@ def evaluate_across_e_cal(model_dct, N=N_across, seed=seed, vals=e_cal_vals):
 # %%
 
 # P anim
-p_anim_vals = np.linspace(1786, 3885, num=N_step+2)
+p_anim_vals = np.linspace(6.55, 104.98, num=N_step+2)
 @time_printer
 def evaluate_across_p_anim(model_dct, N=N_across, seed=seed, vals=p_anim_vals):
     dct = {}
@@ -287,7 +287,7 @@ def evaluate_across_p_anim(model_dct, N=N_across, seed=seed, vals=p_anim_vals):
 # %%
 
 # P veg
-p_veg_vals = np.linspace(1786, 3885, num=N_step+2)
+p_veg_vals = np.linspace(24.81, 73.29, num=N_step+2)
 @time_printer
 def evaluate_across_p_veg(model_dct, N=N_across, seed=seed, vals=p_veg_vals):
     dct = {}
@@ -393,8 +393,8 @@ if __name__ == '__main__':
     # electricity_price_dct = evaluate_across_electricity_price(model_dct)
     electricity_gwp_dct = evaluate_across_electricity_gwp(model_dct)
     # e_cal_dct = evaluate_across_e_cal(model_dct)
-    # p_anim_dct = evaluate_across_p_anim(model_dct)
-    # p_veg_dct = evaluate_across_p_veg(model_dct)
+    p_anim_dct = evaluate_across_p_anim(model_dct)
+    p_veg_dct = evaluate_across_p_veg(model_dct)
     
     # percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)
