@@ -7,6 +7,8 @@ DMsan: Decision-making of sanitation and resource recovery systems
 This module is developed by:
 
     Yalin Li <mailto.yalin.li@gmail.com>
+    
+    Hannah Lohman <hlohman94@gmail.com>
 
 This module is under the University of Illinois/NCSA Open Source License.
 Please refer to https://github.com/QSD-Group/DMsan/blob/main/LICENSE.txt
@@ -17,9 +19,10 @@ simulating the system.
 '''
 
 import os, numpy as np, pandas as pd
+from chaospy import distributions as shape
 from qsdsan.utils import time_printer
 from dmsan.utils import get_uncertainties
-from dmsan.comparison import scores_path, simulate_models, get_models
+from dmsan.comparison import scores_path, simulate_models
 
 # Comment these out if want to see all warnings
 import warnings
@@ -56,7 +59,7 @@ countries = ('Albania',)
 
 
 N = 10
-N_across = 1000
+N_across = 50
 N_step = 5  #5
 N_no_fertilizer = 20
 seed = 3221
@@ -69,7 +72,24 @@ def get_param(model, name):
     raise ValueError(f'Cannot find parameter "{name}".')
 
 
-# %%
+# Set a very tight distribution to approximate a constant
+def add_constant_param(model, parameter, constant):
+    if constant > 0:
+        D = shape.Uniform(lower=constant*(1-10**(-6)), upper=constant*(1+10**(-6)))
+    elif constant < 0:
+        D = shape.Uniform(lower=constant*(1+10**(-6)), upper=constant*(1-10**(-6)))
+    else:
+        D = shape.Uniform(lower=-10**(-6), upper=10**(-6))
+    model.parameter(
+        setter=parameter.setter,
+        name=parameter.name,
+        element=parameter.element,
+        kind=parameter.kind,
+        units=parameter.units,
+        baseline=constant,
+        distribution=D,
+        )
+
 
 def export_percentiles(uncertainty_dct, q=[0.05, 0.25, 0.5, 0.75, 0.95], path=''):
     percentiles = {}
@@ -112,7 +132,7 @@ def evaluate_across_wages(model_dct, N=N_across, seed=seed):
             wage_param = get_param(model_original, wage_param_name)
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not wage_param]
-            wage_param.setter(val)
+            add_constant_param(model_new, wage_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -137,10 +157,10 @@ def evaluate_across_price_ratio(model_dct, N=N_across, seed=seed, vals=price_rat
         print(f'\n\nprice ratio: {val}')
         model_dct_new = {}
         for key, model_original in model_dct.items():
-            price_ratio = get_param(model_original, 'Price ratio')
+            price_ratio_param = get_param(model_original, 'Price ratio')
             model_new = model_original.copy()
-            model_new.parameters = [p for p in model_original.parameters if p is not price_ratio]
-            price_ratio.setter(val)
+            model_new.parameters = [p for p in model_original.parameters if p is not price_ratio_param]
+            add_constant_param(model_new, price_ratio_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -169,7 +189,7 @@ def evaluate_across_electricity_price(model_dct, N=N_across, seed=seed, vals=ele
             electricity_price_param = get_param(model_original, electricity_price_param_name)
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not electricity_price_param]
-            electricity_price_param.setter(val)
+            add_constant_param(model_new, electricity_price_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -201,18 +221,12 @@ def evaluate_across_electricity_gwp(model_dct, N=N_across, seed=seed):
             model_new.parameters = [p for p in model_original.parameters if p is not electricity_gwp_param]
 
             if key[:3] == 'ngA':
-                print(key[:3])
                 val = ngre_solar_gwp_vals[n]
-                print(val)
             elif key[:3] == 'reC':
-                print(key[:3])
                 val = ngre_solar_gwp_vals[n]
-                print(val)
             else:
-                print(key[:3])
                 val = electricity_gwp_vals[n]
-                print(val)
-            electricity_gwp_param.setter(val)
+            add_constant_param(model_new, electricity_gwp_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -241,9 +255,9 @@ def evaluate_across_e_cal(model_dct, N=N_across, seed=seed, vals=e_cal_vals):
             e_cal_param = get_param(model_original, e_cal_param_name)
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not e_cal_param]
-            e_cal_param.setter(val)
+            add_constant_param(model_new, e_cal_param, val)
             model_dct_new[key] = model_new
-
+            
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
         dct[val] = export_percentiles(uncertinty_dct, path=None)
     e_cal_path = os.path.join(scores_path, 'e_cal_percentiles.xlsx')
@@ -270,7 +284,7 @@ def evaluate_across_p_anim(model_dct, N=N_across, seed=seed, vals=p_anim_vals):
             p_anim_param = get_param(model_original, p_anim_param_name)
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not p_anim_param]
-            p_anim_param.setter(val)
+            add_constant_param(model_new, p_anim_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -299,7 +313,7 @@ def evaluate_across_p_veg(model_dct, N=N_across, seed=seed, vals=p_veg_vals):
             p_veg_param = get_param(model_original, p_veg_param_name)
             model_new = model_original.copy()
             model_new.parameters = [p for p in model_original.parameters if p is not p_veg_param]
-            p_veg_param.setter(val)
+            add_constant_param(model_new, p_veg_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -323,10 +337,10 @@ def evaluate_across_price_factor(model_dct, N=N_across, seed=seed, vals=factor_v
         print(f'\n\nprice factor: {val}')
         model_dct_new = {}
         for key, model_original in model_dct.items():
-            price_factor = get_param(model_original, 'Price factor')
+            price_factor_param = get_param(model_original, 'Price factor')
             model_new = model_original.copy()
-            model_new.parameters = [p for p in model_original.parameters if p is not price_factor]
-            price_factor.setter(val)
+            model_new.parameters = [p for p in model_original.parameters if p is not price_factor_param]
+            add_constant_param(model_new, price_factor_param, val)
             model_dct_new[key] = model_new
 
         uncertinty_dct = get_uncertainties(model_dct=model_dct_new, N=N_across, print_time=False)
@@ -393,8 +407,8 @@ if __name__ == '__main__':
     # electricity_price_dct = evaluate_across_electricity_price(model_dct)
     electricity_gwp_dct = evaluate_across_electricity_gwp(model_dct)
     # e_cal_dct = evaluate_across_e_cal(model_dct)
-    p_anim_dct = evaluate_across_p_anim(model_dct)
-    p_veg_dct = evaluate_across_p_veg(model_dct)
+    # p_anim_dct = evaluate_across_p_anim(model_dct)
+    # p_veg_dct = evaluate_across_p_veg(model_dct)
     
     # percentile_df = export_percentiles(uncertainty_dct)
     # price_factor_dct = evaluate_across_price_factor(model_dct)
