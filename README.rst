@@ -6,13 +6,13 @@ DMsan: Decision-Making for Sanitation and Resource Recovery Systems
 .. image:: https://img.shields.io/pypi/l/qsdsan?color=blue&logo=UIUC&style=flat
    :target: https://github.com/QSD-Group/QSDsan/blob/main/LICENSE.txt
 
-.. Tested Python version
-.. image:: https://img.shields.io/pypi/pyversions/qsdsan?style=flat
-   :target: https://pypi.python.org/pypi/qsdsan
+.. Python version
+.. image:: https://img.shields.io/pypi/pyversions/dmsan?style=flat
+   :target: https://pypi.python.org/pypi/dmsan
 
 .. PyPI version
-.. image:: https://img.shields.io/pypi/v/qsdsan?style=flat&color=blue
-   :target: https://pypi.org/project/qsdsan
+.. image:: https://img.shields.io/pypi/v/dmsan?style=flat&color=blue
+   :target: https://pypi.org/project/dmsan
 
 |
 
@@ -85,7 +85,7 @@ You can find QSDsan tutorials and documents at:
 
 All tutorials are written using Jupyter Notebook, you can run your own Jupyter environment.
 
-For each of these tutorials, we are also recording videos where one of the QSD group members will go through the tutorial step-by-step. We are gradually releasing these videos on our `YouTube channel <https://www.youtube.com/channel/UC8fyVeo9xf10KeuZ_4vC_GA>`_ so subscribe to receive updates!
+For each of these tutorials, we are also recording videos where one of the QSD group members will go through the tutorial step-by-step. We are gradually releasing these videos on our `YouTube channel <https://www.youtube.com/@qsd-group>`_ so subscribe to receive updates!
 
 
 About the authors
@@ -101,10 +101,6 @@ Development and maintenance of the package is supported by the Quantitative Sust
 
 **Project conception & funding support:**
    - `Jeremy Guest <mailto:jsguest@illinois.edu>`_
-
-
-**Special acknowledgement:**
-   - Yoel Cortés-Peña for helping many of the ``DMsan`` members get started on Python and package development.
 
 
 Contributing
@@ -129,7 +125,7 @@ Please refer to the ``LICENSE.txt`` for information on the terms & conditions fo
 
 References
 ----------
-.. [1] Li, Y.; Trimmer, J.T.; Hand, S.; Zhang, X.; Chambers, K.G.; Lohman, H.A.C.; Shi, R.; Byrne, D.M.; Cook, S.M.; Guest, J.S. Quantitative Sustainable Design (QSD): A Methodology for the Prioritization of Research, Development, and Deployment of Technologies. (Tutorial Review) Environ. Sci.: Water Res. Technol. 2022, Advance Article. https://doi.org/10.1039/D2EW00431C.
+.. [1] Li, Y.; Trimmer, J.T.; Hand, S.; Zhang, X.; Chambers, K.G.; Lohman, H.A.C.; Shi, R.; Byrne, D.M.; Cook, S.M.; Guest, J.S. Quantitative Sustainable Design (QSD): A Methodology for the Prioritization of Research, Development, and Deployment of Technologies. (Tutorial Review) Environ. Sci.: Water Res. Technol. 2022, 8 (11), 2439–2465. https://doi.org/10.1039/D2EW00431C.
 
 .. [2] Li, Y.; Zhang, X.; Morgan, V.L.; Lohman, H.A.C.; Rowles, L.S.; Mittal, S.; Kogler, A.; Cusick, R.D.; Tarpeh, W.A.; Guest, J.S. QSDsan: An integrated platform for quantitative sustainable design of sanitation and resource recovery systems. Environ. Sci.: Water Res. Technol. 2022, 8 (10), 2289-2303. https://doi.org/10.1039/d2ew00455k.
 
