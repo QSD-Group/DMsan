@@ -17,6 +17,7 @@ Run this module to generate the data needed for making the heatmap.
 '''
 
 import os
+from chaospy import distributions as shape
 from dmsan.comparison import results_path
 
 N = 1000
@@ -40,14 +41,15 @@ brA_model = create_br_model('A')
 
 for wage_param in brA_model.parameters:
     if wage_param.name in ('Operator daily wages', 'Operator daily wage'): break
-wage_param.bounds = br_wage_bounds
+wage_param.distribution = shape.Uniform(*br_wage_bounds) # lower, upper
 
 for electricity_price_param in brA_model.parameters:
     if electricity_price_param.name in ('Energy price', 'Electricity price'): break
-electricity_price_param.bounds = electricity_price_bounds
+electricity_price_param.distribution = shape.Uniform(*electricity_price_bounds)
 
 brA_model.parameters = [wage_param, electricity_price_param]
 brA_model.load_samples(brA_model.sample(N=N, rule='L', seed=seed))
+
 brA_model.evaluate()
 
 brA_model.table.to_excel(os.path.join(results_path, 'heatmap_brA.xlsx'))
@@ -61,11 +63,11 @@ ngB_model = create_ng_model('B')
 
 for wage_param in ngB_model.parameters:
     if wage_param.name in ('Wages', 'Labor wages'): break
-wage_param.bounds = re_ng_wage_bounds
+wage_param.distribution = shape.Uniform(*re_ng_wage_bounds)
 
 for electricity_price_param in ngB_model.parameters:
     if electricity_price_param.name in ('Energy price', 'Electricity price'): break
-electricity_price_param.bounds = electricity_price_bounds
+electricity_price_param.distribution = shape.Uniform(*electricity_price_bounds)
 
 ngB_model.parameters = [wage_param, electricity_price_param]
 ngB_model.load_samples(ngB_model.sample(N=N, rule='L', seed=seed))
@@ -82,11 +84,11 @@ reB_model = create_re_model('B')
 
 for wage_param in reB_model.parameters:
     if wage_param.name in ('Wages', 'Labor wages'): break
-wage_param.bounds = re_ng_wage_bounds
+wage_param.distribution = shape.Uniform(*re_ng_wage_bounds)
 
 for electricity_price_param in reB_model.parameters:
     if electricity_price_param.name in ('Energy price', 'Electricity price'): break
-electricity_price_param.bounds = electricity_price_bounds
+electricity_price_param.distribution = shape.Uniform(*electricity_price_bounds)
 
 reB_model.parameters = [wage_param, electricity_price_param]
 reB_model.load_samples(reB_model.sample(N=N, rule='L', seed=seed))
@@ -103,11 +105,11 @@ brB_model = create_br_model('B')
 
 for e_cal_param in brB_model.parameters:
     if e_cal_param.name in ('Excretion e cal', 'E cal'): break
-e_cal_param.bounds = e_cal_bounds
+e_cal_param.distribution = shape.Uniform(*e_cal_bounds)
 
 for p_anim_param in brB_model.parameters:
     if p_anim_param.name in ('Excretion p anim', 'P anim'): break
-p_anim_param.bounds = p_anim_bounds
+p_anim_param.distribution = shape.Uniform(*p_anim_bounds)
 
 brB_model.parameters = [e_cal_param, p_anim_param]
 brB_model.load_samples(brB_model.sample(N=N, rule='L', seed=seed))
@@ -124,11 +126,11 @@ ngA_model = create_ng_model('A')
 
 for e_cal_param in ngA_model.parameters:
     if e_cal_param.name in ('Excretion e cal', 'E cal'): break
-e_cal_param.bounds = e_cal_bounds
+e_cal_param.distribution = shape.Uniform(*e_cal_bounds)
 
 for p_anim_param in ngA_model.parameters:
     if p_anim_param.name in ('Excretion p anim', 'P anim'): break
-p_anim_param.bounds = p_anim_bounds
+p_anim_param.distribution = shape.Uniform(*p_anim_bounds)
 
 ngA_model.parameters = [e_cal_param, p_anim_param]
 ngA_model.load_samples(ngA_model.sample(N=N, rule='L', seed=seed))
@@ -145,11 +147,11 @@ reC_model = create_re_model('C')
 
 for e_cal_param in reC_model.parameters:
     if e_cal_param.name in ('Excretion e cal', 'E cal'): break
-e_cal_param.bounds = e_cal_bounds
+e_cal_param.distribution = shape.Uniform(*e_cal_bounds)
 
 for p_anim_param in reC_model.parameters:
     if p_anim_param.name in ('Excretion p anim', 'P anim'): break
-p_anim_param.bounds = p_anim_bounds
+p_anim_param.distribution = shape.Uniform(*p_anim_bounds)
 
 reC_model.parameters = [e_cal_param, p_anim_param]
 reC_model.load_samples(reC_model.sample(N=N, rule='L', seed=seed))
@@ -168,11 +170,11 @@ brB_model = create_br_model('B')
 
 for p_veg_param in brB_model.parameters:
     if p_veg_param.name in ('Excretion p veg', 'P veg'): break
-p_veg_param.bounds = p_veg_bounds
+p_veg_param.distribution = shape.Uniform(*p_veg_bounds)
 
 for p_anim_param in brB_model.parameters:
     if p_anim_param.name in ('Excretion p anim', 'P anim'): break
-p_anim_param.bounds = p_anim_bounds
+p_anim_param.distribution = shape.Uniform(*p_anim_bounds)
 
 brB_model.parameters = [p_veg_param, p_anim_param]
 brB_model.load_samples(brB_model.sample(N=N, rule='L', seed=seed))
@@ -189,11 +191,11 @@ ngB_model = create_ng_model('B')
 
 for e_cal_param in ngB_model.parameters:
     if e_cal_param.name in ('Excretion e cal', 'E cal'): break
-e_cal_param.bounds = e_cal_bounds
+e_cal_param.distribution = shape.Uniform(*e_cal_bounds)
 
 for electricity_gwp_param in ngB_model.parameters:
     if electricity_gwp_param.name in ('Electricity CF', 'Energy gwp'): break
-electricity_gwp_param.bounds = electricity_gwp_bounds
+electricity_gwp_param.distribution = shape.Uniform(*electricity_gwp_bounds)
 
 ngB_model.parameters = [e_cal_param, electricity_gwp_param]
 ngB_model.load_samples(ngB_model.sample(N=N, rule='L', seed=seed))
@@ -210,11 +212,11 @@ reB_model = create_re_model('B')
 
 for e_cal_param in reB_model.parameters:
     if e_cal_param.name in ('Excretion e cal', 'E cal'): break
-e_cal_param.bounds = e_cal_bounds
+e_cal_param.distribution = shape.Uniform(*e_cal_bounds)
 
 for electricity_gwp_param in reB_model.parameters:
     if electricity_gwp_param.name in ('Electricity CF', 'Energy gwp'): break
-electricity_gwp_param.bounds = electricity_gwp_bounds
+electricity_gwp_param.distribution = shape.Uniform(*electricity_gwp_bounds)
 
 reB_model.parameters = [e_cal_param, electricity_gwp_param]
 reB_model.load_samples(reB_model.sample(N=N, rule='L', seed=seed))
