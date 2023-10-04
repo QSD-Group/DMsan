@@ -28,9 +28,12 @@ from dmsan import AHP, MCDA
 from dmsan.bwaise import scores_path, results_path, figures_path
 
 # Utils
-indicator_scores_path = os.path.join(scores_path, 'other_indicator_scores.xlsx')
-score_file = pd.ExcelFile(indicator_scores_path)
-read_baseline = lambda name: pd.read_excel(score_file, name).expected
+assigned_module_path = os.path.join(scores_path.rstrip('scores'), 'scores_assigned')
+assigned_scores_path = os.path.join(assigned_module_path, 'other_indicator_scores.xlsx')
+if not os.path.isfile(assigned_scores_path):
+    raise ValueError('Please provide scores for manually assigned indicators.')
+assigned_score_file = pd.ExcelFile(assigned_scores_path)
+read_baseline = lambda name: pd.read_excel(assigned_score_file, name).expected
 
 rng = np.random.default_rng(3221) # set random number generator for reproducible results
 
@@ -84,7 +87,7 @@ def get_baseline_indicator_scores(lca_perspective=lca_perspective):
     ind_score_RR_All.columns = [f'RR{i+1}' for i in range(ind_score_RR_All.shape[1])]
 
     # Environmental
-    lca_ind = [ind for ind in baseline.index if ind[1].startswith(f'Net emission {lca_perspective.upper()}_')]
+    lca_ind = [ind for ind in baseline.index if ind[1].startswith(f'Net emission {lca_perspective.upper()}')]
     ind_score_Env_All = pd.DataFrame([
         baseline[baseline.index==lca_ind[0]].values[0], # ecosystem quality
         baseline[baseline.index==lca_ind[1]].values[0], # human health
@@ -192,7 +195,7 @@ sim_num = len(ind_score_dct) # number of system simulations
 # =============================================================================
 
 # Names of the alternative systems
-alt_names = pd.read_excel(indicator_scores_path, sheet_name='user_interface').system
+alt_names = pd.read_excel(assigned_scores_path, sheet_name='user_interface').system
 
 # Baseline
 bwaise_ahp = AHP(location_name='Uganda', num_alt=len(alt_names),
@@ -369,7 +372,7 @@ def run_analyses(save_sensitivity_excel=False):
     # for i in eq_inds:
     #     bwaise_ahp.init_weights[i] = bwaise_ahp.na_default
     # bwaise_ahp.get_indicator_weights(return_results=False)
-
+    assert False()
     global bwaise_mcda
     bwaise_mcda = MCDA(method='TOPSIS', alt_names=alt_names,
                        indicator_weights=bwaise_ahp.norm_weights_df,

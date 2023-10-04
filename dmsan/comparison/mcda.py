@@ -33,6 +33,11 @@ from qsdsan.utils import save_pickle, load_pickle, time_printer
 from dmsan import AHP, MCDA
 from dmsan.comparison import scores_path, results_path, figures_path
 
+assigned_module_path = os.path.join(scores_path.rstrip('scores'), 'scpres_assigned')
+assigned_scores_path = os.path.join(assigned_module_path, 'other_indicator_scores.xlsx')
+if not os.path.isfile(assigned_scores_path):
+    raise ValueError('Please provide scores for manually assigned indicators.')
+
 # Universal settings
 rng = np.random.default_rng(3221)  # set random number generator for reproducible results
 criterion_num = 5  # number of criteria
@@ -89,7 +94,6 @@ def get_baseline_indicator_scores():
     simulated_dct = split_df_by_country(simulated)
 
     # Assigned indicator scores
-    assigned_path = os.path.join(scores_path, 'other_indicator_scores.xlsx')
     assigned_file = pd.ExcelFile(assigned_path)
     read_baseline = lambda name: pd.read_excel(assigned_file, name).expected
 

@@ -15,9 +15,11 @@ from dmsan.bwaise import scores_path
 # Comment these out if want to see all warnings
 import warnings
 warnings.filterwarnings(action='ignore')
-
-indicator_scores_path = os.path.join(scores_path, 'other_indicator_scores.xlsx')
-alt_names = pd.read_excel(indicator_scores_path, sheet_name='user_interface').system
+assigned_module_path = os.path.join(scores_path.rstrip('scores'), 'scores_assigned')
+assigned_scores_path = os.path.join(assigned_module_path, 'other_indicator_scores.xlsx')
+if not os.path.isfile(assigned_scores_path):
+    raise ValueError('Please provide scores for manually assigned indicators.')
+alt_names = pd.read_excel(assigned_scores_path, sheet_name='user_interface').system
 
 # `lca_perspective` can be "I", "H", or "E" for
 # individualist, hierarchist, or egalitarian
@@ -33,6 +35,7 @@ excluded_pers = [i for i in ['I', 'H', 'E'] if i!=lca_perspective]
 
 def get_model(N, seed=None, rule='L', lca_perspective=lca_perspective):
     models = modelA, modelB, modelC = [bw.create_model(ID, lca_kind='new') for ID in ('A', 'B', 'C')]
+
     if seed: np.random.seed(seed)
 
     for model in models:
@@ -54,7 +57,7 @@ def get_model(N, seed=None, rule='L', lca_perspective=lca_perspective):
         # mRR = sum([get_metric(f'Total {i}') for i in ('N', 'P', 'K', 'COD')], [])
         mRR += get_metric('Gas COD') # energy, only gas
         mEnv = [i for i in model.metrics
-                if ('Net emission' in i.name and f'{lca_perspective}_' in i.name)]
+                if ('Net emission' in i.name and f'{lca_perspective}' in i.name)]
         mEnv.sort(key=lambda i: i.name_with_units)
         mEcon = get_metric('Annual net cost')
         model.metrics = mRR + mEnv + mEcon
