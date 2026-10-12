@@ -1,0 +1,61 @@
+cff-version: 1.2.0
+message: "If you use DMsan, please cite the paper below."
+title: "DMsan: Decision-making for sanitation and resource recovery systems"
+type: software
+authors:
+  - family-names: "Lohman"
+    given-names: "Hannah A. C."
+    orcid: "https://orcid.org/0000-0001-8600-7235"
+  - family-names: "Morgan"
+    given-names: "Victoria L."
+    orcid: "https://orcid.org/0000-0002-0350-0751"
+  - family-names: "Li"
+    given-names: "Yalin"
+    orcid: "https://orcid.org/0000-0002-8863-4758"
+  - family-names: "Zhang"
+    given-names: "Xinyi"
+    orcid: "https://orcid.org/0000-0002-5858-9511"
+  - family-names: "Rowles"
+    given-names: "Lewis S."
+    orcid: "https://orcid.org/0000-0002-3489-9179"
+  - family-names: "Cook"
+    given-names: "Sherri M."
+    orcid: "https://orcid.org/0000-0002-7648-4596"
+  - family-names: "Guest"
+    given-names: "Jeremy S."
+    orcid: "https://orcid.org/0000-0003-2489-2579"
+repository-code: "https://github.com/QSD-Group/DMsan"
+license: NCSA
+preferred-citation:
+  type: article
+  title: "DMsan: A Multi-Criteria Decision Analysis Framework and Package to Characterize Contextualized Sustainability of Sanitation and Resource Recovery Technologies"
+  authors:
+    - family-names: "Lohman"
+      given-names: "Hannah A. C."
+      orcid: "https://orcid.org/0000-0001-8600-7235"
+    - family-names: "Morgan"
+      given-names: "Victoria L."
+      orcid: "https://orcid.org/0000-0002-0350-0751"
+    - family-names: "Li"
+      given-names: "Yalin"
+      orcid: "https://orcid.org/0000-0002-8863-4758"
+    - family-names: "Zhang"
+      given-names: "Xinyi"
+      orcid: "https://orcid.org/0000-0002-5858-9511"
+    - family-names: "Rowles"
+      given-names: "Lewis S."
+      orcid: "https://orcid.org/0000-0002-3489-9179"
+    - family-names: "Cook"
+      given-names: "Sherri M."
+      orcid: "https://orcid.org/0000-0002-7648-4596"
+    - family-names: "Guest"
+      given-names: "Jeremy S."
+      orcid: "https://orcid.org/0000-0003-2489-2579"
+  journal: "ACS Environmental Au"
+  volume: 3
+  issue: 3
+  start: 179
+  end: 192
+  year: 2023
+  month: 3
+  doi: 10.1021/acsenvironau.2c00067
